@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
@@ -17,7 +18,7 @@ func NewApplication() *fiber.App {
 
 	// Database
 	database.SetupDatabase()
-	database.DB.AutoMigrate()
+	database.DB.AutoMigrate(&models.User{})
 
 	// Fiber
 	engine := html.New("./views", ".html")
