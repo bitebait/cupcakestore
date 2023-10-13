@@ -24,39 +24,41 @@
                         <h3 class="card-title">Visualizando
                             <strong>{{.User.Username}}</strong>
                         </h3>
+                        <div class="card-tools">
+                            <a href="/user/delete/{{.User.ID}}" class="btn btn-danger">
+                                <i class="fa fa-trash"></i>
+                                Deletar
+                            </a>
+                        </div>
                     </div>
                     <form method="Post" action="/user/update/{{.User.ID}}">
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="username">Nome de usuário</label>
-                                <input type="text" class="form-control" id="username" name="username" placeholder="Nome de usuário" minlength="4" value="{{.User.Username}}">
-                            </div>
-                            <div class="form-group">
-                                <label for="email">E-mail</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="E-mail do usuário" value="{{.User.Email}}">
-                            </div>
-                            <div class="form-group">
-                                <label for="oldPassword">Senha Antiga</label>
-                                <input type="password" class="form-control" id="oldPassword" name="oldPassword" placeholder="Senha Antiga" minlength="8">
-                            </div>
-                            <div class="form-group">
-                                <label for="newPassword">Nova Senha</label>
-                                <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Nova Senha" minlength="8">
-                            </div>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Nome de usuário" minlength="4" value="{{.User.Username}}"></div>
+                                <div class="form-group">
+                                    <label for="email">E-mail</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="E-mail do usuário" value="{{.User.Email}}"></div>
+                                    <div class="form-group">
+                                        <label for="oldPassword">Senha Antiga</label>
+                                        <input type="password" class="form-control" id="oldPassword" name="oldPassword" placeholder="Senha Antiga" minlength="8"></div>
+                                        <div class="form-group">
+                                            <label for="newPassword">Nova Senha</label>
+                                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Nova Senha" minlength="8"></div>
 
-                            {{ if .error }}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ .error }}
+                                            {{ if .error }}
+                                                <div class="alert alert-danger" role="alert">
+                                                    {{ .error }}
+                                                </div>
+                                            {{ end }}
+                                        </div>
+
+                                        <div class="card-footer">
+                                            <button type="submit" class="btn btn-primary float-right">Atualizar usuário</button>
+                                        </div>
+                                    </form>
                                 </div>
-                            {{ end }}
+                            </div>
                         </div>
-
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-warning float-right">Atualizar usuário</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                    </div>
+                </section>

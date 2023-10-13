@@ -9,13 +9,11 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-type UserRouter struct{}
-
-func NewUserRouter() *UserRouter {
-	return &UserRouter{}
+type UserRouter struct {
+	userController controllers.UserController
 }
 
-func (ur *UserRouter) InstallRouters(app *fiber.App) {
+func NewUserRouter() *UserRouter {
 	// Initialize repositories
 	userRepository := repositories.NewUserRepository(database.DB)
 
@@ -25,10 +23,19 @@ func (ur *UserRouter) InstallRouters(app *fiber.App) {
 	// Initialize controllers with services
 	userController := controllers.NewUserController(userService)
 
+	return &UserRouter{
+		userController: userController,
+	}
+}
+
+func (ur *UserRouter) InstallRouters(app *fiber.App) {
 	user := app.Group("/user", cors.New())
-	user.Get("/create", userController.RenderCreate)
-	user.Post("/create", userController.HandleCreate)
-	user.Get("/list", userController.RenderList)
-	user.Get("/detail/:id", userController.RenderDetail).Name("userDetail")
-	user.Post("/update/:id", userController.HandleUpdate)
+
+	user.Get("/create", ur.userController.RenderCreate)
+	user.Post("/create", ur.userController.HandleCreate)
+	user.Get("/list", ur.userController.RenderList)
+	user.Get("/detail/:id", ur.userController.RenderDetail).Name("userDetail")
+	user.Post("/update/:id", ur.userController.HandleUpdate)
+	user.Get("/delete/:id", ur.userController.RenderDelete)
+	user.Post("/delete/:id", ur.userController.HandleDelete)
 }

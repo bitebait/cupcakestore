@@ -14,6 +14,8 @@ type UserController interface {
 	RenderList(ctx *fiber.Ctx) error
 	RenderDetail(ctx *fiber.Ctx) error
 	HandleUpdate(ctx *fiber.Ctx) error
+	RenderDelete(ctx *fiber.Ctx) error
+	HandleDelete(ctx *fiber.Ctx) error
 }
 
 type userController struct {
@@ -29,7 +31,7 @@ func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
-	user := new(models.User)
+	user := &models.User{}
 
 	if err := ctx.BodyParser(user); err != nil {
 		return ctx.Render("user/create", fiber.Map{"error": "Dados do usuário inválidos: " + err.Error()}, "layouts/base")
@@ -47,7 +49,8 @@ func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) RenderList(ctx *fiber.Ctx) error {
-	return ctx.Render("user/list", fiber.Map{"Users": c.userService.List()}, "layouts/base")
+	users := c.userService.List()
+	return ctx.Render("user/list", fiber.Map{"Users": users}, "layouts/base")
 }
 
 func (c *userController) RenderDetail(ctx *fiber.Ctx) error {
@@ -94,4 +97,31 @@ func (c *userController) HandleUpdate(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.RedirectToRoute("userDetail", fiber.Map{"id": id})
+}
+
+func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
+	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return ctx.Redirect("/user/list")
+	}
+
+	user, err := c.userService.FindById(uint(id))
+	if err != nil {
+		return ctx.Redirect("/user/list")
+	}
+	return ctx.Render("user/delete", fiber.Map{"User": user}, "layouts/base")
+}
+
+func (c *userController) HandleDelete(ctx *fiber.Ctx) error {
+	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return ctx.Redirect("/user/list")
+	}
+
+	err = c.userService.Delete(uint(id))
+	if err != nil {
+		return ctx.Redirect("/user/list")
+	}
+
+	return ctx.Redirect("/user/list")
 }

@@ -12,6 +12,7 @@ type UserService interface {
 	List() []*models.User
 	FindById(id uint) (*models.User, error)
 	Update(user *models.User) error
+	Delete(id uint) error
 }
 
 type userService struct {
@@ -42,4 +43,12 @@ func (s *userService) FindById(id uint) (*models.User, error) {
 
 func (s *userService) Update(user *models.User) error {
 	return s.userRepository.Update(user)
+}
+
+func (s *userService) Delete(id uint) error {
+	user, err := s.FindById(id)
+	if err != nil {
+		return err
+	}
+	return s.userRepository.Delete(user)
 }
