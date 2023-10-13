@@ -6,9 +6,10 @@ import (
 )
 
 type UserRepository interface {
-	Create(u *models.User) error
+	Create(user *models.User) error
 	List() ([]*models.User, error)
 	FindById(id uint) (*models.User, error)
+	Update(user *models.User) error
 }
 
 type userRepository struct {
@@ -21,15 +22,15 @@ func NewUserRepository(database *gorm.DB) UserRepository {
 	}
 }
 
-func (r *userRepository) Create(u *models.User) error {
-	err := r.db.Create(u).Error
+func (r *userRepository) Create(user *models.User) error {
+	err := r.db.Create(user).Error
 	return err
 }
 
 func (r *userRepository) List() ([]*models.User, error) {
 	var users []*models.User
 
-	err := r.db.Find(&users).Error
+	err := r.db.Omit("Password").Find(&users).Error
 	return users, err
 }
 
@@ -42,4 +43,16 @@ func (r *userRepository) FindById(id uint) (*models.User, error) {
 	}
 
 	return &user, err
+}
+
+func (r *userRepository) Update(user *models.User) error {
+	var err error
+
+	if user.Password == "" {
+		err = r.db.Omit("Password").Save(user).Error
+	} else {
+		err = r.db.Save(user).Error
+	}
+
+	return err
 }
