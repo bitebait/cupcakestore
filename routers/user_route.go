@@ -34,7 +34,7 @@ func (ur *UserRouter) InstallRouters(app *fiber.App) {
 	user.Get("/create", ur.userController.RenderCreate)
 	user.Post("/create", ur.userController.HandleCreate)
 	user.Get("/list", ur.userController.RenderList)
-	user.Get("/detail/:id", ur.userController.RenderDetail).Name("userDetail")
+	user.Get("/detail/:id", ur.userController.RenderDetail)
 	user.Post("/update/:id", ur.userController.HandleUpdate)
 	user.Get("/delete/:id", ur.userController.RenderDelete)
 	user.Post("/delete/:id", ur.userController.HandleDelete)
