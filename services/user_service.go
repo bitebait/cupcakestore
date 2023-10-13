@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"log"
 
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
@@ -10,6 +11,7 @@ import (
 
 type UserService interface {
 	Create(u *models.User) error
+	List() []*models.User
 }
 
 type userService struct {
@@ -35,4 +37,12 @@ func (s *userService) Create(u *models.User) error {
 	u.Password = hashedPassword
 
 	return s.userRepository.Create(u)
+}
+
+func (s *userService) List() []*models.User {
+	users, err := s.userRepository.List()
+	if err != nil {
+		log.Println(err)
+	}
+	return users
 }

@@ -7,6 +7,7 @@ import (
 
 type UserRepository interface {
 	Create(u *models.User) error
+	List() ([]*models.User, error)
 }
 
 type userRepository struct {
@@ -26,4 +27,15 @@ func (r *userRepository) Create(u *models.User) error {
 	}
 
 	return nil
+}
+
+func (r *userRepository) List() ([]*models.User, error) {
+	var users []*models.User
+
+	err := r.db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

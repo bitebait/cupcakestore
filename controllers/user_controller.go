@@ -9,6 +9,7 @@ import (
 type UserController interface {
 	RenderCreate(c *fiber.Ctx) error
 	HandleCreate(c *fiber.Ctx) error
+	RenderList(c *fiber.Ctx) error
 }
 
 type userController struct {
@@ -38,5 +39,9 @@ func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
 		return ctx.Render("user/create", fiber.Map{"error": "Erro ao criar usuário: " + err.Error()}, "layouts/base")
 	}
 
-	return ctx.Redirect("/user/create")
+	return ctx.Redirect("/user/list")
+}
+
+func (c *userController) RenderList(ctx *fiber.Ctx) error {
+	return ctx.Render("user/list", fiber.Map{"Users": c.userService.List()}, "layouts/base")
 }

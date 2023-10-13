@@ -1,0 +1,96 @@
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Lista de Usuários</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">
+                        <a href="#">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">Lista de Usuários</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section
+    class="content">
+
+    <!-- Default box -->
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Usuários Registrados</h3>
+
+            <div class="card-tools">
+                <a href="/user/create" class="btn btn-success">
+                    <i class="fa fa-plus"></i>
+                    Novo
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped projects">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            Nome de Usuário
+                        </th>
+                        <th>
+                            E-mail
+                        </th>
+                        <th>
+                            Tipo
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Users}}
+                        <tr>
+                            <td>
+                                {{.ID}}
+                            </td>
+                            <td>
+                                <strong>
+                                    {{.Username}}
+                                </strong>
+                                <br/>
+                                <small>
+                                    {{.CreatedAt|formatDate}}
+                                </small>
+                            </td>
+                            <td>
+                                {{.Email}}
+                            </td>
+                            <td>
+                                {{if .IsActive}}
+                                    <span class="badge badge-success">Ativo</span>
+                                {{else}}
+                                    <span class="badge badge-dark">Inativo</span>
+                                {{end}}
+                            </td>
+                            <td>
+                                {{if .IsStaff}}
+                                    <span class="badge badge-primary">Administrador</span>
+                                {{else}}
+                                    <span class="badge badge-secondary">Membro</span>
+                                {{end}}
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+
+</section>
