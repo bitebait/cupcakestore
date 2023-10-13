@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -21,4 +22,8 @@ type User struct {
 func (u *User) Validate() error {
 	v := validator.New()
 	return v.Struct(u)
+}
+
+func (u *User) CheckPassword(inputPassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(inputPassword))
 }
