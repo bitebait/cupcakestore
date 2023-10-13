@@ -31,10 +31,10 @@
                     para retornar à lista de usuários.
                 </p>
                 <form method="POST" action="/user/delete/{{.User.ID}}">
+                    <button onclick="history.back()" type="button" class="btn btn-default">
+                        <i class="fas fa-undo-alt"></i>
+                        Cancelar</button>
                     <div class="float-right">
-                        <button onclick="history.back()" type="button" class="btn btn-default">
-                            <i class="fas fa-undo-alt"></i>
-                            Cancelar</button>
                         <button type="submit" class="btn btn-outline-danger">
                             <i class="fa fa-trash"></i>
                             Confirmar e Deletar</button>

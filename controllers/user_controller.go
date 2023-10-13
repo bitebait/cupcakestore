@@ -96,7 +96,7 @@ func (c *userController) HandleUpdate(ctx *fiber.Ctx) error {
 		return ctx.Render("user/detail", fiber.Map{"User": user, "error": "Falha ao atualizar usuário."}, "layouts/base")
 	}
 
-	return ctx.RedirectToRoute("userDetail", fiber.Map{"id": id})
+	return ctx.Redirect("/user/list")
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {

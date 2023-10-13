@@ -50,6 +50,9 @@
                         <th>
                             Status
                         </th>
+                        <th>
+                            Opções
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,19 +77,27 @@
                                 {{.Email}}
                             </td>
                             <td>
-                                {{if .IsActive}}
-                                    <span class="badge badge-success">Ativo</span>
-                                {{else}}
-                                    <span class="badge badge-dark">Inativo</span>
-                                {{end}}
-                            </td>
-                            <td>
                                 {{if .IsStaff}}
                                     <span class="badge badge-primary">Administrador</span>
                                 {{else}}
                                     <span class="badge badge-secondary">Membro</span>
                                 {{end}}
                             </td>
+                            <td>
+                                {{if .IsActive}}
+                                    <span class="badge badge-success">Ativo</span>
+                                {{else}}
+                                    <span class="badge badge-dark">Inativo</span>
+                                {{end}}
+                            </td>
+                           <td>
+                                <a href="/user/detail/{{.ID}}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="/user/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                           </td>
                         </tr>
                     {{end}}
                 </tbody>
