@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/bitebait/cupcakestore/models"
@@ -70,28 +69,28 @@ func (c *userController) RenderDetail(ctx *fiber.Ctx) error {
 func (c *userController) HandleUpdate(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+		return ctx.Redirect("/user/list")
 	}
 
 	user, err := c.userService.FindById(uint(id))
 	if err != nil {
-		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+		return ctx.Redirect("/user/list")
 	}
 
 	if err := ctx.BodyParser(user); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		return ctx.Render("user/detail", fiber.Map{"User": user, "error": err.Error()}, "layouts/base")
 	}
 
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 	if oldPassword != "" && newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update user"})
+			return ctx.Render("user/detail", fiber.Map{"User": user, "error": "Não foi possível atualizar a senha do usuário. Por favor, verifique os dados."}, "layouts/base")
 		}
 	}
 
 	if err := c.userService.Update(user); err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update user"})
+		return ctx.Render("user/detail", fiber.Map{"User": user, "error": "Falha ao atualizar usuário."}, "layouts/base")
 	}
 
 	return ctx.RedirectToRoute("userDetail", fiber.Map{"id": id})
