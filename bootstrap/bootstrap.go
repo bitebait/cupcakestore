@@ -4,6 +4,7 @@ import (
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
+	"github.com/bitebait/cupcakestore/routers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
@@ -26,10 +27,11 @@ func NewApplication() *fiber.App {
 	app.Use(recover.New())
 	app.Use(logger.New())
 	app.Use(helmet.New())
-	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestSpeed,
-	}))
-	app.Static("/assets", "./web/static")
+	app.Use(compress.New())
+	app.Static("/", "./web")
+
+	// Routes
+	routers.InstallRouters(app)
 
 	return app
 }

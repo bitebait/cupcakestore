@@ -1,0 +1,57 @@
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Adicionar novo usuário</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">
+                        <a href="#">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">Adicionar Usuário</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Formulário de Cadastro</h3>
+                    </div>
+                    <form method="POST" action="/user/create">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="username">Nome de usuário</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Nome de usuário" minlength="4" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="E-mail do usuário" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Senha</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Senha do usuário" minlength="8" required>
+                            </div>
+
+                            {{ if .error }}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ .error }}
+                                </div>
+                            {{ end }}
+                        </div>
+
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-success float-right">Adicionar usuário</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
