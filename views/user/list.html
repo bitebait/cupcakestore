@@ -16,95 +16,97 @@
     </div>
 </div>
 
-<section
-    class="content">
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Usuários Registrados</h3>
 
-    <!-- Default box -->
-    <div class="card card-primary">
-        <div class="card-header">
-            <h3 class="card-title">Usuários Registrados</h3>
-
-            <div class="card-tools">
-                <a href="/user/create" class="btn btn-success">
-                    <i class="fa fa-plus"></i>
-                    Novo
-                </a>
+                        <div class="card-tools">
+                            <a href="/user/create" class="btn btn-success">
+                                <i class="fa fa-plus"></i>
+                                Novo
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped projects">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        #
+                                    </th>
+                                    <th>
+                                        Nome de Usuário
+                                    </th>
+                                    <th>
+                                        E-mail
+                                    </th>
+                                    <th>
+                                        Tipo
+                                    </th>
+                                    <th>
+                                        Status
+                                    </th>
+                                    <th>
+                                        Opções
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{range .Users}}
+                                    <tr>
+                                        <td>
+                                            {{.ID}}
+                                            {{.Password}}
+                                        </td>
+                                        <td>
+                                            <a href="/user/detail/{{.ID}}">
+                                                <strong>
+                                                    {{.Username}}
+                                                </strong>
+                                                <br/>
+                                            </a>
+                                            <small>
+                                                {{.CreatedAt|formatDate}}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {{.Email}}
+                                        </td>
+                                        <td>
+                                            {{if .IsStaff}}
+                                                <span class="badge badge-primary">Administrador</span>
+                                            {{else}}
+                                                <span class="badge badge-secondary">Membro</span>
+                                            {{end}}
+                                        </td>
+                                        <td>
+                                            {{if .IsActive}}
+                                                <span class="badge badge-success">Ativo</span>
+                                            {{else}}
+                                                <span class="badge badge-dark">Inativo</span>
+                                            {{end}}
+                                        </td>
+                                        <td>
+                                            <a href="/user/detail/{{.ID}}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a href="/user/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
             </div>
         </div>
-        <div class="card-body p-0">
-            <table class="table table-striped projects">
-                <thead>
-                    <tr>
-                        <th>
-                            #
-                        </th>
-                        <th>
-                            Nome de Usuário
-                        </th>
-                        <th>
-                            E-mail
-                        </th>
-                        <th>
-                            Tipo
-                        </th>
-                        <th>
-                            Status
-                        </th>
-                        <th>
-                            Opções
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{range .Users}}
-                        <tr>
-                            <td>
-                                {{.ID}}
-                                {{.Password}}
-                            </td>
-                            <td>
-                                <a href="/user/detail/{{.ID}}">
-                                    <strong>
-                                        {{.Username}}
-                                    </strong>
-                                    <br/>
-                                </a>
-                                <small>
-                                    {{.CreatedAt|formatDate}}
-                                </small>
-                            </td>
-                            <td>
-                                {{.Email}}
-                            </td>
-                            <td>
-                                {{if .IsStaff}}
-                                    <span class="badge badge-primary">Administrador</span>
-                                {{else}}
-                                    <span class="badge badge-secondary">Membro</span>
-                                {{end}}
-                            </td>
-                            <td>
-                                {{if .IsActive}}
-                                    <span class="badge badge-success">Ativo</span>
-                                {{else}}
-                                    <span class="badge badge-dark">Inativo</span>
-                                {{end}}
-                            </td>
-                           <td>
-                                <a href="/user/detail/{{.ID}}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                                <a href="/user/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
-                                    <i class="fa fa-trash"></i>
-                                </a>
-                           </td>
-                        </tr>
-                    {{end}}
-                </tbody>
-            </table>
-        </div>
-        <!-- /.card-body -->
     </div>
-    <!-- /.card -->
-
 </section>
