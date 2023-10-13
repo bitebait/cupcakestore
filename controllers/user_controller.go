@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
@@ -10,6 +12,7 @@ type UserController interface {
 	RenderCreate(c *fiber.Ctx) error
 	HandleCreate(c *fiber.Ctx) error
 	RenderList(c *fiber.Ctx) error
+	RenderDetail(c *fiber.Ctx) error
 }
 
 type userController struct {
@@ -44,4 +47,20 @@ func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
 
 func (c *userController) RenderList(ctx *fiber.Ctx) error {
 	return ctx.Render("user/list", fiber.Map{"Users": c.userService.List()}, "layouts/base")
+}
+
+func (c *userController) RenderDetail(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+
+	userID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return ctx.Redirect("/user/list")
+	}
+
+	user, err := c.userService.FindById(uint(userID))
+	if err != nil {
+		return ctx.Redirect("/user/list")
+	}
+
+	return ctx.Render("user/detail", fiber.Map{"User": user}, "layouts/base")
 }

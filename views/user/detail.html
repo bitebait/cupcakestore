@@ -1,0 +1,58 @@
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Detalhes do usuário</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">
+                        <a href="/user/list">Lista de Usuários</a>
+                    </li>
+                    <li class="breadcrumb-item active">Detalhes do  Usuário</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Visualizando
+                            <strong>{{.User.Username}}</strong>
+                        </h3>
+                    </div>
+                    <form method="PUT" action="/user/update">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="username">Nome de usuário</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Nome de usuário" minlength="4" value="{{.User.Username}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="E-mail do usuário" value="{{.User.Email}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Senha</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Senha do usuário" minlength="8" value="">
+                            </div>
+
+                            {{ if .error }}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ .error }}
+                                </div>
+                            {{ end }}
+                        </div>
+
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-warning float-right">Atualizar usuário</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

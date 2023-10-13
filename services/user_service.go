@@ -12,6 +12,7 @@ import (
 type UserService interface {
 	Create(u *models.User) error
 	List() []*models.User
+	FindById(id uint) (*models.User, error)
 }
 
 type userService struct {
@@ -29,12 +30,12 @@ func (s *userService) Create(u *models.User) error {
 		return errors.New("invalid user or empty password")
 	}
 
-	hashedPassword, err := utils.HashPassword(u.Password)
+	hash, err := utils.PasswordHasher(u.Password)
 	if err != nil {
 		return err
 	}
 
-	u.Password = hashedPassword
+	u.Password = hash
 
 	return s.userRepository.Create(u)
 }
@@ -45,4 +46,8 @@ func (s *userService) List() []*models.User {
 		log.Println(err)
 	}
 	return users
+}
+
+func (s *userService) FindById(id uint) (*models.User, error) {
+	return s.userRepository.FindById(id)
 }

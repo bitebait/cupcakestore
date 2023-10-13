@@ -59,10 +59,12 @@
                                 {{.ID}}
                             </td>
                             <td>
-                                <strong>
+                                <a href="/user/detail/{{.ID}}">
+                                    <strong>
                                     {{.Username}}
-                                </strong>
-                                <br/>
+                                    </strong>
+                                    <br/>
+                                </a>
                                 <small>
                                     {{.CreatedAt|formatDate}}
                                 </small>
