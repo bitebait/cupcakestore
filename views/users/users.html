@@ -2,14 +2,14 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Lista de Usuários</h1>
+                <h1 class="m-0">Usuários Registrados</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item">
                         <a href="#">Home</a>
                     </li>
-                    <li class="breadcrumb-item active">Lista de Usuários</li>
+                    <li class="breadcrumb-item active">Usuários Registrados</li>
                 </ol>
             </div>
         </div>
@@ -22,12 +22,12 @@
             <div class="col-12 mx-auto">
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h3 class="card-title">Usuários Registrados</h3>
+                        <h3 class="card-title">Lista de Usuários</h3>
 
                         <div class="card-tools">
                             <a href="/users/create" class="btn btn-sm btn-success">
                                 <i class="fa fa-plus"></i>
-                                Novo Usuário
+                                Adicionar Usuário
                             </a>
                         </div>
                     </div>
@@ -60,13 +60,10 @@
                                     <tr>
                                         <td>
                                             {{.ID}}
-                                            {{.Password}}
                                         </td>
                                         <td>
                                             <a href="/users/{{.ID}}">
-                                                <strong>
                                                     {{.Username}}
-                                                </strong>
                                                 <br/>
                                             </a>
                                             <small>
