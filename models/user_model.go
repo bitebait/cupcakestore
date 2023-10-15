@@ -21,13 +21,23 @@ type User struct {
 	LastLogin  time.Time `gorm:"type:timestamp"`
 }
 
-func (u *User) Validate() error {
-	v := validator.New()
-	return v.Struct(u)
-}
+func (u *User) BeforeCreate(tx *gorm.DB) error {
+	err := u.Validate()
+	if err != nil {
+		return err
+	}
 
-func (u *User) CheckPassword(inputPassword string) error {
-	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(inputPassword))
+	if u == nil || u.Password == "" {
+		return errors.New("invalid user or empty password")
+	}
+
+	hash, err := utils.PasswordHasher(u.Password)
+	if err != nil {
+		return err
+	}
+
+	u.Password = hash
+	return nil
 }
 
 func (u *User) UpdatePassword(oldPassword, newPassword string) error {
@@ -49,16 +59,11 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 	return nil
 }
 
-func (u *User) BeforeCreate(tx *gorm.DB) error {
-	if u == nil || u.Password == "" {
-		return errors.New("invalid user or empty password")
-	}
+func (u *User) Validate() error {
+	v := validator.New()
+	return v.Struct(u)
+}
 
-	hash, err := utils.PasswordHasher(u.Password)
-	if err != nil {
-		return err
-	}
-
-	u.Password = hash
-	return nil
+func (u *User) CheckPassword(inputPassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(inputPassword))
 }
