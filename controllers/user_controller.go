@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/bitebait/cupcakestore/models"
@@ -49,7 +48,6 @@ func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 	p := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
-	log.Println(p)
 	users := c.userService.FindAll(p)
 
 	return ctx.Render("users/users", fiber.Map{"Users": users, "Pagination": p}, baseLayout)
@@ -92,6 +90,13 @@ func (c *userController) HandleUpdate(ctx *fiber.Ctx) error {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
 			return ctx.Render("users/user", fiber.Map{"User": user, "error": "Não foi possível atualizar a senha do usuário. Por favor, verifique os dados."}, baseLayout)
 		}
+	}
+
+	if ctx.FormValue("isStaff") != "on" {
+		user.IsStaff = false
+	}
+	if ctx.FormValue("isActive") != "on" {
+		user.IsActive = false
 	}
 
 	if err := c.userService.Update(user); err != nil {

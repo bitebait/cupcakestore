@@ -9,7 +9,7 @@
                     <li class="breadcrumb-item">
                         <a href="/users">Usuários Registrados</a>
                     </li>
-                    <li class="breadcrumb-item active">Detalhes do  Usuário</li>
+                    <li class="breadcrumb-item active">Detalhes do Usuário</li>
                 </ol>
             </div>
         </div>
@@ -35,33 +35,57 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="username">Nome de usuário</label>
-                                <input type="text" class="form-control" id="username" name="username" placeholder="Nome de usuário" minlength="4" value="{{.User.Username}}"></div>
-                                <div class="form-group">
-                                    <label for="email">E-mail</label>
-                                    <input type="email" class="form-control" id="email" name="email" placeholder="E-mail do usuário" value="{{.User.Email}}"></div>
-                                    <div class="form-group">
-                                        <label for="oldPassword">Senha Antiga</label>
-                                        <input type="password" class="form-control" id="oldPassword" name="oldPassword" placeholder="Senha Antiga" minlength="8"></div>
-                                        <div class="form-group">
-                                            <label for="newPassword">Nova Senha</label>
-                                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Nova Senha" minlength="8"></div>
+                                <input type="text" class="form-control" id="username" name="username"
+                                    placeholder="Nome de usuário" minlength="4" value="{{.User.Username}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    placeholder="E-mail do usuário" value="{{.User.Email}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="oldPassword">Senha Antiga</label>
+                                <input type="password" class="form-control" id="oldPassword" name="oldPassword"
+                                    placeholder="Senha Antiga" minlength="8">
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">Nova Senha</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword"
+                                    placeholder="Nova Senha" minlength="8">
+                            </div>
 
-                                            {{ if .error }}
-                                                <div class="alert alert-danger" role="alert">
-                                                    {{ .error }}
-                                                </div>
-                                            {{ end }}
-                                        </div>
-
-                                        <div class="card-footer">
-                                            <button onclick="history.back()" type="button" class="btn btn-default">
-                                                <i class="fas fa-undo-alt"></i>
-                                                Cancelar</button>
-                                            <button type="submit" class="btn btn-primary float-right">Atualizar usuário</button>
-                                        </div>
-                                    </form>
+                            <div class="form-group">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="isStaff" name="isStaff" {{if
+                                        .User.IsStaff}}checked{{end}} />
+                                    <label class="custom-control-label" for="isStaff">Tornar Administrador</label>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <div
+                                    class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                    <input type="checkbox" class="custom-control-input" id="isActive" name="isActive"
+                                        {{if .User.IsActive}}checked{{end}} />
+                                    <label class="custom-control-label" for="isActive">Ativar/Desativar Conta</label>
+                                </div>
+                            </div>
+
+                            {{ if .error }}
+                            <div class="alert alert-danger" role="alert">
+                                {{ .error }}
+                            </div>
+                            {{ end }}
                         </div>
-                    </div>
-                </section>
+
+                        <div class="card-footer">
+                            <button onclick="history.back()" type="button" class="btn btn-default">
+                                <i class="fas fa-undo-alt"></i>
+                                Cancelar</button>
+                            <button type="submit" class="btn btn-primary float-right">Atualizar usuário</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
