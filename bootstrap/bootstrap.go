@@ -1,8 +1,7 @@
 package bootstrap
 
 import (
-	"time"
-
+	"github.com/Masterminds/sprig"
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
@@ -25,9 +24,7 @@ func NewApplication() *fiber.App {
 
 	// Fiber
 	engine := html.New("./views", ".html")
-	engine.AddFunc("formatDate", func(t time.Time) string {
-		return t.Format("02/01/2006 15:04h") // dd-mm-yyyy
-	})
+	engine.AddFuncMap(sprig.FuncMap())
 	app := fiber.New(fiber.Config{Views: engine})
 	app.Use(recover.New())
 	app.Use(logger.New())
