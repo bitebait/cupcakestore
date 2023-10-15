@@ -7,7 +7,7 @@ import (
 
 type UserRepository interface {
 	Create(user *models.User) error
-	List() ([]*models.User, error)
+	FindAll(p *models.Pagination) []*models.User
 	FindById(id uint) (*models.User, error)
 	Update(user *models.User) error
 	Delete(user *models.User) error
@@ -27,11 +27,16 @@ func (r *userRepository) Create(user *models.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepository) List() ([]*models.User, error) {
-	var users []*models.User
+func (r *userRepository) FindAll(p *models.Pagination) []*models.User {
+	offset := (p.Page - 1) * p.Limit
 
-	err := r.db.Omit("Password").Find(&users).Error
-	return users, err
+	query := r.db.Model(&models.User{}).Omit("Password")
+	query.Count(&p.Total)
+
+	var users []*models.User
+	query.Offset(offset).Limit(p.Limit).Find(&users)
+
+	return users
 }
 
 func (r *userRepository) FindById(id uint) (*models.User, error) {
@@ -47,7 +52,8 @@ func (r *userRepository) FindById(id uint) (*models.User, error) {
 
 func (r *userRepository) Update(user *models.User) error {
 	if user.Password == "" {
-		return r.db.Omit("Password").Save(user).Error
+		query := r.db.Omit("Password")
+		return query.Save(user).Error
 	}
 
 	return r.db.Save(user).Error

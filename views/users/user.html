@@ -7,7 +7,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item">
-                        <a href="/user/list">Lista de Usuários</a>
+                        <a href="/users">Lista de Usuários</a>
                     </li>
                     <li class="breadcrumb-item active">Detalhes do  Usuário</li>
                 </ol>
@@ -25,13 +25,13 @@
                             <strong>{{.User.Username}}</strong>
                         </h3>
                         <div class="card-tools">
-                            <a href="/user/delete/{{.User.ID}}" class="btn btn-danger">
+                            <a href="/users/delete/{{.User.ID}}" class="btn btn-sm btn-danger">
                                 <i class="fa fa-trash"></i>
                                 Deletar
                             </a>
                         </div>
                     </div>
-                    <form method="Post" action="/user/update/{{.User.ID}}">
+                    <form method="Post" action="/users/update/{{.User.ID}}">
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="username">Nome de usuário</label>

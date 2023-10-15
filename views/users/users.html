@@ -25,9 +25,9 @@
                         <h3 class="card-title">Usuários Registrados</h3>
 
                         <div class="card-tools">
-                            <a href="/user/create" class="btn btn-success">
+                            <a href="/users/create" class="btn btn-sm btn-success">
                                 <i class="fa fa-plus"></i>
-                                Novo
+                                Novo Usuário
                             </a>
                         </div>
                     </div>
@@ -63,14 +63,14 @@
                                             {{.Password}}
                                         </td>
                                         <td>
-                                            <a href="/user/detail/{{.ID}}">
+                                            <a href="/users/{{.ID}}">
                                                 <strong>
                                                     {{.Username}}
                                                 </strong>
                                                 <br/>
                                             </a>
                                             <small>
-                                                {{.CreatedAt|formatDate}}
+                                                {{.CreatedAt|date "02/01/2006 15:04h"}}
                                             </small>
                                         </td>
                                         <td>
@@ -91,10 +91,10 @@
                                             {{end}}
                                         </td>
                                         <td>
-                                            <a href="/user/detail/{{.ID}}" class="btn btn-sm btn-outline-primary">
+                                            <a href="/users/{{.ID}}" class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-pen"></i>
                                             </a>
-                                            <a href="/user/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
+                                            <a href="/users/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </td>
@@ -103,6 +103,7 @@
                             </tbody>
                         </table>
                     </div>
+                    {{template "snippets/pagination" .Pagination}}
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
