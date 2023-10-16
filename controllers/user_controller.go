@@ -47,10 +47,18 @@ func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
-	p := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
-	users := c.userService.FindAll(p)
+	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
+	query := ctx.Query("q", "")
+	sort := ctx.Query("sort", "ID asc")
 
-	return ctx.Render("users/users", fiber.Map{"Users": users, "Pagination": p}, baseLayout)
+	users := c.userService.FindAll(pagination, query, sort)
+
+	data := fiber.Map{
+		"Users":      users,
+		"Pagination": pagination,
+	}
+
+	return ctx.Render("users/users", data, baseLayout)
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
