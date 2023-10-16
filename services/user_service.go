@@ -7,7 +7,7 @@ import (
 
 type UserService interface {
 	Create(user *models.User) error
-	FindAll(p *models.Pagination, filter string, sort string) []*models.User
+	FindAll(p *models.Pagination, filter string) []*models.User
 	FindById(id uint) (*models.User, error)
 	Update(user *models.User) error
 	Delete(id uint) error
@@ -27,8 +27,8 @@ func (s *userService) Create(user *models.User) error {
 	return s.userRepository.Create(user)
 }
 
-func (s *userService) FindAll(p *models.Pagination, filter string, sort string) []*models.User {
-	return s.userRepository.FindAll(p, filter, sort)
+func (s *userService) FindAll(p *models.Pagination, filter string) []*models.User {
+	return s.userRepository.FindAll(p, filter)
 }
 
 func (s *userService) FindById(id uint) (*models.User, error) {
