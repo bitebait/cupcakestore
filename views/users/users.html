@@ -30,7 +30,7 @@
                                     </div>
                                     <div class="col-10 mb-2">
                                         <div class="input-group m-0">
-                                            <input type="text" id="limit" name="limit" value="{{.Pagination.Limit}}"
+                                            <input type="text" id="limit" name="limit" value="{{.Data.Pagination.Limit}}"
                                                 hidden="hidden">
                                             <input type="text" class="form-control" id="q" name="q"
                                                 onclick="this.value = '';" placeholder="Pesquisar Usuário">
@@ -64,7 +64,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{range .Users}}
+                                {{range .Data.Users}}
                                 <tr>
                                     <td>{{.ID}}</td>
                                     <td><a href="/users/{{.ID}}">{{.Username}}<br /></a><small>{{.CreatedAt|date
@@ -83,7 +83,7 @@
                             </tbody>
                         </table>
                     </div>
-                    {{template "snippets/pagination" .Pagination}}
+                    {{template "snippets/pagination" .Data.Pagination}}
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->

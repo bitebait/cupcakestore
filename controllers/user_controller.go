@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/bitebait/cupcakestore/models"
@@ -36,14 +37,14 @@ func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
 	user := &models.User{}
 
 	if err := ctx.BodyParser(user); err != nil {
-		return ctx.Render("users/create", fiber.Map{"error": "Dados do usuário inválidos: " + err.Error()}, baseLayout)
+		return ctx.Render("users/create", models.NewResponse(true, nil, "Dados do usuário inválidos: "+err.Error()), baseLayout)
 	}
 
 	if err := c.userService.Create(user); err != nil {
-		return ctx.Render("users/create", fiber.Map{"error": "Erro ao criar usuário: " + err.Error()}, baseLayout)
+		return ctx.Render("users/create", models.NewResponse(true, nil, "Erro ao criar usuário: "+err.Error()), baseLayout)
 	}
 
-	return ctx.Redirect("/users")
+	return ctx.Render("users/create", models.NewResponse(false, nil, fmt.Sprintf("Usuário %s criado com sucesso!", user.Username)), baseLayout)
 }
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
@@ -57,8 +58,7 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 		"Users":      users,
 		"Pagination": pagination,
 	}
-
-	return ctx.Render("users/users", data, baseLayout)
+	return ctx.Render("users/users", models.NewResponse(false, data, ""), baseLayout)
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
@@ -74,7 +74,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	return ctx.Render("users/user", fiber.Map{"User": user}, baseLayout)
+	return ctx.Render("users/user", models.NewResponse(false, user, ""), baseLayout)
 }
 
 func (c *userController) HandleUpdate(ctx *fiber.Ctx) error {
@@ -89,29 +89,29 @@ func (c *userController) HandleUpdate(ctx *fiber.Ctx) error {
 	}
 
 	if err := ctx.BodyParser(user); err != nil {
-		return ctx.Render("users/user", fiber.Map{"User": user, "error": err.Error()}, baseLayout)
+		return ctx.Render("users/user", models.NewResponse(true, user, err.Error()), baseLayout)
 	}
 
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 	if oldPassword != "" && newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return ctx.Render("users/user", fiber.Map{"User": user, "error": "Não foi possível atualizar a senha do usuário. Por favor, verifique os dados."}, baseLayout)
+			return ctx.Render("users/user",
+				models.NewResponse(true, user,
+					"Não foi possível atualizar a senha do usuário. Por favor, verifique os dados."),
+				baseLayout)
 		}
 	}
 
-	if ctx.FormValue("isStaff") != "on" {
-		user.IsStaff = false
-	}
-	if ctx.FormValue("isActive") != "on" {
-		user.IsActive = false
-	}
+	user.IsStaff = ctx.FormValue("isStaff") == "on"
+	user.IsActive = ctx.FormValue("isActive") == "on"
 
 	if err := c.userService.Update(user); err != nil {
-		return ctx.Render("users/user", fiber.Map{"User": user, "error": "Falha ao atualizar usuário."}, baseLayout)
+		return ctx.Render("users/user", models.NewResponse(true, user, "Falha ao atualizar usuário."), baseLayout)
 	}
 
-	return ctx.Redirect("/users")
+	return ctx.Render("users/user", models.NewResponse(false, user, fmt.Sprintf("Usuário %s atualizado com sucesso!", user.Username)), baseLayout)
+
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
@@ -124,7 +124,8 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
-	return ctx.Render("users/delete", fiber.Map{"User": user}, baseLayout)
+
+	return ctx.Render("users/delete", models.NewResponse(false, user, ""), baseLayout)
 }
 
 func (c *userController) HandleDelete(ctx *fiber.Ctx) error {

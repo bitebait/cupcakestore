@@ -22,27 +22,28 @@
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Visualizando
-                            <strong>{{.User.Username}}</strong>
+                            <strong>{{.Data.Username}}</strong>
                         </h3>
                         <div class="card-tools">
-                            <a href="/users/delete/{{.User.ID}}" class="btn btn-sm btn-danger">
+                            <a href="/users/delete/{{.Data.ID}}" class="btn btn-sm btn-danger">
                                 <i class="fa fa-trash"></i>
                                 Deletar
                             </a>
                         </div>
                     </div>
-                    <form method="Post" action="/users/update/{{.User.ID}}">
+                    {{template "snippets/message" .}}
+                    <form method="Post" action="/users/update/{{.Data.ID}}">
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="username">Nome de usuário</label>
                                     <input type="text" class="form-control" id="username" name="username"
-                                        placeholder="Nome de usuário" minlength="4" value="{{.User.Username}}">
+                                        placeholder="Nome de usuário" minlength="4" value="{{.Data.Username}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="email">E-mail</label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        placeholder="E-mail do usuário" value="{{.User.Email}}">
+                                        placeholder="E-mail do usuário" value="{{.Data.Email}}">
                                 </div>
                             </div>
                             <div class="form-row">
@@ -62,7 +63,7 @@
                                 <div class="form-group col-md-6">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="isStaff" name="isStaff"
-                                            {{if .User.IsStaff}}checked{{end}} />
+                                            {{if .Data.IsStaff}}checked{{end}} />
                                         <label class="custom-control-label" for="isStaff">Tornar Administrador</label>
                                     </div>
                                 </div>
@@ -70,18 +71,12 @@
                                     <div
                                         class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
                                         <input type="checkbox" class="custom-control-input" id="isActive"
-                                            name="isActive" {{if .User.IsActive}}checked{{end}} />
+                                            name="isActive" {{if .Data.IsActive}}checked{{end}} />
                                         <label class="custom-control-label" for="isActive">Ativar/Desativar
                                             Conta</label>
                                     </div>
                                 </div>
                             </div>
-
-                            {{ if .error }}
-                            <div class="alert alert-danger" role="alert">
-                                {{ .error }}
-                            </div>
-                            {{ end }}
                         </div>
 
                         <div class="card-footer">
