@@ -24,7 +24,7 @@
                         <h3>
                             <i class="fas fa-exclamation-triangle text-danger"></i>
                             Você realmente deseja deletar
-                            <strong>{{.Data.Username}}</strong>?
+                            <strong>{{.Object.Username}}</strong>?
                         </h3>
 
                         <p>
@@ -33,10 +33,10 @@
                             <a href="/users">aqui</a>
                             para retornar à lista de usuários registrados.
                         </p>
-                        <form method="POST" action="/users/delete/{{.Data.ID}}">
-                            <button onclick="history.back()" type="button" class="btn btn-default">
+                        <form method="POST" action="/users/delete/{{.Object.ID}}">
+                            <a  href="/users/list" type="button" class="btn btn-default">
                                 <i class="fas fa-undo-alt"></i>
-                                Cancelar</button>
+                                Cancelar</a>
                             <div class="float-right">
                                 <button type="submit" class="btn btn-outline-danger">
                                     <i class="fa fa-trash"></i>

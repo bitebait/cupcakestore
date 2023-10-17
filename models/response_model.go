@@ -2,14 +2,14 @@ package models
 
 type Response struct {
 	Error   bool        `json:"error"`
-	Data    interface{} `json:"data"`
+	Object  interface{} `json:"object"`
 	Message string      `json:"message"`
 }
 
-func NewResponse(error bool, data interface{}, message string) *Response {
+func NewResponse(error bool, object interface{}, message string) *Response {
 	return &Response{
 		Error:   error,
-		Data:    data,
+		Object:  object,
 		Message: message,
 	}
 }
