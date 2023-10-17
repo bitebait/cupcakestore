@@ -41,7 +41,7 @@ func (r *userRepository) FindAll(p *models.Pagination, filter string) []*models.
 	query.Count(&p.Total)
 
 	var users []*models.User
-	query.Offset(offset).Limit(p.Limit).Order("username").Find(&users)
+	query.Offset(offset).Limit(p.Limit).Order("username, email, is_staff, is_active").Find(&users)
 
 	return users
 }
