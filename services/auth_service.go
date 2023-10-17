@@ -13,7 +13,9 @@ type authService struct {
 }
 
 func NewAuthService(userRepository repositories.UserRepository) AuthService {
-	return &authService{userRepository}
+	return &authService{
+		userRepository: userRepository,
+	}
 }
 
 func (s *authService) Authenticate(username, password string) error {

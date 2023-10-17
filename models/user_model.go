@@ -22,8 +22,7 @@ type User struct {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
-	err := u.Validate()
-	if err != nil {
+	if err := u.Validate(); err != nil {
 		return err
 	}
 

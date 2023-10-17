@@ -9,7 +9,6 @@ import (
 var Store *session.Store
 
 func SetupSession() {
-	// Initialize a session store
 	sessConfig := session.Config{
 		Expiration: 1 * time.Hour,
 	}

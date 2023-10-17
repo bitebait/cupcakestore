@@ -29,7 +29,6 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 	username := ctx.FormValue("username")
 	password := ctx.FormValue("password")
 
-	// Autenticar usuário
 	err := c.authService.Authenticate(username, password)
 	if err != nil {
 		return ctx.Render("auth/login", models.NewResponse(true, nil, "Credenciais inválidas"))
@@ -45,7 +44,6 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 		if err := sess.Save(); err != nil {
 			panic(err)
 		}
-
 	}
 
 	return ctx.Redirect("/users/list")

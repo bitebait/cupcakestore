@@ -19,13 +19,11 @@ func LoginRequired(store *session.Store, userService services.UserService) fiber
 			return c.Redirect("/auth/login")
 		}
 
-		if c.Locals("user") == nil {
-			user, err := userService.FindByUsername(username.(string))
-			if err != nil {
-				return c.Redirect("/auth/login")
-			}
-			c.Locals("user", user)
+		user, err := userService.FindByUsername(username.(string))
+		if err != nil {
+			return c.Redirect("/auth/login")
 		}
+		c.Locals("user", user)
 
 		return c.Next()
 	}
