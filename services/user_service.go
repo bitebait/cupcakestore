@@ -9,6 +9,7 @@ type UserService interface {
 	Create(user *models.User) error
 	FindAll(p *models.Pagination, filter string) []*models.User
 	FindById(id uint) (*models.User, error)
+	FindByUsername(username string) (*models.User, error)
 	Update(user *models.User) error
 	Delete(id uint) error
 }
@@ -33,6 +34,10 @@ func (s *userService) FindAll(p *models.Pagination, filter string) []*models.Use
 
 func (s *userService) FindById(id uint) (*models.User, error) {
 	return s.userRepository.FindById(id)
+}
+
+func (s *userService) FindByUsername(username string) (*models.User, error) {
+	return s.userRepository.FindByUsername(username)
 }
 
 func (s *userService) Update(user *models.User) error {

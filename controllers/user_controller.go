@@ -11,12 +11,12 @@ import (
 
 type UserController interface {
 	RenderCreate(ctx *fiber.Ctx) error
-	HandleCreate(ctx *fiber.Ctx) error
+	HandlerCreate(ctx *fiber.Ctx) error
 	RenderUsers(ctx *fiber.Ctx) error
 	RenderUser(ctx *fiber.Ctx) error
-	HandleUpdate(ctx *fiber.Ctx) error
+	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
-	HandleDelete(ctx *fiber.Ctx) error
+	HandlerDelete(ctx *fiber.Ctx) error
 }
 
 type userController struct {
@@ -30,10 +30,10 @@ func NewUserController(userService services.UserService) UserController {
 const baseLayout = "layouts/base"
 
 func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
-	return ctx.Render("users/create", fiber.Map{}, baseLayout)
+	return ctx.Render("users/create", models.NewResponse(false, nil, ""), baseLayout)
 }
 
-func (c *userController) HandleCreate(ctx *fiber.Ctx) error {
+func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	user := &models.User{}
 
 	if err := ctx.BodyParser(user); err != nil {
@@ -76,7 +76,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 	return ctx.Render("users/user", models.NewResponse(false, user, ""), baseLayout)
 }
 
-func (c *userController) HandleUpdate(ctx *fiber.Ctx) error {
+func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
 	if err != nil {
 		return ctx.Redirect("/users")
@@ -127,7 +127,7 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 	return ctx.Render("users/delete", models.NewResponse(false, user, ""), baseLayout)
 }
 
-func (c *userController) HandleDelete(ctx *fiber.Ctx) error {
+func (c *userController) HandlerDelete(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
 	if err != nil {
 		return ctx.Redirect("/users")

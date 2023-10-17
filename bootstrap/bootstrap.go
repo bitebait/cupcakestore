@@ -6,6 +6,7 @@ import (
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/routers"
+	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
@@ -21,6 +22,9 @@ func NewApplication() *fiber.App {
 	// Database
 	database.SetupDatabase()
 	database.DB.AutoMigrate(&models.User{})
+
+	// Session
+	session.SetupSession()
 
 	// Fiber
 	engine := html.New("./views", ".html")
