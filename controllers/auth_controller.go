@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 )
@@ -10,6 +10,7 @@ import (
 type AuthController interface {
 	RenderLogin(ctx *fiber.Ctx) error
 	HandlerLogin(ctx *fiber.Ctx) error
+	HandlerLogout(ctx *fiber.Ctx) error
 }
 
 type authController struct {
@@ -22,7 +23,7 @@ func NewAuthController(authService services.AuthService, store *session.Store) A
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
-	return ctx.Render("auth/login", models.NewResponse(false, nil, ""))
+	return views.RenderTemplate(ctx, "auth/login", nil)
 }
 
 func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
@@ -31,7 +32,7 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 
 	err := c.authService.Authenticate(username, password)
 	if err != nil {
-		return ctx.Render("auth/login", models.NewResponse(true, nil, "Credenciais inválidas"))
+		return views.RenderTemplateWithMessage(ctx, "auth/login", true, "Credenciais inválidas", nil, "")
 	}
 
 	sess, err := c.store.Get(ctx)
@@ -39,12 +40,24 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 		panic(err)
 	}
 
-	if sess.Fresh() {
-		sess.Set("username", username)
-		if err := sess.Save(); err != nil {
-			panic(err)
-		}
+	sess.Set("username", username)
+	if err := sess.Save(); err != nil {
+		panic(err)
 	}
 
 	return ctx.Redirect("/users/list")
+}
+
+func (c *authController) HandlerLogout(ctx *fiber.Ctx) error {
+	sess, err := c.store.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	sess.Delete("username")
+	if err := sess.Destroy(); err != nil {
+		panic(err)
+	}
+
+	return ctx.Redirect("/auth/login")
 }

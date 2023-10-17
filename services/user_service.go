@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strings"
+
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 )
@@ -25,6 +27,7 @@ func NewUserService(userRepository repositories.UserRepository) UserService {
 }
 
 func (s *userService) Create(user *models.User) error {
+	s.normalizeUser(user)
 	return s.userRepository.Create(user)
 }
 
@@ -41,6 +44,7 @@ func (s *userService) FindByUsername(username string) (*models.User, error) {
 }
 
 func (s *userService) Update(user *models.User) error {
+	s.normalizeUser(user)
 	return s.userRepository.Update(user)
 }
 
@@ -50,4 +54,9 @@ func (s *userService) Delete(id uint) error {
 		return err
 	}
 	return s.userRepository.Delete(user)
+}
+
+func (s *userService) normalizeUser(user *models.User) {
+	user.Username = strings.ToLower(user.Username)
+	user.Email = strings.ToLower(user.Email)
 }

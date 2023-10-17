@@ -8,6 +8,8 @@ import (
 
 var Env map[string]string
 
+const SecretKey = "VAITOMARNOCUPORRA"
+
 func GetEnv(key, def string) string {
 	if Env == nil {
 		return def
