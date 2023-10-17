@@ -23,12 +23,8 @@ func LoginAndStaffRequired(store *session.Store, userService services.UserServic
 			return c.Redirect("/auth/logout")
 		}
 
-		if user == nil {
-			return fiber.NewError(fiber.StatusUnauthorized, "Usuário não encontrado")
-		}
-
-		if !user.IsStaff {
-			return fiber.NewError(fiber.StatusUnauthorized, "Você não possui autorização de administrador")
+		if user == nil || !user.IsStaff || !user.IsActive {
+			return c.Redirect("/auth/logout")
 		}
 
 		c.Locals("user", user)
