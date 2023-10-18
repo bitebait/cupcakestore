@@ -19,7 +19,10 @@ type authController struct {
 }
 
 func NewAuthController(authService services.AuthService, store *session.Store) AuthController {
-	return &authController{authService: authService, store: store}
+	return &authController{
+		authService: authService,
+		store:       store,
+	}
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
@@ -32,7 +35,7 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 
 	err := c.authService.Authenticate(username, password)
 	if err != nil {
-		return views.RenderTemplateWithMessage(ctx, "auth/login", true, "Credenciais inválidas", nil, "")
+		return views.RenderTemplateWithError(ctx, "auth/login", nil, "Invalid credentials")
 	}
 
 	sess, err := c.store.Get(ctx)

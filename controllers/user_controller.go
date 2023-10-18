@@ -37,12 +37,12 @@ func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
-		return views.RenderTemplateWithMessage(ctx, "users/create", true, "Dados do usuário inválidos: "+err.Error(), nil, baseLayout)
+		return views.RenderTemplateWithError(ctx, "users/create", nil, "Dados do usuário inválidos: "+err.Error(), baseLayout)
 	}
 	if err := c.userService.Create(user); err != nil {
-		return views.RenderTemplateWithMessage(ctx, "users/create", true, "Erro ao criar usuário: "+err.Error(), nil, baseLayout)
+		return views.RenderTemplateWithError(ctx, "users/create", nil, "Erro ao criar usuário: "+err.Error(), baseLayout)
 	}
-	return views.RenderTemplateWithMessage(ctx, "users/create", false, fmt.Sprintf("Usuário %s criado com sucesso!", user.Username), nil, baseLayout)
+	return views.RenderTemplateWithSuccess(ctx, "users/create", nil, fmt.Sprintf("Usuário %s criado com sucesso!", user.Username), baseLayout)
 }
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
@@ -79,21 +79,21 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 	if err := ctx.BodyParser(user); err != nil {
-		return views.RenderTemplateWithMessage(ctx, "users/user", true, err.Error(), nil, baseLayout)
+		return views.RenderTemplateWithError(ctx, "users/user", nil, err.Error(), baseLayout)
 	}
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 	if oldPassword != "" && newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return views.RenderTemplateWithMessage(ctx, "users/user", true, "Não foi possível atualizar a senha do usuário. Por favor, verifique os dados.", nil, baseLayout)
+			return views.RenderTemplateWithError(ctx, "users/user", nil, "Não foi possível atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
 		}
 	}
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.userService.Update(user); err != nil {
-		return views.RenderTemplateWithMessage(ctx, "users/user", true, "Falha ao atualizar usuário.", nil, baseLayout)
+		return views.RenderTemplateWithError(ctx, "users/user", nil, "Falha ao atualizar usuário.", baseLayout)
 	}
-	return views.RenderTemplateWithMessage(ctx, "users/user", false, fmt.Sprintf("Usuário %s atualizado com sucesso!", user.Username), user, baseLayout)
+	return views.RenderTemplateWithSuccess(ctx, "users/user", user, fmt.Sprintf("Usuário %s atualizado com sucesso!", user.Username), baseLayout)
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
