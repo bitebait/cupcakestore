@@ -48,7 +48,7 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 		panic(err)
 	}
 
-	return ctx.Redirect("/users/list")
+	return ctx.Redirect("/users")
 }
 
 func (c *authController) HandlerLogout(ctx *fiber.Ctx) error {

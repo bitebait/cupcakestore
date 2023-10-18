@@ -37,12 +37,12 @@ func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
-		return views.RenderTemplateWithError(ctx, "users/create", nil, "Dados do usuário inválidos: "+err.Error(), baseLayout)
+		return views.RenderTemplateWithError(ctx, "users/create", nil, "Invalid user data: "+err.Error(), baseLayout)
 	}
 	if err := c.userService.Create(user); err != nil {
-		return views.RenderTemplateWithError(ctx, "users/create", nil, "Erro ao criar usuário: "+err.Error(), baseLayout)
+		return views.RenderTemplateWithError(ctx, "users/create", nil, "Failed to create user: "+err.Error(), baseLayout)
 	}
-	return views.RenderTemplateWithSuccess(ctx, "users/create", nil, fmt.Sprintf("Usuário %s criado com sucesso!", user.Username), baseLayout)
+	return views.RenderTemplateWithSuccess(ctx, "users/create", nil, fmt.Sprintf("User %s created successfully!", user.Username), baseLayout)
 }
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
@@ -85,15 +85,15 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	newPassword := ctx.FormValue("newPassword")
 	if oldPassword != "" && newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return views.RenderTemplateWithError(ctx, "users/user", nil, "Não foi possível atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
+			return views.RenderTemplateWithError(ctx, "users/user", nil, "Failed to update user password. Please check the data.", baseLayout)
 		}
 	}
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.userService.Update(user); err != nil {
-		return views.RenderTemplateWithError(ctx, "users/user", nil, "Falha ao atualizar usuário.", baseLayout)
+		return views.RenderTemplateWithError(ctx, "users/user", nil, "Failed to update user.", baseLayout)
 	}
-	return views.RenderTemplateWithSuccess(ctx, "users/user", user, fmt.Sprintf("Usuário %s atualizado com sucesso!", user.Username), baseLayout)
+	return views.RenderTemplateWithSuccess(ctx, "users/user", user, fmt.Sprintf("User %s updated successfully!", user.Username), baseLayout)
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {

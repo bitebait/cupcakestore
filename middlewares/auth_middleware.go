@@ -15,20 +15,24 @@ func LoginAndStaffRequired(store *session.Store, userService services.UserServic
 
 		username := sess.Get("username")
 		if username == nil {
-			return c.Redirect("/auth/logout")
+			return redirectToLogout(c)
 		}
 
 		user, err := userService.FindByUsername(username.(string))
 		if err != nil {
-			return c.Redirect("/auth/logout")
+			return redirectToLogout(c)
 		}
 
 		if user == nil || !user.IsStaff || !user.IsActive {
-			return c.Redirect("/auth/logout")
+			return redirectToLogout(c)
 		}
 
 		c.Locals("user", user)
 
 		return c.Next()
 	}
+}
+
+func redirectToLogout(c *fiber.Ctx) error {
+	return c.Redirect("/auth/logout")
 }
