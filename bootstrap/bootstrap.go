@@ -21,7 +21,10 @@ func NewApplication() *fiber.App {
 
 	// Database
 	database.SetupDatabase()
-	err := database.DB.AutoMigrate(&models.User{})
+	err := database.DB.AutoMigrate(
+		&models.User{},
+		&models.Profile{},
+	)
 	if err != nil {
 		log.Panic("error migrate models")
 	}

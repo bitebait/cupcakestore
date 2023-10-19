@@ -2,10 +2,10 @@ package models
 
 import (
 	"errors"
+	"github.com/go-playground/validator/v10"
 	"time"
 
 	"github.com/bitebait/cupcakestore/utils"
-	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -26,16 +26,39 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 		return err
 	}
 
-	if u == nil || u.Password == "" {
-		return errors.New("invalid user or empty password")
+	if err := u.HashPassword(); err != nil {
+		return err
 	}
 
+	return nil
+}
+
+func (u *User) AfterCreate(tx *gorm.DB) error {
+	if err := u.CreateProfile(tx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *User) HashPassword() error {
 	hash, err := utils.PasswordHasher(u.Password)
 	if err != nil {
 		return err
 	}
 
 	u.Password = hash
+
+	return nil
+}
+
+func (u *User) CreateProfile(tx *gorm.DB) error {
+	profile := &Profile{
+		UserID: u.ID,
+	}
+	if err := tx.Create(profile).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -45,7 +68,7 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 	}
 
 	if newPassword == "" {
-		return errors.New("new password cannot be empty")
+		return errors.New("nova senha não pode estar vazia")
 	}
 
 	hash, err := utils.PasswordHasher(newPassword)
