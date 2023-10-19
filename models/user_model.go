@@ -2,8 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/bitebait/cupcakestore/repositories"
-	"github.com/bitebait/cupcakestore/services"
 	"github.com/go-playground/validator/v10"
 	"time"
 
@@ -29,29 +27,6 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 	}
 
 	if err := u.HashPassword(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *User) AfterCreate(tx *gorm.DB) error {
-	err := u.CreateProfile(tx)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *User) CreateProfile(tx *gorm.DB) error {
-	profile := &Profile{
-		UserID: u.ID,
-	}
-
-	profileService := services.NewProfileService(repositories.NewProfileRepository(tx))
-	err := profileService.Create(profile)
-	if err != nil {
 		return err
 	}
 

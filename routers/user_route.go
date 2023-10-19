@@ -15,32 +15,28 @@ import (
 type UserRouter struct {
 	userController   controllers.UserController
 	userService      services.UserService
+	profileService   services.ProfileService
 	templateRenderer views.TemplateRenderer
 }
 
 func NewUserRouter() *UserRouter {
-	// Initialize repositories
 	userRepository := repositories.NewUserRepository(database.DB)
-
-	// Initialize services with repositories
 	userService := services.NewUserService(userRepository)
-
-	// Initialize views
 	templateRenderer := views.NewTemplateRenderer()
-
-	// Initialize controllers with services and views
-	userController := controllers.NewUserController(userService, templateRenderer)
+	profileRepository := repositories.NewProfileRepository(database.DB)
+	profileService := services.NewProfileService(profileRepository)
+	userController := controllers.NewUserController(userService, profileService, templateRenderer)
 
 	return &UserRouter{
 		userController:   userController,
 		userService:      userService,
+		profileService:   profileService,
 		templateRenderer: templateRenderer,
 	}
 }
 
 func (r *UserRouter) InstallRouters(app *fiber.App) {
 	user := app.Group("/users", cors.New())
-
 	user.Use(middlewares.LoginAndStaffRequired(session.Store, r.userService))
 	user.Get("/create", r.userController.RenderCreate)
 	user.Post("/create", r.userController.HandlerCreate)

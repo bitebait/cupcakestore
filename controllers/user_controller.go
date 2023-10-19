@@ -21,12 +21,18 @@ type UserController interface {
 
 type userController struct {
 	userService      services.UserService
+	profileService   services.ProfileService
 	templateRenderer views.TemplateRenderer
 }
 
-func NewUserController(userService services.UserService, templateRenderer views.TemplateRenderer) UserController {
+func NewUserController(
+	userService services.UserService,
+	profileService services.ProfileService,
+	templateRenderer views.TemplateRenderer,
+) UserController {
 	return &userController{
 		userService:      userService,
+		profileService:   profileService,
 		templateRenderer: templateRenderer,
 	}
 }
@@ -45,6 +51,14 @@ func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	}
 
 	if err := c.userService.Create(user); err != nil {
+		return c.templateRenderer.Render(ctx, "users/create", nil,
+			"Falha ao criar usuário: "+err.Error(), baseLayout)
+	}
+
+	profile := &models.Profile{
+		UserID: user.ID,
+	}
+	if err := c.profileService.Create(profile); err != nil {
 		return c.templateRenderer.Render(ctx, "users/create", nil,
 			"Falha ao criar usuário: "+err.Error(), baseLayout)
 	}
