@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
 )
@@ -50,7 +51,7 @@ func (r *userRepository) FindById(id uint) (*models.User, error) {
 	var user models.User
 
 	err := r.db.First(&user, id).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
@@ -61,7 +62,7 @@ func (r *userRepository) FindByUsername(username string) (*models.User, error) {
 	var user models.User
 
 	err := r.db.Where("username = ?", username).First(&user).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 

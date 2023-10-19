@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
+	"log"
 )
 
 func NewApplication() *fiber.App {
@@ -20,7 +21,10 @@ func NewApplication() *fiber.App {
 
 	// Database
 	database.SetupDatabase()
-	database.DB.AutoMigrate(&models.User{})
+	err := database.DB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Panic("error migrate models")
+	}
 
 	// Session
 	session.SetupSession()

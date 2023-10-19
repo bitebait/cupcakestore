@@ -158,11 +158,11 @@
     <script src="/dist/js/adminlte.min.js"></script>
     <script>
         $(document).ready(function () {
-            var currentUrl = window.location.pathname;
-            var navLinks = $(".nav-link");
+            const currentUrl = window.location.pathname;
+            const navLinks = $(".nav-link");
 
             navLinks.each(function () {
-                var href = $(this).attr("href");
+                const href = $(this).attr("href");
 
                 if (href === currentUrl) {
                     $(this).addClass("active");
