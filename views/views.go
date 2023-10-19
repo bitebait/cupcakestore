@@ -5,21 +5,22 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RenderTemplate(ctx *fiber.Ctx, templateName string, obj interface{}, baseLayout ...string) error {
-	user := getUserFromContext(ctx)
-	response := createResponse(false, "", obj, user)
-	return ctx.Render(templateName, response, baseLayout...)
+type TemplateRenderer interface {
+	Render(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error
 }
 
-func RenderTemplateWithError(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error {
-	user := getUserFromContext(ctx)
-	response := createResponse(true, message, obj, user)
-	return ctx.Render(templateName, response, baseLayout...)
+type templateRenderer struct{}
+
+func NewTemplateRenderer() TemplateRenderer {
+	return &templateRenderer{}
 }
 
-func RenderTemplateWithSuccess(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error {
+func (tr *templateRenderer) Render(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error {
 	user := getUserFromContext(ctx)
-	response := createResponse(false, message, obj, user)
+	response := createResponse(message, obj, user)
+	if message != "" {
+		response.Error = true
+	}
 	return ctx.Render(templateName, response, baseLayout...)
 }
 
@@ -31,9 +32,9 @@ func getUserFromContext(ctx *fiber.Ctx) *models.User {
 	return user
 }
 
-func createResponse(err bool, message string, obj interface{}, user *models.User) *models.Response {
+func createResponse(message string, obj interface{}, user *models.User) *models.Response {
 	return &models.Response{
-		Error:   err,
+		Error:   message != "",
 		Message: message,
 		Object:  obj,
 		User:    user,

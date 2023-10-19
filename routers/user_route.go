@@ -7,13 +7,15 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/session"
+	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type UserRouter struct {
-	userController controllers.UserController
-	userService    services.UserService
+	userController   controllers.UserController
+	userService      services.UserService
+	templateRenderer views.TemplateRenderer
 }
 
 func NewUserRouter() *UserRouter {
@@ -23,12 +25,16 @@ func NewUserRouter() *UserRouter {
 	// Initialize services with repositories
 	userService := services.NewUserService(userRepository)
 
-	// Initialize controllers with services
-	userController := controllers.NewUserController(userService)
+	// Initialize views
+	templateRenderer := views.NewTemplateRenderer()
+
+	// Initialize controllers with services and views
+	userController := controllers.NewUserController(userService, templateRenderer)
 
 	return &UserRouter{
-		userController: userController,
-		userService:    userService,
+		userController:   userController,
+		userService:      userService,
+		templateRenderer: templateRenderer,
 	}
 }
 

@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	"fmt"
+	"github.com/bitebait/cupcakestore/views"
 	"strconv"
 
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -21,52 +20,65 @@ type UserController interface {
 }
 
 type userController struct {
-	userService services.UserService
+	userService      services.UserService
+	templateRenderer views.TemplateRenderer
 }
 
-func NewUserController(userService services.UserService) UserController {
-	return &userController{userService: userService}
+func NewUserController(userService services.UserService, templateRenderer views.TemplateRenderer) UserController {
+	return &userController{
+		userService:      userService,
+		templateRenderer: templateRenderer,
+	}
 }
 
 const baseLayout = "layouts/base"
 
 func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
-	return views.RenderTemplate(ctx, "users/create", nil, baseLayout)
+	return c.templateRenderer.Render(ctx, "users/create", nil, "", baseLayout)
 }
 
 func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
-		return views.RenderTemplateWithError(ctx, "users/create", nil, "Invalid user data: "+err.Error(), baseLayout)
+		return c.templateRenderer.Render(ctx, "users/create", nil,
+			"Dados de usuário inválidos: "+err.Error(), baseLayout)
 	}
+
 	if err := c.userService.Create(user); err != nil {
-		return views.RenderTemplateWithError(ctx, "users/create", nil, "Failed to create user: "+err.Error(), baseLayout)
+		return c.templateRenderer.Render(ctx, "users/create", nil,
+			"Falha ao criar usuário: "+err.Error(), baseLayout)
 	}
-	return views.RenderTemplateWithSuccess(ctx, "users/create", nil, fmt.Sprintf("User %s created successfully!", user.Username), baseLayout)
+
+	return ctx.Redirect("/users")
 }
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
-	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
 	query := ctx.Query("q", "")
+
+	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
 	users := c.userService.FindAll(pagination, query)
 	data := fiber.Map{
 		"Users":      users,
 		"Pagination": pagination,
 	}
-	return views.RenderTemplate(ctx, "users/users", data, baseLayout)
+
+	return c.templateRenderer.Render(ctx, "users/users", data, "", baseLayout)
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
+
 	userID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
+
 	user, err := c.userService.FindById(uint(userID))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
-	return views.RenderTemplate(ctx, "users/user", user, baseLayout)
+
+	return c.templateRenderer.Render(ctx, "users/user", user, "", baseLayout)
 }
 
 func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
@@ -74,26 +86,33 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
+
 	user, err := c.userService.FindById(uint(id))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
+
 	if err := ctx.BodyParser(user); err != nil {
-		return views.RenderTemplateWithError(ctx, "users/user", nil, err.Error(), baseLayout)
+		return c.templateRenderer.Render(ctx, "users/user", nil, err.Error(), baseLayout)
 	}
+
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 	if oldPassword != "" && newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return views.RenderTemplateWithError(ctx, "users/user", nil, "Failed to update user password. Please check the data.", baseLayout)
+			return c.templateRenderer.Render(ctx, "users/user", nil,
+				"Falha ao atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
 		}
 	}
+
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.userService.Update(user); err != nil {
-		return views.RenderTemplateWithError(ctx, "users/user", nil, "Failed to update user.", baseLayout)
+		return c.templateRenderer.Render(ctx, "users/user", nil,
+			"Falha ao atualizar usuário.", baseLayout)
 	}
-	return views.RenderTemplateWithSuccess(ctx, "users/user", user, fmt.Sprintf("User %s updated successfully!", user.Username), baseLayout)
+
+	return ctx.Redirect("/users")
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
@@ -101,11 +120,13 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
+
 	user, err := c.userService.FindById(uint(id))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
-	return views.RenderTemplate(ctx, "users/delete", user, baseLayout)
+
+	return c.templateRenderer.Render(ctx, "users/delete", user, "", baseLayout)
 }
 
 func (c *userController) HandlerDelete(ctx *fiber.Ctx) error {
@@ -113,9 +134,11 @@ func (c *userController) HandlerDelete(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
+
 	err = c.userService.Delete(uint(id))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
+
 	return ctx.Redirect("/users")
 }

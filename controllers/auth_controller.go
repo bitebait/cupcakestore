@@ -14,19 +14,21 @@ type AuthController interface {
 }
 
 type authController struct {
-	authService services.AuthService
-	store       *session.Store
+	authService      services.AuthService
+	templateRenderer views.TemplateRenderer
+	store            *session.Store
 }
 
-func NewAuthController(authService services.AuthService, store *session.Store) AuthController {
+func NewAuthController(authService services.AuthService, templateRenderer views.TemplateRenderer, store *session.Store) AuthController {
 	return &authController{
-		authService: authService,
-		store:       store,
+		authService:      authService,
+		templateRenderer: templateRenderer,
+		store:            store,
 	}
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
-	return views.RenderTemplate(ctx, "auth/login", nil)
+	return c.templateRenderer.Render(ctx, "auth/login", nil, "")
 }
 
 func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
@@ -35,7 +37,7 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 
 	err := c.authService.Authenticate(username, password)
 	if err != nil {
-		return views.RenderTemplateWithError(ctx, "auth/login", nil, "Invalid credentials")
+		return c.templateRenderer.Render(ctx, "auth/login", nil, "Credenciais inválidas")
 	}
 
 	sess, err := c.store.Get(ctx)
