@@ -60,7 +60,7 @@ func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	}
 	if err := c.profileService.Create(profile); err != nil {
 		return c.templateRenderer.Render(ctx, "users/create", nil,
-			"Falha ao criar usuário: "+err.Error(), baseLayout)
+			"Falha ao criar Perfil: "+err.Error(), baseLayout)
 	}
 
 	return ctx.Redirect("/users")
