@@ -25,15 +25,11 @@ type userController struct {
 	templateRenderer views.TemplateRenderer
 }
 
-func NewUserController(
-	userService services.UserService,
-	profileService services.ProfileService,
-	templateRenderer views.TemplateRenderer,
-) UserController {
+func NewUserController(u services.UserService, p services.ProfileService, t views.TemplateRenderer) UserController {
 	return &userController{
-		userService:      userService,
-		profileService:   profileService,
-		templateRenderer: templateRenderer,
+		userService:      u,
+		profileService:   p,
+		templateRenderer: t,
 	}
 }
 

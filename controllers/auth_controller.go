@@ -19,11 +19,11 @@ type authController struct {
 	store            *session.Store
 }
 
-func NewAuthController(authService services.AuthService, templateRenderer views.TemplateRenderer, store *session.Store) AuthController {
+func NewAuthController(a services.AuthService, t views.TemplateRenderer, s *session.Store) AuthController {
 	return &authController{
-		authService:      authService,
-		templateRenderer: templateRenderer,
-		store:            store,
+		authService:      a,
+		templateRenderer: t,
+		store:            s,
 	}
 }
 
