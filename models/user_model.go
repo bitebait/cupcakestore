@@ -19,6 +19,7 @@ type User struct {
 	IsStaff    bool      `gorm:"default:false"`
 	FirstLogin time.Time `gorm:"type:timestamp"`
 	LastLogin  time.Time `gorm:"type:timestamp"`
+	Profile    Profile   `gorm:"constraint:OnDelete:CASCADE"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
