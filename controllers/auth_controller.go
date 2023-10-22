@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/session"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type AuthController interface {
@@ -14,21 +14,17 @@ type AuthController interface {
 }
 
 type authController struct {
-	authService      services.AuthService
-	templateRenderer views.TemplateRenderer
-	store            *session.Store
+	authService services.AuthService
 }
 
-func NewAuthController(a services.AuthService, t views.TemplateRenderer, s *session.Store) AuthController {
+func NewAuthController(a services.AuthService) AuthController {
 	return &authController{
-		authService:      a,
-		templateRenderer: t,
-		store:            s,
+		authService: a,
 	}
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
-	return c.templateRenderer.Render(ctx, "auth/login", nil, "")
+	return views.Render(ctx, "auth/login", nil, "")
 }
 
 func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
@@ -37,10 +33,10 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 
 	err := c.authService.Authenticate(username, password)
 	if err != nil {
-		return c.templateRenderer.Render(ctx, "auth/login", nil, "Credenciais inválidas")
+		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas")
 	}
 
-	sess, err := c.store.Get(ctx)
+	sess, err := session.Store.Get(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -54,7 +50,7 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 }
 
 func (c *authController) HandlerLogout(ctx *fiber.Ctx) error {
-	sess, err := c.store.Get(ctx)
+	sess, err := session.Store.Get(ctx)
 	if err != nil {
 		panic(err)
 	}

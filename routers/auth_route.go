@@ -5,15 +5,12 @@ import (
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/session"
-	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type AuthRouter struct {
-	authController   controllers.AuthController
-	templateRenderer views.TemplateRenderer
+	authController controllers.AuthController
 }
 
 func NewAuthRouter() *AuthRouter {
@@ -23,15 +20,11 @@ func NewAuthRouter() *AuthRouter {
 	// Initialize services with repositories
 	authService := services.NewAuthService(userRepository)
 
-	// Initialize views
-	templateRenderer := views.NewTemplateRenderer()
-
 	// Initialize controllers with services
-	authController := controllers.NewAuthController(authService, templateRenderer, session.Store)
+	authController := controllers.NewAuthController(authService)
 
 	return &AuthRouter{
-		authController:   authController,
-		templateRenderer: templateRenderer,
+		authController: authController,
 	}
 }
 

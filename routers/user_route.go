@@ -3,20 +3,15 @@ package routers
 import (
 	"github.com/bitebait/cupcakestore/controllers"
 	"github.com/bitebait/cupcakestore/database"
-	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/session"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type UserRouter struct {
-	userController   controllers.UserController
-	userService      services.UserService
-	profileService   services.ProfileService
-	templateRenderer views.TemplateRenderer
+	userController controllers.UserController
 }
 
 func NewUserRouter() *UserRouter {
@@ -28,16 +23,12 @@ func NewUserRouter() *UserRouter {
 	userController := controllers.NewUserController(userService, profileService, templateRenderer)
 
 	return &UserRouter{
-		userController:   userController,
-		userService:      userService,
-		profileService:   profileService,
-		templateRenderer: templateRenderer,
+		userController: userController,
 	}
 }
 
 func (r *UserRouter) InstallRouters(app *fiber.App) {
 	user := app.Group("/users", cors.New())
-	user.Use(middlewares.LoginAndStaffRequired(session.Store, r.userService))
 	user.Get("/create", r.userController.RenderCreate)
 	user.Post("/create", r.userController.HandlerCreate)
 	user.Get("/", r.userController.RenderUsers)

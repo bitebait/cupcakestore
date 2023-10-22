@@ -12,14 +12,12 @@ type ProfileController interface {
 }
 
 type profileController struct {
-	profileService   services.ProfileService
-	templateRenderer views.TemplateRenderer
+	profileService services.ProfileService
 }
 
-func NewProfileController(p services.ProfileService, t views.TemplateRenderer) ProfileController {
+func NewProfileController(p services.ProfileService) ProfileController {
 	return &profileController{
-		profileService:   p,
-		templateRenderer: t,
+		profileService: p,
 	}
 }
 
@@ -35,11 +33,11 @@ func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {
 	}
 
 	if err := ctx.BodyParser(profile); err != nil {
-		return c.templateRenderer.Render(ctx, "users/user", nil, err.Error(), baseLayout)
+		return views.Render(ctx, "users/user", nil, err.Error(), baseLayout)
 	}
 
 	if err := c.profileService.Update(profile); err != nil {
-		return c.templateRenderer.Render(ctx, "users/user", nil,
+		return views.Render(ctx, "users/user", nil,
 			"Falha ao atualizar perfil do usuário.", baseLayout)
 	}
 

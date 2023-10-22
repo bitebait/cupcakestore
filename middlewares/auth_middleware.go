@@ -2,13 +2,13 @@ package middlewares
 
 import (
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
-func LoginAndStaffRequired(store *session.Store, userService services.UserService) fiber.Handler {
+func LoginAndStaffRequired(userService services.UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		sess, err := store.Get(c)
+		sess, err := session.Store.Get(c)
 		if err != nil {
 			panic(err)
 		}

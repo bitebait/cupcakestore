@@ -5,17 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type TemplateRenderer interface {
-	Render(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error
-}
-
-type templateRenderer struct{}
-
-func NewTemplateRenderer() TemplateRenderer {
-	return &templateRenderer{}
-}
-
-func (tr *templateRenderer) Render(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error {
+func Render(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error {
 	user := getUserFromContext(ctx)
 	response := createResponse(message, obj, user)
 	if message != "" {
