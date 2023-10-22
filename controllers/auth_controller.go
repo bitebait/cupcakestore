@@ -31,19 +31,9 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 	username := ctx.FormValue("username")
 	password := ctx.FormValue("password")
 
-	err := c.authService.Authenticate(username, password)
+	err := c.authService.Authenticate(ctx, username, password)
 	if err != nil {
 		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas")
-	}
-
-	sess, err := session.Store.Get(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	sess.Set("username", username)
-	if err := sess.Save(); err != nil {
-		panic(err)
 	}
 
 	return ctx.Redirect("/users")

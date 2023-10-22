@@ -1,6 +1,7 @@
 package session
 
 import (
+	"github.com/bitebait/cupcakestore/models"
 	"time"
 
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -13,4 +14,5 @@ func SetupSession() {
 		Expiration: 1 * time.Hour,
 	}
 	Store = session.New(sessConfig)
+	Store.RegisterType(&models.User{})
 }

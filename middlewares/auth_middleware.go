@@ -1,29 +1,27 @@
 package middlewares
 
 import (
-	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
+	"log"
 )
 
-func LoginAndStaffRequired(userService services.UserService) fiber.Handler {
+func LoginAndStaffRequired() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sess, err := session.Store.Get(c)
 		if err != nil {
 			panic(err)
 		}
 
-		username := sess.Get("username")
-		if username == nil {
+		user, ok := sess.Get("user").(*models.User)
+		if !ok || user == nil {
 			return redirectToLogout(c)
 		}
 
-		user, err := userService.FindByUsername(username.(string))
-		if err != nil {
-			return redirectToLogout(c)
-		}
+		log.Println(user)
 
-		if user == nil || !user.IsStaff || !user.IsActive {
+		if !user.IsStaff || !user.IsActive {
 			return redirectToLogout(c)
 		}
 

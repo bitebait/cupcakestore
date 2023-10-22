@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/bitebait/cupcakestore/controllers"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
@@ -26,7 +27,7 @@ func NewUserRouter() *UserRouter {
 }
 
 func (r *UserRouter) InstallRouters(app *fiber.App) {
-	user := app.Group("/users", cors.New())
+	user := app.Group("/users", cors.New()).Use(middlewares.LoginAndStaffRequired())
 	user.Get("/create", r.userController.RenderCreate)
 	user.Post("/create", r.userController.HandlerCreate)
 	user.Get("/", r.userController.RenderUsers)

@@ -40,7 +40,6 @@ func NewApplication() *fiber.App {
 	app.Use(logger.New())
 	app.Use(compress.New())
 	app.Static("/", "./web")
-
 	// Routes
 	routers.InstallRouters(app)
 
