@@ -15,9 +15,11 @@ type ProfileRouter struct {
 }
 
 func NewProfileRouter() *ProfileRouter {
+	userRepository := repositories.NewUserRepository(database.DB)
+	userService := services.NewUserService(userRepository)
 	profileRepository := repositories.NewProfileRepository(database.DB)
 	profileService := services.NewProfileService(profileRepository)
-	profileController := controllers.NewProfileController(profileService)
+	profileController := controllers.NewProfileController(profileService, userService)
 
 	return &ProfileRouter{
 		profileController: profileController,

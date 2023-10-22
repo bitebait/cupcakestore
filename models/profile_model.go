@@ -9,6 +9,6 @@ type Profile struct {
 	Address    string `gorm:"type:varchar(200)"`
 	City       string `gorm:"type:varchar(100)"`
 	State      string `gorm:"type:varchar(100)"`
-	PostalCode int
+	PostalCode string `gorm:"type:varchar(20)"`
 	UserID     uint
 }
