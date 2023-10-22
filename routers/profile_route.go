@@ -11,7 +11,6 @@ import (
 
 type ProfileRouter struct {
 	profileController controllers.ProfileController
-	profileService    services.ProfileService
 }
 
 func NewProfileRouter() *ProfileRouter {
@@ -21,7 +20,6 @@ func NewProfileRouter() *ProfileRouter {
 
 	return &ProfileRouter{
 		profileController: profileController,
-		profileService:    profileService,
 	}
 }
 
