@@ -79,5 +79,5 @@ func (r *userRepository) Update(user *models.User) error {
 }
 
 func (r *userRepository) Delete(user *models.User) error {
-	return r.db.Unscoped().Delete(user).Error
+	return r.db.Select("Profile").Delete(user).Error
 }
