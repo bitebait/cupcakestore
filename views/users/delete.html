@@ -34,15 +34,16 @@
                             para retornar à lista de usuários registrados.
                         </p>
                         <form method="POST" action="/users/delete/{{.Object.ID}}">
-                            <a  href="/users" type="button" class="btn btn-default">
-                                <i class="fas fa-undo-alt"></i>
-                                Cancelar</a>
+                            <a href="/users" class="btn btn-default">
+                                <i class="fas fa-undo-alt"></i> Cancelar
+                            </a>
                             <div class="float-right">
-                                <button type="submit" class="btn btn-outline-danger">
-                                    <i class="fa fa-trash"></i>
-                                    Confirmar e Deletar</button>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa fa-trash"></i> Confirmar e Deletar
+                                </button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>

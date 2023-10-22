@@ -33,8 +33,6 @@ func NewUserController(u services.UserService, p services.ProfileService, t view
 	}
 }
 
-const baseLayout = "layouts/base"
-
 func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 	return c.templateRenderer.Render(ctx, "users/create", nil, "", baseLayout)
 }
@@ -54,6 +52,7 @@ func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	profile := &models.Profile{
 		UserID: user.ID,
 	}
+
 	if err := c.profileService.Create(profile); err != nil {
 		return c.templateRenderer.Render(ctx, "users/create", nil,
 			"Falha ao criar Perfil: "+err.Error(), baseLayout)
@@ -88,7 +87,17 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	return c.templateRenderer.Render(ctx, "users/user", user, "", baseLayout)
+	profile, err := c.profileService.FindByUserId(uint(userID))
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	data := fiber.Map{
+		"User":    user,
+		"Profile": profile,
+	}
+
+	return c.templateRenderer.Render(ctx, "users/user", data, "", baseLayout)
 }
 
 func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
