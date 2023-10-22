@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/bitebait/cupcakestore/controllers"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
@@ -24,6 +25,6 @@ func NewProfileRouter() *ProfileRouter {
 }
 
 func (r *ProfileRouter) InstallRouters(app *fiber.App) {
-	profile := app.Group("/profile", cors.New())
+	profile := app.Group("/profile", cors.New()).Use(middlewares.LoginAndStaffRequired())
 	profile.Post("/update/:id", r.profileController.HandlerUpdate)
 }
