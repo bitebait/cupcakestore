@@ -7,7 +7,7 @@ import (
 
 type ProfileService interface {
 	Create(profile *models.Profile) error
-	FindByUserId(id uint) (*models.Profile, error)
+	FindByUserId(id uint) (models.Profile, error)
 	Update(profile *models.Profile) error
 }
 
@@ -24,7 +24,7 @@ func NewProfileService(profileRepository repositories.ProfileRepository) Profile
 func (s *profileService) Create(profile *models.Profile) error {
 	return s.profileRepository.Create(profile)
 }
-func (s *profileService) FindByUserId(id uint) (*models.Profile, error) {
+func (s *profileService) FindByUserId(id uint) (models.Profile, error) {
 	return s.profileRepository.FindByUserId(id)
 }
 func (s *profileService) Update(profile *models.Profile) error {

@@ -44,11 +44,11 @@ func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {
 		"Profile": profile,
 	}
 
-	if err := ctx.BodyParser(profile); err != nil {
+	if err := ctx.BodyParser(&profile); err != nil {
 		return views.Render(ctx, "users/user", data, err.Error(), baseLayout)
 	}
 
-	if err := c.profileService.Update(profile); err != nil {
+	if err := c.profileService.Update(&profile); err != nil {
 		return views.Render(ctx, "users/user", data, "Falha ao atualizar perfil do usuário.", baseLayout)
 	}
 

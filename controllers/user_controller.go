@@ -119,7 +119,7 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 		"Profile": profile,
 	}
 
-	if err := ctx.BodyParser(user); err != nil {
+	if err := ctx.BodyParser(&user); err != nil {
 		return views.Render(ctx, "users/user", data, err.Error(), baseLayout)
 	}
 
@@ -134,7 +134,7 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
-	if err := c.userService.Update(user); err != nil {
+	if err := c.userService.Update(&user); err != nil {
 		return views.Render(ctx, "users/user", data,
 			"Falha ao atualizar usuário.", baseLayout)
 	}

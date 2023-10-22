@@ -9,9 +9,9 @@ import (
 
 type UserService interface {
 	Create(user *models.User) error
-	FindAll(p *models.Pagination, filter string) []*models.User
-	FindById(id uint) (*models.User, error)
-	FindByUsername(username string) (*models.User, error)
+	FindAll(p *models.Pagination, filter string) []models.User
+	FindById(id uint) (models.User, error)
+	FindByUsername(username string) (models.User, error)
 	Update(user *models.User) error
 	Delete(id uint) error
 }
@@ -31,15 +31,15 @@ func (s *userService) Create(user *models.User) error {
 	return s.userRepository.Create(user)
 }
 
-func (s *userService) FindAll(p *models.Pagination, filter string) []*models.User {
+func (s *userService) FindAll(p *models.Pagination, filter string) []models.User {
 	return s.userRepository.FindAll(p, filter)
 }
 
-func (s *userService) FindById(id uint) (*models.User, error) {
+func (s *userService) FindById(id uint) (models.User, error) {
 	return s.userRepository.FindById(id)
 }
 
-func (s *userService) FindByUsername(username string) (*models.User, error) {
+func (s *userService) FindByUsername(username string) (models.User, error) {
 	return s.userRepository.FindByUsername(username)
 }
 
@@ -53,7 +53,7 @@ func (s *userService) Delete(id uint) error {
 	if err != nil {
 		return err
 	}
-	return s.userRepository.Delete(user)
+	return s.userRepository.Delete(&user)
 }
 
 func (s *userService) normalizeUser(user *models.User) {

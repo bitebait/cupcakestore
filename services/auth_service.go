@@ -33,7 +33,7 @@ func (s *authService) Authenticate(ctx *fiber.Ctx, username, password string) er
 		return err
 	}
 
-	return setUserSession(ctx, user)
+	return setUserSession(ctx, &user)
 }
 
 func setUserSession(ctx *fiber.Ctx, user *models.User) error {
