@@ -4,7 +4,6 @@ import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
-	"log"
 )
 
 func LoginAndStaffRequired() fiber.Handler {
@@ -18,8 +17,6 @@ func LoginAndStaffRequired() fiber.Handler {
 		if !ok || user == nil {
 			return redirectToLogout(c)
 		}
-
-		log.Println(user)
 
 		if !user.IsStaff || !user.IsActive {
 			return redirectToLogout(c)
