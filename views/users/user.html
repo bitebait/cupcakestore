@@ -17,13 +17,13 @@
 </div>
 <section class="content">
     <div class="container-fluid">
+        {{template "snippets/message" .}}
         <div class="row">
             <div class="col-md-6 mx-auto">
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Dados do Usuário</h3>
                     </div>
-                    {{template "snippets/message" .}}
                     <form method="Post" action="/users/update/{{.Object.User.ID}}">
                         <div class="card-body">
                             <div class="form-row">
@@ -55,9 +55,11 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="isStaff" name="isStaff"
+                                        <input type="checkbox" class="custom-control-input" id="isStaff"
+                                               name="isStaff"
                                                {{if .Object.User.IsStaff}}checked{{end}}/>
-                                        <label class="custom-control-label" for="isStaff">Tornar Administrador</label>
+                                        <label class="custom-control-label" for="isStaff">Tornar
+                                            Administrador</label>
                                     </div>
                                 </div>
                                 <div class="form-group col-md-6">
@@ -90,7 +92,6 @@
                     <div class="card-header">
                         <h3 class="card-title">Perfil do Usuário</h3>
                     </div>
-                    {{template "snippets/message" .}}
                     <form method="Post" action="/profile/update/{{.Object.User.ID}}">
                         <div class="card-body">
                             <div class="form-row">
@@ -113,7 +114,8 @@
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="postalcode">Código postal</label>
-                                    <input type="text" class="form-control" id="postalcode" name="postalcode"
+                                    <input type="text" class="form-control postal-code" id="postalcode"
+                                           name="postalcode"
                                            placeholder="Código postal" value="{{.Object.Profile.PostalCode}}">
                                 </div>
                             </div>
@@ -140,3 +142,13 @@
         </div>
     </div>
 </section>
+
+<script src="/plugins/cleave/cleave.min.js"></script>
+<script>
+    new Cleave('.postal-code', {
+        numericOnly: true,
+        delimiter: '-',
+        blocks: [5, 3]
+    });
+</script>
+

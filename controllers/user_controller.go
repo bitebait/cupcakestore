@@ -109,15 +109,25 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
+	profile, err := c.profileService.FindByUserId(uint(id))
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	data := fiber.Map{
+		"User":    user,
+		"Profile": profile,
+	}
+
 	if err := ctx.BodyParser(user); err != nil {
-		return views.Render(ctx, "users/user", nil, err.Error(), baseLayout)
+		return views.Render(ctx, "users/user", data, err.Error(), baseLayout)
 	}
 
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 	if oldPassword != "" && newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return views.Render(ctx, "users/user", nil,
+			return views.Render(ctx, "users/user", data,
 				"Falha ao atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
 		}
 	}
@@ -125,7 +135,7 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.userService.Update(user); err != nil {
-		return views.Render(ctx, "users/user", nil,
+		return views.Render(ctx, "users/user", data,
 			"Falha ao atualizar usuário.", baseLayout)
 	}
 

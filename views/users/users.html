@@ -16,6 +16,7 @@
 
 <section class="content">
     <div class="container-fluid">
+        {{template "snippets/message" .}}
         <div class="row">
             <div class="col-12 mx-auto">
                 <div class="card card-primary">
@@ -26,60 +27,56 @@
                                 <div class="row">
                                     <div class="col-2">
                                         <a href="/users/create" class="btn btn-success"><i
-                                                class="fa fa-user-plus"></i></a>
+                                                    class="fa fa-user-plus"></i></a>
                                     </div>
                                     <div class="col-10 mb-2">
                                         <div class="input-group m-0">
                                             <input type="text" id="limit" name="limit"
-                                                value="{{.Object.Pagination.Limit}}" hidden="hidden">
+                                                   value="{{.Object.Pagination.Limit}}" hidden="hidden">
                                             <input type="text" class="form-control" id="q" name="q"
-                                                onclick="this.value = '';" placeholder="Pesquisar Usuário">
+                                                   onclick="this.value = '';" placeholder="Pesquisar Usuário">
                                             <div class="input-group-append">
                                                 <button type="submit" class="btn btn-default"><i
-                                                        class="fas fa-search"></i></button>
+                                                            class="fas fa-search"></i></button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </form>
-                            <script>
-                                const url = new URL(window.location.href);
-                                const qParam = url.searchParams.get("q");
-                                const inputElement = document.getElementById("q");
-                                inputElement.value = qParam;
-                            </script>
-
                         </div>
                     </div>
                     <div class="card-body table-responsive p-0">
                         <table class="table table-hover text-nowrap">
                             <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nome de Usuário</th>
-                                    <th>E-mail</th>
-                                    <th>Tipo</th>
-                                    <th>Status</th>
-                                    <th>Opções</th>
-                                </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome de Usuário</th>
+                                <th>E-mail</th>
+                                <th>Tipo</th>
+                                <th>Status</th>
+                                <th>Opções</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                {{range .Object.Users}}
+                            {{range .Object.Users}}
                                 <tr>
                                     <td>{{.ID}}</td>
-                                    <td><a href="/users/{{.ID}}">{{.Username}}<br /></a><small>{{.CreatedAt|date
+                                    <td><a href="/users/{{.ID}}">{{.Username}}<br/></a><small>{{.CreatedAt|date
                                             "02/01/2006 15:04h"}}</small></td>
                                     <td>{{.Email}}</td>
                                     <td>{{if .IsStaff}}<span
-                                            class="badge badge-primary">Administrador</span>{{else}}<span
-                                            class="badge badge-secondary">Membro</span>{{end}}</td>
+                                                class="badge badge-primary">Administrador</span>{{else}}<span
+                                                class="badge badge-secondary">Membro</span>{{end}}
+                                    </td>
                                     <td>{{if .IsActive}}<span class="badge badge-success">Ativo</span>{{else}}<span
-                                            class="badge badge-danger">Inativo</span>{{end}}</td>
+                                                class="badge badge-danger">Inativo</span>{{end}}
+                                    </td>
                                     <td><a href="/users/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2"><i
-                                                class="fas fa-pen"></i></a><a href="/users/delete/{{.ID}}"
-                                            class="btn btn-sm btn-outline-danger"><i class="fa fa-trash"></i></a></td>
+                                                    class="fas fa-pen"></i></a><a href="/users/delete/{{.ID}}"
+                                                                                  class="btn btn-sm btn-outline-danger"><i
+                                                    class="fa fa-trash"></i></a></td>
                                 </tr>
-                                {{end}}
+                            {{end}}
                             </tbody>
                         </table>
                     </div>
@@ -91,3 +88,11 @@
         </div>
     </div>
 </section>
+<script>
+    const existingUrl = new URL(window.location.href);
+    const qParam = existingUrl.searchParams.get("q");
+    const inputElement = document.getElementById("q");
+    if (inputElement) {
+        inputElement.value = qParam ?? "";
+    }
+</script>
