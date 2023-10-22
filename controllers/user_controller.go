@@ -20,32 +20,30 @@ type UserController interface {
 }
 
 type userController struct {
-	userService      services.UserService
-	profileService   services.ProfileService
-	templateRenderer views.TemplateRenderer
+	userService    services.UserService
+	profileService services.ProfileService
 }
 
-func NewUserController(u services.UserService, p services.ProfileService, t views.TemplateRenderer) UserController {
+func NewUserController(u services.UserService, p services.ProfileService) UserController {
 	return &userController{
-		userService:      u,
-		profileService:   p,
-		templateRenderer: t,
+		userService:    u,
+		profileService: p,
 	}
 }
 
 func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
-	return c.templateRenderer.Render(ctx, "users/create", nil, "", baseLayout)
+	return views.Render(ctx, "users/create", nil, "", baseLayout)
 }
 
 func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
-		return c.templateRenderer.Render(ctx, "users/create", nil,
+		return views.Render(ctx, "users/create", nil,
 			"Dados de usuário inválidos: "+err.Error(), baseLayout)
 	}
 
 	if err := c.userService.Create(user); err != nil {
-		return c.templateRenderer.Render(ctx, "users/create", nil,
+		return views.Render(ctx, "users/create", nil,
 			"Falha ao criar usuário: "+err.Error(), baseLayout)
 	}
 
@@ -54,7 +52,7 @@ func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 	}
 
 	if err := c.profileService.Create(profile); err != nil {
-		return c.templateRenderer.Render(ctx, "users/create", nil,
+		return views.Render(ctx, "users/create", nil,
 			"Falha ao criar Perfil: "+err.Error(), baseLayout)
 	}
 
@@ -71,7 +69,7 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 		"Pagination": pagination,
 	}
 
-	return c.templateRenderer.Render(ctx, "users/users", data, "", baseLayout)
+	return views.Render(ctx, "users/users", data, "", baseLayout)
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
@@ -97,7 +95,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 		"Profile": profile,
 	}
 
-	return c.templateRenderer.Render(ctx, "users/user", data, "", baseLayout)
+	return views.Render(ctx, "users/user", data, "", baseLayout)
 }
 
 func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
@@ -112,14 +110,14 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	}
 
 	if err := ctx.BodyParser(user); err != nil {
-		return c.templateRenderer.Render(ctx, "users/user", nil, err.Error(), baseLayout)
+		return views.Render(ctx, "users/user", nil, err.Error(), baseLayout)
 	}
 
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 	if oldPassword != "" && newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return c.templateRenderer.Render(ctx, "users/user", nil,
+			return views.Render(ctx, "users/user", nil,
 				"Falha ao atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
 		}
 	}
@@ -127,7 +125,7 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.userService.Update(user); err != nil {
-		return c.templateRenderer.Render(ctx, "users/user", nil,
+		return views.Render(ctx, "users/user", nil,
 			"Falha ao atualizar usuário.", baseLayout)
 	}
 
@@ -145,7 +143,7 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	return c.templateRenderer.Render(ctx, "users/delete", user, "", baseLayout)
+	return views.Render(ctx, "users/delete", user, "", baseLayout)
 }
 
 func (c *userController) HandlerDelete(ctx *fiber.Ctx) error {

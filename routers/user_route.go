@@ -5,7 +5,6 @@ import (
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -17,10 +16,9 @@ type UserRouter struct {
 func NewUserRouter() *UserRouter {
 	userRepository := repositories.NewUserRepository(database.DB)
 	userService := services.NewUserService(userRepository)
-	templateRenderer := views.NewTemplateRenderer()
 	profileRepository := repositories.NewProfileRepository(database.DB)
 	profileService := services.NewProfileService(profileRepository)
-	userController := controllers.NewUserController(userService, profileService, templateRenderer)
+	userController := controllers.NewUserController(userService, profileService)
 
 	return &UserRouter{
 		userController: userController,
