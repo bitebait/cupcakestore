@@ -3,18 +3,18 @@
         {{.Total}}.</span>
     <ul class="pagination pagination-sm m-0 float-right">
         {{if and (le .Page .TotalPages) (gt .Page 1)}}
-        <li class="page-item">
-            <a class="page-link" href="?page={{sub .Page 1}}&limit={{.Limit}}">«</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{sub .Page 1}}&limit={{.Limit}}">
-                {{sub .Page 1}}
-            </a>
-        </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{sub .Page 1}}&limit={{.Limit}}">«</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{sub .Page 1}}&limit={{.Limit}}">
+                    {{sub .Page 1}}
+                </a>
+            </li>
         {{else}}
-        <li class="page-item disabled">
-            <a class="page-link" href="#">«</a>
-        </li>
+            <li class="page-item disabled">
+                <a class="page-link" href="#">«</a>
+            </li>
         {{end}}
 
         <li class="page-item active">
@@ -24,18 +24,18 @@
         </li>
 
         {{if and (lt .Page .TotalPages) (ne .Page .TotalPages)}}
-        <li class="page-item">
-            <a class="page-link" href="?page={{add .Page 1}}&limit={{.Limit}}">
-                {{add .Page 1}}
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{add .Page 1}}&limit={{.Limit}}">»</a>
-        </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{add .Page 1}}&limit={{.Limit}}">
+                    {{add .Page 1}}
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{add .Page 1}}&limit={{.Limit}}">»</a>
+            </li>
         {{else}}
-        <li class="page-item disabled">
-            <a class="page-link" href="#">»</a>
-        </li>
+            <li class="page-item disabled">
+                <a class="page-link" href="#">»</a>
+            </li>
         {{end}}
     </ul>
 </div>

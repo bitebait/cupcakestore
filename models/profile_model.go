@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
+)
 
 type Profile struct {
 	gorm.Model
@@ -11,4 +14,9 @@ type Profile struct {
 	State      string `gorm:"type:varchar(100)"`
 	PostalCode string `gorm:"type:varchar(20)"`
 	UserID     uint
+}
+
+func (p *Profile) Validate() error {
+	v := validator.New()
+	return v.Struct(p)
 }
