@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/bitebait/cupcakestore/controllers"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
@@ -33,5 +34,5 @@ func (r *AuthRouter) InstallRouters(app *fiber.App) {
 
 	auth.Get("/login", r.authController.RenderLogin)
 	auth.Post("/login", r.authController.HandlerLogin)
-	auth.Get("/logout", r.authController.HandlerLogout)
+	auth.Get("/logout", r.authController.HandlerLogout).Use(middlewares.LoginAndStaffRequired())
 }
