@@ -15,5 +15,4 @@ func SetupSession() {
 	}
 	Store = session.New(sessConfig)
 	Store.RegisterType(&models.User{})
-	Store.RegisterType(&models.Response{})
 }

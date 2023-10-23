@@ -93,9 +93,8 @@
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                     data-accordion="false">
-                    <!-- Add icons to the links using the .nav-icon class
-           with font-awesome or any other icon font library -->
-                    <li class="nav-item menu-open">
+                    <!-- User Menu -->
+                    <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-user-alt"></i>
                             <p>
@@ -114,6 +113,30 @@
                                 <a href="/users" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Usuários Registrados</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Product Menu -->
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-list-alt"></i>
+                            <p>
+                                Produtos
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/products/create" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Adicionar Produto</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/products" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Produtos Cadastrados</p>
                                 </a>
                             </li>
                         </ul>
@@ -160,18 +183,14 @@
 <script>
     $(document).ready(function () {
         const currentUrl = window.location.pathname;
-        const navLinks = $(".nav-link");
+        const navLink = $(`.nav-link[href='${currentUrl}']`);
 
-        navLinks.each(function () {
-            const href = $(this).attr("href");
-
-            if (href === currentUrl) {
-                $(this).addClass("active");
-                $(this).parents(".nav-treeview").prev(".nav-link").addClass("active");
-                $(this).parents(".has-treeview").children(".nav-link").addClass("active");
-                $(this).parents(".has-treeview").addClass("menu-open");
-            }
-        });
+        if (navLink.length > 0) {
+            navLink.addClass("active");
+            navLink.parents(".nav-treeview").prev(".nav-link").addClass("active");
+            navLink.parents(".has-treeview").children(".nav-link").addClass("active");
+            navLink.parents(".nav-item").addClass("menu-open");
+        }
     });
 </script>
 </body>

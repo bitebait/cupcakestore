@@ -7,6 +7,7 @@ import (
 
 type ProductService interface {
 	Create(product *models.Product) error
+	FindAll(p *models.Pagination, filter string) []models.Product
 }
 
 type productService struct {
@@ -21,4 +22,8 @@ func NewProductService(productRepository repositories.ProductRepository) Product
 
 func (s *productService) Create(product *models.Product) error {
 	return s.productRepository.Create(product)
+}
+
+func (s *productService) FindAll(p *models.Pagination, filter string) []models.Product {
+	return s.productRepository.FindAll(p, filter)
 }

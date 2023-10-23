@@ -1,0 +1,97 @@
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Produtos Cadastrados</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Produtos Cadastrados</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        {{template "snippets/message" .}}
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title mb-2">Lista de Produtos</h3>
+                        <div class="card-tools">
+                            <form method="get" id="filters">
+                                <div class="row">
+                                    <div class="col-2">
+                                        <a href="/products/create" class="btn btn-success"><i
+                                                    class="fa fa-user-plus"></i></a>
+                                    </div>
+                                    <div class="col-10 mb-2">
+                                        <div class="input-group m-0">
+                                            <input type="text" id="limit" name="limit"
+                                                   value="{{.Object.Pagination.Limit}}" hidden="hidden">
+                                            <input type="text" class="form-control" id="q" name="q"
+                                                   onclick="this.value = '';" placeholder="Pesquisar Produto">
+                                            <div class="input-group-append">
+                                                <button type="submit" class="btn btn-default"><i
+                                                            class="fas fa-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome do Produto</th>
+                                <th>Descrição</th>
+                                <th>Preço</th>
+                                <th>Ingredientes</th>
+                                <th>Imagem</th>
+                                <th>Opções</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{range .Object.Products}}
+                                <tr>
+                                    <td>{{.ID}}</td>
+                                    <td><a href="/products/{{.ID}}">{{.Name}}<br/></a><small>{{.CreatedAt|date
+                                            "02/01/2006 15:04h"}}</small></td>
+                                    <td>{{abbrev 30 .Description}}</td>
+                                    <td>R$ {{ printf "%.2f" .Price}}</td>
+                                    <td>{{abbrev 30 .Ingredients}}</td>
+                                    <td><img id="previewImage" src="{{.Image}}"
+                                             alt="Pré-visualização da imagem"
+                                             style="max-width: 5vh;"></td>
+                                    <td><a href="/users/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2"><i
+                                                    class="fas fa-pen"></i></a><a href="/users/delete/{{.ID}}"
+                                                                                  class="btn btn-sm btn-outline-danger"><i
+                                                    class="fa fa-trash"></i></a></td>
+                                </tr>
+                            {{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{template "snippets/pagination" .Object.Pagination}}
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    const existingUrl = new URL(window.location.href);
+    const qParam = existingUrl.searchParams.get("q");
+    const inputElement = document.getElementById("q");
+    if (inputElement) {
+        inputElement.value = qParam ?? "";
+    }
+</script>
