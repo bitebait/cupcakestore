@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+	"mime/multipart"
+	"strings"
 )
 
 type ProductController interface {
@@ -35,15 +38,22 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 		return views.Render(ctx, "products/create", nil, errorMessage, baseLayout)
 	}
 
-	file, err := ctx.FormFile("image")
+	imageFile, err := ctx.FormFile("image")
 	if err != nil {
 		return err
 	}
 
-	if err := ctx.SaveFile(file, fmt.Sprintf("./web/images/%s", file.Filename)); err != nil {
+	imageFileName, err := generateRandomImageFileName(imageFile)
+	if err != nil {
 		return err
 	}
-	product.Image = fmt.Sprintf("/images/%s", file.Filename)
+
+	imagePath := fmt.Sprintf("./web/images/%s", imageFileName)
+	if err := ctx.SaveFile(imageFile, imagePath); err != nil {
+		return err
+	}
+
+	product.Image = fmt.Sprintf("/images/%s", imageFileName)
 
 	if err := c.productService.Create(product); err != nil {
 		errorMessage := "Falha ao criar produto: " + err.Error()
@@ -51,6 +61,15 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/products")
+}
+
+func generateRandomImageFileName(imageFile *multipart.FileHeader) (string, error) {
+	rand := utils.NewRandomizer()
+	randString, err := rand.GenerateRandomString(22)
+	if err != nil {
+		return "", err
+	}
+	return randString + "." + strings.Split(imageFile.Filename, ".")[1], nil
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {

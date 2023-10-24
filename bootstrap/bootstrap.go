@@ -39,7 +39,9 @@ func NewApplication() *fiber.App {
 	app := fiber.New(fiber.Config{Views: engine})
 	app.Use(recover.New())
 	app.Use(logger.New())
-	app.Use(compress.New())
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestCompression,
+	}))
 	app.Static("/", "./web")
 	// Routes
 	routers.InstallRouters(app)

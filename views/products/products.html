@@ -25,11 +25,11 @@
                         <div class="card-tools">
                             <form method="get" id="filters">
                                 <div class="row">
-                                    <div class="col-2">
+                                    <div class="col-3">
                                         <a href="/products/create" class="btn btn-success"><i
-                                                    class="fa fa-user-plus"></i></a>
+                                                    class="fa fa-plus"></i> Novo</a>
                                     </div>
-                                    <div class="col-10 mb-2">
+                                    <div class="col-9 mb-2">
                                         <div class="input-group m-0">
                                             <input type="text" id="limit" name="limit"
                                                    value="{{.Object.Pagination.Limit}}" hidden="hidden">
@@ -67,13 +67,21 @@
                                     <td>{{abbrev 30 .Description}}</td>
                                     <td>R$ {{ printf "%.2f" .Price}}</td>
                                     <td>{{abbrev 30 .Ingredients}}</td>
-                                    <td><img id="previewImage" src="{{.Image}}"
-                                             alt="Pré-visualização da imagem"
-                                             style="max-width: 5vh;"></td>
-                                    <td><a href="/users/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2"><i
-                                                    class="fas fa-pen"></i></a><a href="/users/delete/{{.ID}}"
-                                                                                  class="btn btn-sm btn-outline-danger"><i
-                                                    class="fa fa-trash"></i></a></td>
+                                    <td>
+                                        <div
+                                             style="display: flex; justify-content: center; align-items: center;">
+                                            <img id="previewImage" src="{{.Thumbnail}}"
+                                                 alt="Pré-visualização da imagem"
+                                                 style="max-width: 100%;height: auto;max-height: 5vh;">
+                                        </div>
+                                    </td>
+                                    <td><a href="/users/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <a href="/users/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
                                 </tr>
                             {{end}}
                             </tbody>
