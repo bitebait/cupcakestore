@@ -8,6 +8,7 @@ import (
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"mime/multipart"
+	"strconv"
 	"strings"
 )
 
@@ -15,6 +16,7 @@ type ProductController interface {
 	RenderCreate(ctx *fiber.Ctx) error
 	HandlerCreate(ctx *fiber.Ctx) error
 	RenderProducts(ctx *fiber.Ctx) error
+	RenderProduct(ctx *fiber.Ctx) error
 }
 
 type productController struct {
@@ -83,4 +85,20 @@ func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
 	}
 
 	return views.Render(ctx, "products/products", data, "", baseLayout)
+}
+
+func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+
+	productID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return ctx.Redirect("/products")
+	}
+
+	product, err := c.productService.FindById(uint(productID))
+	if err != nil {
+		return ctx.Redirect("/products")
+	}
+
+	return views.Render(ctx, "products/product", product, "", baseLayout)
 }

@@ -8,6 +8,7 @@ import (
 type ProductRepository interface {
 	Create(product *models.Product) error
 	FindAll(p *models.Pagination, filter string) []models.Product
+	FindById(id uint) (models.Product, error)
 }
 
 type productRepository struct {
@@ -40,4 +41,10 @@ func (r *productRepository) FindAll(p *models.Pagination, filter string) []model
 	query.Offset(offset).Limit(p.Limit).Order("name").Find(&products)
 
 	return products
+}
+
+func (r *productRepository) FindById(id uint) (models.Product, error) {
+	var product models.Product
+	err := r.db.First(&product, id).Error
+	return product, err
 }

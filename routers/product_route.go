@@ -32,4 +32,6 @@ func (r *ProductRouter) InstallRouters(app *fiber.App) {
 	product.Get("/create", r.productController.RenderCreate)
 	product.Post("/create", r.productController.HandlerCreate)
 	product.Get("/", r.productController.RenderProducts)
+	product.Get("/:id", r.productController.RenderProduct)
+
 }
