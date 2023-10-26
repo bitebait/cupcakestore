@@ -9,6 +9,7 @@ type ProductRepository interface {
 	Create(product *models.Product) error
 	FindAll(p *models.Pagination, filter string) []models.Product
 	FindById(id uint) (models.Product, error)
+	Delete(user *models.Product) error
 }
 
 type productRepository struct {
@@ -47,4 +48,8 @@ func (r *productRepository) FindById(id uint) (models.Product, error) {
 	var product models.Product
 	err := r.db.First(&product, id).Error
 	return product, err
+}
+
+func (r *productRepository) Delete(user *models.Product) error {
+	return r.db.Delete(user).Error
 }

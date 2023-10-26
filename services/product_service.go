@@ -9,6 +9,7 @@ type ProductService interface {
 	Create(product *models.Product) error
 	FindAll(p *models.Pagination, filter string) []models.Product
 	FindById(id uint) (models.Product, error)
+	Delete(id uint) error
 }
 
 type productService struct {
@@ -31,4 +32,12 @@ func (s *productService) FindAll(p *models.Pagination, filter string) []models.P
 
 func (s *productService) FindById(id uint) (models.Product, error) {
 	return s.productRepository.FindById(id)
+}
+
+func (s *productService) Delete(id uint) error {
+	product, err := s.FindById(id)
+	if err != nil {
+		return err
+	}
+	return s.productRepository.Delete(&product)
 }

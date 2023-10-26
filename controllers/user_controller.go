@@ -1,11 +1,10 @@
 package controllers
 
 import (
-	"github.com/bitebait/cupcakestore/views"
-	"strconv"
-
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/utils"
+	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -73,9 +72,7 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
-	id := ctx.Params("id")
-
-	userID, err := strconv.ParseUint(id, 10, 32)
+	userID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
@@ -99,17 +96,17 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
-	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
 
-	user, err := c.userService.FindById(uint(id))
+	user, err := c.userService.FindById(id)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
 
-	profile, err := c.profileService.FindByUserId(uint(id))
+	profile, err := c.profileService.FindByUserId(id)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
@@ -143,12 +140,12 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
-	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
 
-	user, err := c.userService.FindById(uint(id))
+	user, err := c.userService.FindById(id)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
@@ -157,12 +154,12 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) HandlerDelete(ctx *fiber.Ctx) error {
-	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
 
-	err = c.userService.Delete(uint(id))
+	err = c.userService.Delete(id)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}

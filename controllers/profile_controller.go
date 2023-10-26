@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type ProfileController interface {
@@ -24,17 +24,17 @@ func NewProfileController(p services.ProfileService, u services.UserService) Pro
 }
 
 func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {
-	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return c.redirectToUsers(ctx)
 	}
 
-	user, err := c.userService.FindById(uint(id))
+	user, err := c.userService.FindById(id)
 	if err != nil {
 		return c.redirectToUsers(ctx)
 	}
 
-	profile, err := c.profileService.FindByUserId(uint(id))
+	profile, err := c.profileService.FindByUserId(id)
 	if err != nil {
 		return c.redirectToUsers(ctx)
 	}

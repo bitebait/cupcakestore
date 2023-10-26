@@ -8,7 +8,6 @@ import (
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"mime/multipart"
-	"strconv"
 	"strings"
 )
 
@@ -17,6 +16,8 @@ type ProductController interface {
 	HandlerCreate(ctx *fiber.Ctx) error
 	RenderProducts(ctx *fiber.Ctx) error
 	RenderProduct(ctx *fiber.Ctx) error
+	RenderDelete(ctx *fiber.Ctx) error
+	HandlerDelete(ctx *fiber.Ctx) error
 }
 
 type productController struct {
@@ -88,9 +89,7 @@ func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
 }
 
 func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
-	id := ctx.Params("id")
-
-	productID, err := strconv.ParseUint(id, 10, 32)
+	productID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/products")
 	}
@@ -101,4 +100,32 @@ func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
 	}
 
 	return views.Render(ctx, "products/product", product, "", baseLayout)
+}
+
+func (c *productController) RenderDelete(ctx *fiber.Ctx) error {
+	id, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/products")
+	}
+
+	product, err := c.productService.FindById(id)
+	if err != nil {
+		return ctx.Redirect("/products")
+	}
+
+	return views.Render(ctx, "products/delete", product, "", baseLayout)
+}
+
+func (c *productController) HandlerDelete(ctx *fiber.Ctx) error {
+	id, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/products")
+	}
+
+	err = c.productService.Delete(id)
+	if err != nil {
+		return ctx.Redirect("/products")
+	}
+
+	return ctx.Redirect("/products")
 }
