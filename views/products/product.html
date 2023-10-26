@@ -24,7 +24,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Dados do Produto</h3>
                     </div>
-                    <form method="POST" action="/products/create" enctype="multipart/form-data">
+                    <form method="POST" action="/products/update/{{.Object.ID}}" enctype="multipart/form-data">
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="col-md-6">
@@ -84,12 +84,10 @@
                                             const maxFileSizeInBytes = 1024 * 1024 * maxFileSizeInMB;
 
                                             if (file.size > maxFileSizeInBytes) {
-                                                fileInput.value = ''; // Limpa o input
+                                                fileInput.value = '';
                                                 statusElement.innerHTML = `Por favor, selecione um arquivo de até ${maxFileSizeInMB}MB.`;
                                             } else {
                                                 statusElement.innerHTML = 'Arquivo enviado com sucesso!';
-
-                                                // Envie o arquivo para o servidor remoto aqui
                                             }
                                         });
                                     </script>

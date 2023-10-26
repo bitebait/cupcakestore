@@ -22,9 +22,8 @@ type User struct {
 	Profile    Profile
 }
 
-func (u *User) BeforeCreate(tx *gorm.DB) error {
-	var err error
-	if err = u.Validate(); err != nil {
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	if err := u.Validate(); err != nil {
 		return err
 	}
 
@@ -32,7 +31,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 		return err
 	}
 
-	return nil
+	return
 }
 
 func (u *User) HashPassword() error {

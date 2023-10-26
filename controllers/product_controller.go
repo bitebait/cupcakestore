@@ -16,6 +16,7 @@ type ProductController interface {
 	HandlerCreate(ctx *fiber.Ctx) error
 	RenderProducts(ctx *fiber.Ctx) error
 	RenderProduct(ctx *fiber.Ctx) error
+	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
 	HandlerDelete(ctx *fiber.Ctx) error
 }
@@ -100,6 +101,29 @@ func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
 	}
 
 	return views.Render(ctx, "products/product", product, "", baseLayout)
+}
+
+func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
+	id, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	product, err := c.productService.FindById(id)
+	if err != nil {
+		return ctx.Redirect("/products")
+	}
+
+	if err := ctx.BodyParser(&product); err != nil {
+		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
+	}
+
+	if err := c.productService.Update(&product); err != nil {
+		return views.Render(ctx, "products/product", product,
+			"Falha ao atualizar produto.", baseLayout)
+	}
+
+	return ctx.Redirect("/products")
 }
 
 func (c *productController) RenderDelete(ctx *fiber.Ctx) error {

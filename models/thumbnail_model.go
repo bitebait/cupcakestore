@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/disintegration/imaging"
 	"image"
-	"log"
 	"path/filepath"
 )
 
@@ -17,7 +16,6 @@ func (t *Thumbnail) GetPath() string {
 	if thumb == "" {
 		return t.Image
 	}
-	log.Println(thumb)
 
 	return thumb
 }

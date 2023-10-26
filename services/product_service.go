@@ -9,6 +9,7 @@ type ProductService interface {
 	Create(product *models.Product) error
 	FindAll(p *models.Pagination, filter string) []models.Product
 	FindById(id uint) (models.Product, error)
+	Update(product *models.Product) error
 	Delete(id uint) error
 }
 
@@ -32,6 +33,10 @@ func (s *productService) FindAll(p *models.Pagination, filter string) []models.P
 
 func (s *productService) FindById(id uint) (models.Product, error) {
 	return s.productRepository.FindById(id)
+}
+
+func (s *productService) Update(product *models.Product) error {
+	return s.productRepository.Update(product)
 }
 
 func (s *productService) Delete(id uint) error {
