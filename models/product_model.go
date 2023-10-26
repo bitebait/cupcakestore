@@ -3,7 +3,6 @@ package models
 import (
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
-	"os"
 )
 
 type Product struct {
@@ -50,17 +49,4 @@ func (p *Product) AfterUpdate(tx *gorm.DB) (err error) {
 
 	tx.Model(&Product{}).Where("id = ?", p.ID).Update("thumbnail", t.GetPath())
 	return
-}
-
-func (p *Product) AfterDelete(tx *gorm.DB) error {
-	basePath := "./web"
-	if err := os.Remove(basePath + p.Image); err != nil {
-		return err
-	}
-
-	if err := os.Remove(basePath + p.Thumbnail); err != nil {
-		return err
-	}
-
-	return nil
 }
