@@ -106,7 +106,7 @@ func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
 func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return ctx.Redirect("/users")
+		return ctx.Redirect("/products")
 	}
 
 	product, err := c.productService.FindById(id)
@@ -114,8 +114,26 @@ func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/products")
 	}
 
+	imageFileOld := product.Image
+
 	if err := ctx.BodyParser(&product); err != nil {
 		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
+	}
+
+	imageFile, _ := ctx.FormFile("image")
+	product.Image = imageFileOld
+	if imageFile != nil {
+		imageFileName, err := generateRandomImageFileName(imageFile)
+		if err != nil {
+			return err
+		}
+
+		imagePath := fmt.Sprintf("./web/images/%s", imageFileName)
+		if err := ctx.SaveFile(imageFile, imagePath); err != nil {
+			return err
+		}
+
+		product.Image = fmt.Sprintf("/images/%s", imageFileName)
 	}
 
 	if err := c.productService.Update(&product); err != nil {

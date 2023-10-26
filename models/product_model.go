@@ -39,6 +39,19 @@ func (p *Product) AfterCreate(tx *gorm.DB) error {
 	tx.Model(p).Update("thumbnail", t.GetPath())
 	return nil
 }
+
+func (p *Product) AfterUpdate(tx *gorm.DB) (err error) {
+	t := &Thumbnail{
+		Image: p.Image,
+	}
+	if err := t.CreateThumbnail(); err != nil {
+		return err
+	}
+
+	tx.Model(&Product{}).Where("id = ?", p.ID).Update("thumbnail", t.GetPath())
+	return
+}
+
 func (p *Product) AfterDelete(tx *gorm.DB) error {
 	basePath := "./web"
 	if err := os.Remove(basePath + p.Image); err != nil {
