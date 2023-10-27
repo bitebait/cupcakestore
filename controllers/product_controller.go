@@ -1,20 +1,17 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
-	"mime/multipart"
-	"strings"
 )
 
 type ProductController interface {
 	RenderCreate(ctx *fiber.Ctx) error
 	HandlerCreate(ctx *fiber.Ctx) error
-	RenderProducts(ctx *fiber.Ctx) error
+	RenderProducts(*fiber.Ctx) error
 	RenderProduct(ctx *fiber.Ctx) error
 	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
@@ -47,17 +44,16 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	imageFileName, err := generateRandomImageFileName(imageFile)
-	if err != nil {
+	img := &models.ProductImage{}
+	if err := img.CreateProductImage(imageFile); err != nil {
 		return err
 	}
 
-	imagePath := fmt.Sprintf("./web/images/%s", imageFileName)
-	if err := ctx.SaveFile(imageFile, imagePath); err != nil {
+	if err := ctx.SaveFile(imageFile, img.FilePath); err != nil {
 		return err
 	}
 
-	product.Image = fmt.Sprintf("/images/%s", imageFileName)
+	product.Image = img.ImagePath
 
 	if err := c.productService.Create(product); err != nil {
 		errorMessage := "Falha ao criar produto: " + err.Error()
@@ -65,15 +61,6 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/products")
-}
-
-func generateRandomImageFileName(imageFile *multipart.FileHeader) (string, error) {
-	rand := utils.NewRandomizer()
-	randString, err := rand.GenerateRandomString(22)
-	if err != nil {
-		return "", err
-	}
-	return randString + "." + strings.Split(imageFile.Filename, ".")[1], nil
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
@@ -115,25 +102,13 @@ func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 	}
 
 	imageFileOld := product.Image
-
 	if err := ctx.BodyParser(&product); err != nil {
 		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
 	}
 
-	imageFile, _ := ctx.FormFile("image")
-	product.Image = imageFileOld
-	if imageFile != nil {
-		imageFileName, err := generateRandomImageFileName(imageFile)
-		if err != nil {
-			return err
-		}
-
-		imagePath := fmt.Sprintf("./web/images/%s", imageFileName)
-		if err := ctx.SaveFile(imageFile, imagePath); err != nil {
-			return err
-		}
-
-		product.Image = fmt.Sprintf("/images/%s", imageFileName)
+	product.Image, err = c.updateImage(ctx)
+	if err != nil {
+		product.Image = imageFileOld
 	}
 
 	if err := c.productService.Update(&product); err != nil {
@@ -142,6 +117,20 @@ func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/products")
+}
+
+func (c *productController) updateImage(ctx *fiber.Ctx) (string, error) {
+	imageFile, _ := ctx.FormFile("image")
+	img := &models.ProductImage{}
+	if err := img.CreateProductImage(imageFile); err != nil {
+		return "", err
+	}
+
+	if err := ctx.SaveFile(imageFile, img.FilePath); err != nil {
+		return "", err
+	}
+
+	return img.ImagePath, nil
 }
 
 func (c *productController) RenderDelete(ctx *fiber.Ctx) error {

@@ -39,14 +39,15 @@ func (p *Product) AfterCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (p *Product) AfterUpdate(tx *gorm.DB) (err error) {
+func (p *Product) BeforeUpdate(tx *gorm.DB) error {
 	t := &Thumbnail{
 		Image: p.Image,
 	}
+
 	if err := t.CreateThumbnail(); err != nil {
 		return err
 	}
 
-	tx.Model(&Product{}).Where("id = ?", p.ID).Update("thumbnail", t.GetPath())
-	return
+	p.Thumbnail = t.GetPath()
+	return nil
 }

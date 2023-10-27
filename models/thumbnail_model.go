@@ -22,6 +22,7 @@ func (t *Thumbnail) GetPath() string {
 
 func (t *Thumbnail) CreateThumbnail() error {
 	imageName := t.getImageName()
+
 	srcImage, err := t.openImage(imageName)
 	if err != nil {
 		return err
