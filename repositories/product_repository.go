@@ -10,7 +10,7 @@ type ProductRepository interface {
 	FindAll(p *models.Pagination, filter string) []models.Product
 	FindById(id uint) (models.Product, error)
 	Update(product *models.Product) error
-	Delete(user *models.Product) error
+	Delete(product *models.Product) error
 }
 
 type productRepository struct {
@@ -37,11 +37,14 @@ func (r *productRepository) FindAll(p *models.Pagination, filter string) []model
 		query = query.Where("name LIKE ? OR description LIKE ?", filterPattern, filterPattern)
 	}
 
-	query.Count(&p.Total)
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil
+	}
+	p.Total = total
 
 	var products []models.Product
 	query.Offset(offset).Limit(p.Limit).Order("name").Find(&products)
-
 	return products
 }
 
@@ -55,6 +58,6 @@ func (r *productRepository) Update(product *models.Product) error {
 	return r.db.Save(product).Error
 }
 
-func (r *productRepository) Delete(user *models.Product) error {
-	return r.db.Delete(user).Error
+func (r *productRepository) Delete(product *models.Product) error {
+	return r.db.Delete(product).Error
 }

@@ -38,7 +38,11 @@ func (r *userRepository) FindAll(p *models.Pagination, filter string) []models.U
 		query = query.Where("username LIKE ? OR email LIKE ?", filterPattern, filterPattern)
 	}
 
-	query.Count(&p.Total)
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil
+	}
+	p.Total = total
 
 	var users []models.User
 	query.Offset(offset).Limit(p.Limit).Order("username, email, is_staff, is_active").Find(&users)
