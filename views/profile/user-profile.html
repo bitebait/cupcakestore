@@ -1,0 +1,71 @@
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Perfil do Usuário</h3>
+    </div>
+    <form method="Post" action="/profile/update/{{.UserID}}">
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="firstname">Nome</label>
+                    <input type="text" class="form-control" id="firstname" name="firstname"
+                           placeholder="Nome" minlength="4" value="{{.FirstName}}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="lastname">Sobrenome</label>
+                    <input type="text" class="form-control" id="lastname" name="lastname"
+                           placeholder="Sobrenome" value="{{.LastName}}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-12">
+                    <label for="address">Endereço</label>
+                    <input type="text" class="form-control" id="address" name="address"
+                           placeholder="Endereço" minlength="4" value="{{.Address}}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="phonenumber">Telefone</label>
+                    <input type="text" class="form-control phone-number" id="phonenumber"
+                           name="phonenumber"
+                           placeholder="Telefone" value="{{.PhoneNumber}}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="postalcode">Código postal</label>
+                    <input type="text" class="form-control postal-code" id="postalcode"
+                           name="postalcode"
+                           placeholder="Código postal" value="{{.PostalCode}}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="state">Estado</label>
+                    <input type="text" class="form-control" id="state" name="state"
+                           placeholder="Estado" minlength="4" value="{{.State}}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="city">Cidade</label>
+                    <input type="text" class="form-control" id="city" name="city"
+                           placeholder="Cidade" value="{{.City}}">
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary float-right">Atualizar perfil</button>
+        </div>
+    </form>
+</div>
+<script src="/plugins/cleave/cleave.min.js"></script>
+<script src="/plugins/cleave/cleave-phone.br.js"></script>
+<script>
+    var cleavePostal = new Cleave('.postal-code', {
+        numericOnly: true,
+        delimiter: '-',
+        blocks: [5, 3]
+    });
+    var cleavePhone = new Cleave('.phone-number', {
+        phone: true,
+        phoneRegionCode: 'BR'
+    });
+</script>
