@@ -13,24 +13,17 @@ type ProductImage struct {
 	Path string
 }
 
-func (i *ProductImage) CropImage(imageFile *multipart.FileHeader) error {
+func (i *ProductImage) Save(imageFile *multipart.FileHeader) error {
 	imageName, err := i.generateRandomImageFileName(imageFile.Filename)
 	if err != nil {
 		return err
 	}
 
-	open, err := imageFile.Open()
-	if err != nil {
-		return err
-	}
-	defer open.Close()
-
-	decoded, err := imaging.Decode(open)
+	croppedImage, err := i.cropImage(imageFile)
 	if err != nil {
 		return err
 	}
 
-	croppedImage := i.cropImage(decoded)
 	err = i.saveCroppedImage(imageName, croppedImage)
 	if err != nil {
 		return err
@@ -39,8 +32,21 @@ func (i *ProductImage) CropImage(imageFile *multipart.FileHeader) error {
 	return nil
 }
 
-func (i *ProductImage) cropImage(srcImage image.Image) image.Image {
-	return imaging.Thumbnail(srcImage, 400, 400, imaging.Lanczos)
+func (i *ProductImage) cropImage(imageFile *multipart.FileHeader) (image.Image, error) {
+	open, err := imageFile.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer open.Close()
+
+	decoded, err := imaging.Decode(open)
+	if err != nil {
+		return nil, err
+	}
+
+	croppedImage := imaging.Thumbnail(decoded, 400, 400, imaging.Lanczos)
+
+	return croppedImage, nil
 }
 
 func (i *ProductImage) saveCroppedImage(imageName string, thumbnail image.Image) error {

@@ -33,24 +33,19 @@ func (c *productController) RenderCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
-	product := &models.Product{}
-	if err := ctx.BodyParser(product); err != nil {
+	var err error
+	var product models.Product
+
+	if err = ctx.BodyParser(&product); err != nil {
 		errorMessage := "Dados do produto inválidos: " + err.Error()
 		return views.Render(ctx, "products/create", nil, errorMessage, baseLayout)
 	}
 
-	imageFile, err := ctx.FormFile("image")
-	if err != nil {
-		return err
+	if err := c.saveProductImage(ctx, &product); err != nil {
+		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
 	}
 
-	img := &models.ProductImage{}
-	if err := img.CropImage(imageFile); err != nil {
-		return err
-	}
-	product.Image = img.Path
-
-	if err := c.productService.Create(product); err != nil {
+	if err = c.productService.Create(&product); err != nil {
 		errorMessage := "Falha ao criar produto: " + err.Error()
 		return views.Render(ctx, "products/create", nil, errorMessage, baseLayout)
 	}
@@ -96,33 +91,34 @@ func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/products")
 	}
 
-	imageFileOld := product.Image
 	if err := ctx.BodyParser(&product); err != nil {
 		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
 	}
 
-	product.Image, err = c.updateImage(ctx)
-	if err != nil {
-		product.Image = imageFileOld
+	if err := c.saveProductImage(ctx, &product); err != nil {
+		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
 	}
 
 	if err := c.productService.Update(&product); err != nil {
-		return views.Render(ctx, "products/product", product,
-			"Falha ao atualizar produto.", baseLayout)
+		return views.Render(ctx, "products/product", product, "Falha ao atualizar produto.", baseLayout)
 	}
 
 	return ctx.Redirect("/products")
 }
 
-func (c *productController) updateImage(ctx *fiber.Ctx) (string, error) {
-	imageFile, _ := ctx.FormFile("image")
-
-	img := &models.ProductImage{}
-	if err := img.CropImage(imageFile); err != nil {
-		return "", err
+func (c *productController) saveProductImage(ctx *fiber.Ctx, product *models.Product) error {
+	imageFile, err := ctx.FormFile("image")
+	if err != nil {
+		return err
 	}
 
-	return img.Path, nil
+	img := &models.ProductImage{}
+	if err := img.Save(imageFile); err != nil {
+		return err
+	}
+
+	product.Image = img.Path
+	return nil
 }
 
 func (c *productController) RenderDelete(ctx *fiber.Ctx) error {
