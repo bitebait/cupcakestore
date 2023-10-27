@@ -23,12 +23,14 @@ func (i *ProductImage) CropImage(imageFile *multipart.FileHeader) error {
 	if err != nil {
 		return err
 	}
-	decode, err := imaging.Decode(open)
+	defer open.Close()
+
+	decoded, err := imaging.Decode(open)
 	if err != nil {
 		return err
 	}
 
-	croppedImage := i.cropImage(decode)
+	croppedImage := i.cropImage(decoded)
 	err = i.saveCroppedImage(imageName, croppedImage)
 	if err != nil {
 		return err
