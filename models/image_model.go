@@ -3,31 +3,58 @@ package models
 import (
 	"fmt"
 	"github.com/bitebait/cupcakestore/utils"
+	"github.com/disintegration/imaging"
+	"image"
 	"mime/multipart"
 	"strings"
 )
 
 type ProductImage struct {
-	FileName  string
-	FilePath  string
-	ImagePath string
+	Path string
 }
 
-func (p *ProductImage) CreateProductImage(imageFile *multipart.FileHeader) error {
-	var err error
-
-	p.FileName, err = p.generateRandomImageFileName(imageFile.Filename)
+func (i *ProductImage) CropImage(imageFile *multipart.FileHeader) error {
+	imageName, err := i.generateRandomImageFileName(imageFile.Filename)
 	if err != nil {
 		return err
 	}
 
-	p.FilePath = fmt.Sprintf("./web/images/%s", p.FileName)
+	open, err := imageFile.Open()
+	if err != nil {
+		return err
+	}
+	decode, err := imaging.Decode(open)
+	if err != nil {
+		return err
+	}
 
-	p.ImagePath = fmt.Sprintf("/images/%s", p.FileName)
+	croppedImage := i.cropImage(decode)
+	err = i.saveCroppedImage(imageName, croppedImage)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (p *ProductImage) generateRandomImageFileName(filename string) (string, error) {
+func (i *ProductImage) cropImage(srcImage image.Image) image.Image {
+	return imaging.Thumbnail(srcImage, 400, 400, imaging.Lanczos)
+}
+
+func (i *ProductImage) saveCroppedImage(imageName string, thumbnail image.Image) error {
+	imagePath := fmt.Sprintf("./web/images/%s", imageName)
+
+	err := imaging.Save(thumbnail, imagePath)
+	if err != nil {
+		return err
+	}
+
+	i.Path = strings.ReplaceAll(imagePath, "./web/", "/")
+
+	return nil
+}
+
+func (i *ProductImage) generateRandomImageFileName(filename string) (string, error) {
 	rand := utils.NewRandomizer()
 	randString, err := rand.GenerateRandomString(22)
 	if err != nil {

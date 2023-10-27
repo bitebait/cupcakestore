@@ -45,15 +45,10 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 	}
 
 	img := &models.ProductImage{}
-	if err := img.CreateProductImage(imageFile); err != nil {
+	if err := img.CropImage(imageFile); err != nil {
 		return err
 	}
-
-	if err := ctx.SaveFile(imageFile, img.FilePath); err != nil {
-		return err
-	}
-
-	product.Image = img.ImagePath
+	product.Image = img.Path
 
 	if err := c.productService.Create(product); err != nil {
 		errorMessage := "Falha ao criar produto: " + err.Error()
@@ -121,16 +116,13 @@ func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 
 func (c *productController) updateImage(ctx *fiber.Ctx) (string, error) {
 	imageFile, _ := ctx.FormFile("image")
+
 	img := &models.ProductImage{}
-	if err := img.CreateProductImage(imageFile); err != nil {
+	if err := img.CropImage(imageFile); err != nil {
 		return "", err
 	}
 
-	if err := ctx.SaveFile(imageFile, img.FilePath); err != nil {
-		return "", err
-	}
-
-	return img.ImagePath, nil
+	return img.Path, nil
 }
 
 func (c *productController) RenderDelete(ctx *fiber.Ctx) error {
