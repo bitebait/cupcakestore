@@ -46,16 +46,23 @@ func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 			"Falha ao criar usuário: "+err.Error(), baseLayout)
 	}
 
-	profile := &models.Profile{
-		UserID: user.ID,
-	}
-
-	if err := c.profileService.Create(profile); err != nil {
+	if err := c.createProfile(user.ID); err != nil {
 		return views.Render(ctx, "users/create", nil,
-			"Falha ao criar Perfil: "+err.Error(), baseLayout)
+			"Falha ao criar perfil: "+err.Error(), baseLayout)
 	}
 
 	return ctx.Redirect("/users")
+}
+
+func (c *userController) createProfile(userID uint) error {
+	profile := &models.Profile{
+		UserID: userID,
+	}
+
+	if err := c.profileService.Create(profile); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
@@ -116,27 +123,47 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 		"Profile": profile,
 	}
 
-	if err := ctx.BodyParser(&user); err != nil {
+	err = c.updateUserFromRequest(ctx, &user)
+	if err != nil {
 		return views.Render(ctx, "users/user", data, err.Error(), baseLayout)
 	}
 
-	oldPassword := ctx.FormValue("oldPassword")
-	newPassword := ctx.FormValue("newPassword")
-	if oldPassword != "" && newPassword != "" {
-		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
-			return views.Render(ctx, "users/user", data,
-				"Falha ao atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
-		}
+	err = c.updateUserPassword(ctx, &user)
+	if err != nil {
+		return views.Render(ctx, "users/user", data, "Falha ao atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
+	}
+
+	err = c.userService.Update(&user)
+	if err != nil {
+		return views.Render(ctx, "users/user", data, "Falha ao atualizar usuário.", baseLayout)
+	}
+
+	return ctx.Redirect("/users")
+}
+
+func (c *userController) updateUserFromRequest(ctx *fiber.Ctx, user *models.User) error {
+	if err := ctx.BodyParser(user); err != nil {
+		return err
 	}
 
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
-	if err := c.userService.Update(&user); err != nil {
-		return views.Render(ctx, "users/user", data,
-			"Falha ao atualizar usuário.", baseLayout)
+
+	return nil
+}
+
+func (c *userController) updateUserPassword(ctx *fiber.Ctx, user *models.User) error {
+	oldPassword := ctx.FormValue("oldPassword")
+	newPassword := ctx.FormValue("newPassword")
+
+	if oldPassword != "" && newPassword != "" {
+		err := user.UpdatePassword(oldPassword, newPassword)
+		if err != nil {
+			return err
+		}
 	}
 
-	return ctx.Redirect("/users")
+	return nil
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
