@@ -82,7 +82,7 @@ func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/products")
 	}
 
-	product, err := c.productService.FindById(uint(productID))
+	product, err := c.productService.FindById(productID)
 	if err != nil {
 		return ctx.Redirect("/products")
 	}

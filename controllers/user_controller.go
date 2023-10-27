@@ -77,12 +77,12 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	user, err := c.userService.FindById(uint(userID))
+	user, err := c.userService.FindById(userID)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
 
-	profile, err := c.profileService.FindByUserId(uint(userID))
+	profile, err := c.profileService.FindByUserId(userID)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
