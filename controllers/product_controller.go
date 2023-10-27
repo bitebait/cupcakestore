@@ -11,7 +11,7 @@ import (
 type ProductController interface {
 	RenderCreate(ctx *fiber.Ctx) error
 	HandlerCreate(ctx *fiber.Ctx) error
-	RenderProducts(*fiber.Ctx) error
+	RenderProducts(ctx *fiber.Ctx) error
 	RenderProduct(ctx *fiber.Ctx) error
 	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
