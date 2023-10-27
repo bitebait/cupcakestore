@@ -33,19 +33,17 @@ func (c *productController) RenderCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
-	var err error
-	var product models.Product
-
-	if err = ctx.BodyParser(&product); err != nil {
+	product := &models.Product{}
+	if err := ctx.BodyParser(product); err != nil {
 		errorMessage := "Dados do produto inválidos: " + err.Error()
 		return views.Render(ctx, "products/create", nil, errorMessage, baseLayout)
 	}
 
-	if err := c.saveProductImage(ctx, &product); err != nil {
+	if err := c.saveProductImage(ctx, product); err != nil {
 		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
 	}
 
-	if err = c.productService.Create(&product); err != nil {
+	if err := c.productService.Create(product); err != nil {
 		errorMessage := "Falha ao criar produto: " + err.Error()
 		return views.Render(ctx, "products/create", nil, errorMessage, baseLayout)
 	}
@@ -55,7 +53,6 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
 	query := ctx.Query("q", "")
-
 	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
 	products := c.productService.FindAll(pagination, query)
 	data := fiber.Map{
@@ -91,12 +88,13 @@ func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/products")
 	}
 
+	oldImage := product.Image
 	if err := ctx.BodyParser(&product); err != nil {
 		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
 	}
 
 	if err := c.saveProductImage(ctx, &product); err != nil {
-		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
+		product.Image = oldImage
 	}
 
 	if err := c.productService.Update(&product); err != nil {
