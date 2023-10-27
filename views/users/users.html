@@ -61,7 +61,7 @@
                             {{range .Object.Users}}
                                 <tr>
                                     <td>{{.ID}}</td>
-                                    <td><a href="/users/{{.ID}}">{{.Username}}<br/></a><small>{{.CreatedAt|date
+                                    <td><a href="/users/{{.ID}}">{{.Username}}<br/></a><small>{{.UpdatedAt|date
                                             "02/01/2006 15:04h"}}</small></td>
                                     <td>{{.Email}}</td>
                                     <td>{{if .IsStaff}}<span

@@ -62,7 +62,7 @@
                             {{range .Object.Products}}
                                 <tr>
                                     <td>{{.ID}}</td>
-                                    <td><a href="/products/{{.ID}}">{{.Name}}<br/></a><small>{{.CreatedAt|date
+                                    <td><a href="/products/{{.ID}}">{{.Name}}<br/></a><small>{{.UpdatedAt|date
                                             "02/01/2006 15:04h"}}</small></td>
                                     <td>{{abbrev 30 .Description}}</td>
                                     <td>R$ {{ printf "%.2f" .Price}}</td>
