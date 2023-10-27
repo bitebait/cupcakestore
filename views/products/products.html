@@ -68,10 +68,9 @@
                                     <td>R$ {{ printf "%.2f" .Price}}</td>
                                     <td>{{abbrev 30 .Ingredients}}</td>
                                     <td>
-                                        <div
-                                                style="display: flex; justify-content: center; align-items: center;">
+                                        <div style="display: flex; justify-content: center; align-items: center;">
                                             <img id="previewImage"
-                                                 src="{{if .Thumbnail}}{{.Thumbnail}}{{else}}/images/600x400.svg{{end}}"
+                                                 src="{{if .Image}}{{.Image}}{{else}}/images/600x400.svg{{end}}"
                                                  alt="Pré-visualização da imagem"
                                                  style="max-width: 100%;height: auto;max-height: 5vh;">
                                         </div>

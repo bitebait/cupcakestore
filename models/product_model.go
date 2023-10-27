@@ -26,28 +26,3 @@ func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
-
-func (p *Product) AfterCreate(tx *gorm.DB) error {
-	t := &Thumbnail{
-		Image: p.Image,
-	}
-	if err := t.CreateThumbnail(); err != nil {
-		return err
-	}
-
-	tx.Model(p).Update("thumbnail", t.GetPath())
-	return nil
-}
-
-func (p *Product) BeforeUpdate(tx *gorm.DB) error {
-	t := &Thumbnail{
-		Image: p.Image,
-	}
-
-	if err := t.CreateThumbnail(); err != nil {
-		return err
-	}
-
-	p.Thumbnail = t.GetPath()
-	return nil
-}
