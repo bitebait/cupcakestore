@@ -88,20 +88,30 @@ func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/products")
 	}
 
-	oldImage := product.Image
-	if err := ctx.BodyParser(&product); err != nil {
+	err = c.updateProductFromRequest(ctx, &product)
+	if err != nil {
 		return views.Render(ctx, "products/product", product, err.Error(), baseLayout)
 	}
 
-	if err := c.saveProductImage(ctx, &product); err != nil {
+	return ctx.Redirect("/products")
+}
+
+func (c *productController) updateProductFromRequest(ctx *fiber.Ctx, product *models.Product) error {
+	oldImage := product.Image
+
+	if err := ctx.BodyParser(product); err != nil {
+		return err
+	}
+
+	product.IsActive = ctx.FormValue("isActive") == "on"
+	if err := c.saveProductImage(ctx, product); err != nil {
 		product.Image = oldImage
 	}
 
-	if err := c.productService.Update(&product); err != nil {
+	if err := c.productService.Update(product); err != nil {
 		return views.Render(ctx, "products/product", product, "Falha ao atualizar produto.", baseLayout)
 	}
-
-	return ctx.Redirect("/products")
+	return nil
 }
 
 func (c *productController) saveProductImage(ctx *fiber.Ctx, product *models.Product) error {

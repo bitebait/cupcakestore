@@ -76,6 +76,23 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <div
+                                            class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                        <input type="checkbox" class="custom-control-input" id="isActive"
+                                               aria-describedby="statusHelp"
+                                               name="isActive" {{if .Object.IsActive}}checked{{end}}/>
+                                        <label class="custom-control-label" for="isActive">Ativar/Desativar
+                                            Produto</label>
+                                        <small id="statusHelp" class="form-text text-muted">Ao desativar um produto,
+                                            ele não estará mais
+                                            disponível para alterações ou utilização, mas ainda aparecerá na lista
+                                            de cadastro.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-footer">
                             <a href="/products" class="btn btn-default">
