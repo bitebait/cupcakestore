@@ -88,11 +88,4 @@
         </div>
     </div>
 </section>
-<script>
-    const existingUrl = new URL(window.location.href);
-    const qParam = existingUrl.searchParams.get("q");
-    const inputElement = document.getElementById("q");
-    if (inputElement) {
-        inputElement.value = qParam ?? "";
-    }
-</script>
+{{template "snippets/table-filter" }}

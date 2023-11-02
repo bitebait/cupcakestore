@@ -1,0 +1,9 @@
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const qParam = new URLSearchParams(window.location.search).get('q');
+        const inputElement = document.getElementById('q');
+        if (inputElement) {
+            inputElement.value = qParam ?? '';
+        }
+    });
+</script>

@@ -1,0 +1,37 @@
+<script>
+    const fileInput = document.getElementById('image');
+    const statusElement = document.getElementById('imageLabel');
+    const previewImage = document.getElementById('previewImage');
+    const maxFileSizeInMB = 2;
+    const maxFileSizeInBytes = 1024 * 1024 * maxFileSizeInMB;
+
+    function updateStatus(color, message) {
+        statusElement.style.color = color;
+        statusElement.innerHTML = message;
+    }
+
+    function resetFileInput() {
+        fileInput.value = '';
+        previewImage.src = "/images/placeholder.jpg";
+    }
+
+    function previewFile(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    fileInput.addEventListener('change', event => {
+        const file = fileInput.files[0];
+
+        if (file.size > maxFileSizeInBytes) {
+            resetFileInput();
+            updateStatus("red", `Por favor, selecione um arquivo de até ${maxFileSizeInMB}MB.`);
+        } else {
+            updateStatus("green", 'Arquivo carregado com sucesso!');
+            previewFile(file);
+        }
+    });
+</script>

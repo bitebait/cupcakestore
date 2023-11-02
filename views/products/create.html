@@ -68,36 +68,6 @@
                                                  style="max-width: 100%;height: auto;max-height: 50vh;">
                                         </div>
                                     </div>
-                                    <script>
-                                        const fileInput = document.getElementById('image');
-                                        const statusElement = document.getElementById('imageLabel');
-
-                                        fileInput.addEventListener('change', event => {
-                                            const file = fileInput.files[0];
-                                            const maxFileSizeInMB = 2;
-                                            const maxFileSizeInBytes = 1024 * 1024 * maxFileSizeInMB;
-
-                                            if (file.size > maxFileSizeInBytes) {
-                                                fileInput.value = ''; // Limpa o input
-                                                statusElement.innerHTML = `Por favor, selecione um arquivo de até ${maxFileSizeInMB}MB.`;
-                                                statusElement.style.color = "red"
-                                                document.getElementById('previewImage').src = "/images/placeholder.jpg"
-                                            } else {
-                                                statusElement.style.color = "green"
-                                                statusElement.innerHTML = 'Arquivo carregado com sucesso!';
-                                            }
-                                        });
-                                    </script>
-                                    <script>
-                                        document.getElementById('image').addEventListener('change', function (e) {
-                                            var file = e.target.files[0];
-                                            var reader = new FileReader();
-                                            reader.onload = function (e) {
-                                                document.getElementById('previewImage').src = e.target.result;
-                                            };
-                                            reader.readAsDataURL(file);
-                                        });
-                                    </script>
                                 </div>
                             </div>
                         </div>
@@ -111,3 +81,4 @@
         </div>
     </div>
 </section>
+{{template "products/scripts/product-image"}}
