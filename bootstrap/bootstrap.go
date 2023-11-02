@@ -25,6 +25,7 @@ func NewApplication() *fiber.App {
 		&models.User{},
 		&models.Profile{},
 		&models.Product{},
+		&models.Stock{},
 	)
 	if err != nil {
 		log.Panic("error migrate models")

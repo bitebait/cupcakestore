@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>AdminLTE 3 | Fixed Sidebar</title>
-
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -15,8 +13,10 @@
     <link rel="stylesheet" href="/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"/>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 </head>
-
 <body class="hold-transition sidebar-mini layout-fixed">
 <!-- Site wrapper -->
 <div class="wrapper">
@@ -25,10 +25,11 @@
         <!-- Left navbar links -->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+                    <i class="fas fa-bars"></i>
+                </a>
             </li>
         </ul>
-
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <!-- Notifications Dropdown Menu -->
@@ -41,18 +42,17 @@
                     <span class="dropdown-item dropdown-header">15 Notifications</span>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-envelope mr-2"></i> 4 new messages
-                        <span class="float-right text-muted text-sm">3 mins</span>
+                        <i class="fas fa-envelope mr-2"></i> 4 new messages <span
+                                class="float-right text-muted text-sm">3 mins</span>
                     </a>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-users mr-2"></i> 8 friend requests
-                        <span class="float-right text-muted text-sm">12 hours</span>
+                        <i class="fas fa-users mr-2"></i> 8 friend requests <span
+                                class="float-right text-muted text-sm">12 hours</span>
                     </a>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
-                        <i class="fas fa-file mr-2"></i> 3 new reports
-                        <span class="float-right text-muted text-sm">2 days</span>
+                        <i class="fas fa-file mr-2"></i> 3 new reports <span class="float-right text-muted text-sm">2 days</span>
                     </a>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
@@ -66,7 +66,6 @@
         </ul>
     </nav>
     <!-- /.navbar -->
-
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4">
         <!-- Brand Logo -->
@@ -75,7 +74,6 @@
                  style="opacity: .8">
             <span class="brand-text font-weight-light">AdminLTE 3</span>
         </a>
-
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Sidebar user (optional) -->
@@ -88,7 +86,6 @@
                     <a href="#" class="d-block">{{.User.Username}}</a>
                 </div>
             </div>
-
             <!-- Sidebar Menu -->
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
@@ -97,9 +94,7 @@
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-user-alt"></i>
-                            <p>
-                                Usuários
-                                <i class="right fas fa-angle-left"></i>
+                            <p> Usuários <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
@@ -121,9 +116,7 @@
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-list-alt"></i>
-                            <p>
-                                Produtos
-                                <i class="right fas fa-angle-left"></i>
+                            <p> Produtos <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
@@ -145,9 +138,7 @@
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-box"></i>
-                            <p>
-                                Estoque
-                                <i class="right fas fa-angle-left"></i>
+                            <p> Estoque <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
@@ -164,20 +155,17 @@
             <!-- /.sidebar-menu -->
         </div>
         <!-- /.sidebar -->
-
         <div class="sidebar-custom">
             <a href="/auth/logout" class="btn btn-secondary btn-sm btn-block">
-                <i class="fas fa-sign-out-alt"></i> Sair</a>
+                <i class="fas fa-sign-out-alt"></i> Sair </a>
         </div>
         <!-- /.sidebar-custom -->
     </aside>
-
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         {{embed}}
     </div>
     <!-- /.content-wrapper -->
-
     <!-- Main Footer -->
     <footer class="main-footer">
         <!-- To the right -->
@@ -189,9 +177,7 @@
     </footer>
 </div>
 <!-- ./wrapper -->
-
 <!-- jQuery -->
-<script src="/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- overlayScrollbars -->
@@ -202,7 +188,6 @@
     $(document).ready(function () {
         const currentUrl = window.location.pathname;
         const navLink = $(`.nav-link[href='${currentUrl}']`);
-
         if (navLink.length > 0) {
             navLink.addClass("active");
             navLink.parents(".nav-treeview").prev(".nav-link").addClass("active");
@@ -212,5 +197,4 @@
     });
 </script>
 </body>
-
 </html>

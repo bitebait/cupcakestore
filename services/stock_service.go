@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 )
@@ -20,5 +21,9 @@ func NewStockService(stockRepository repositories.StockRepository) StockService 
 }
 
 func (s *stockService) Create(stock *models.Stock) error {
+	if stock.Quantity <= 0 {
+		return errors.New("quantidade inválida")
+	}
+
 	return s.stockRepository.Create(stock)
 }

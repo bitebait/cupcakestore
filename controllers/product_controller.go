@@ -16,6 +16,7 @@ type ProductController interface {
 	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
 	HandlerDelete(ctx *fiber.Ctx) error
+	JSONProducts(ctx *fiber.Ctx) error
 }
 
 type productController struct {
@@ -155,4 +156,16 @@ func (c *productController) HandlerDelete(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/products")
+}
+
+func (c *productController) JSONProducts(ctx *fiber.Ctx) error {
+	query := ctx.Query("q", "")
+	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
+	products := c.productService.FindAll(pagination, query)
+	data := fiber.Map{
+		"Products":   products,
+		"Pagination": pagination,
+	}
+
+	return ctx.JSON(data)
 }

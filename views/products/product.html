@@ -28,34 +28,29 @@
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="col-md-6">
-                                    <div class="form-group"><label for="name">Nome do produto</label> <input type="text"
-                                                                                                             class="form-control"
-                                                                                                             id="name"
-                                                                                                             name="name"
-                                                                                                             placeholder="Nome do produto"
-                                                                                                             minlength="4"
-                                                                                                             value="{{.Object.Name}}"
-                                                                                                             required="required">
+                                    <div class="form-group">
+                                        <label for="name">Nome do produto</label>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                               placeholder="Nome do produto" minlength="4" value="{{.Object.Name}}"
+                                               required="required">
                                     </div>
-                                    <div class="form-group"><label for="price">Preço</label> <input type="number"
-                                                                                                    step="0.01"
-                                                                                                    class="form-control"
-                                                                                                    id="price"
-                                                                                                    name="price"
-                                                                                                    placeholder="Preço do produto"
-                                                                                                    min="0.01"
-                                                                                                    value="{{.Object.Price}}"
-                                                                                                    required="required"/>
+                                    <div class="form-group">
+                                        <label for="price">Preço</label>
+                                        <input type="number" step="0.01" class="form-control" id="price" name="price"
+                                               placeholder="Preço do produto" min="0.01" value="{{.Object.Price}}"
+                                               required="required"/>
                                     </div>
-                                    <div class="form-group"><label for="description">Descrição</label> <textarea
-                                                class="form-control" id="description" name="description" rows="3"
-                                                required="required"
-                                                placeholder="Descrição do produto">{{.Object.Description}}</textarea>
+                                    <div class="form-group">
+                                        <label for="description">Descrição</label>
+                                        <textarea class="form-control" id="description" name="description" rows="3"
+                                                  required="required"
+                                                  placeholder="Descrição do produto">{{.Object.Description}}</textarea>
                                     </div>
-                                    <div class="form-group"><label for="ingredients">Ingredientes</label> <textarea
-                                                class="form-control" id="ingredients" name="ingredients" rows="3"
-                                                required="required"
-                                                placeholder="Lista de ingredientes">{{.Object.Ingredients}}</textarea>
+                                    <div class="form-group">
+                                        <label for="ingredients">Ingredientes</label>
+                                        <textarea class="form-control" id="ingredients" name="ingredients" rows="3"
+                                                  required="required"
+                                                  placeholder="Lista de ingredientes">{{.Object.Ingredients}}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -64,8 +59,7 @@
                                         <div class="input-group">
                                             <input type="file" id="image" name="image"
                                                    accept="image/png, image/jpeg, image/jpg">
-                                            <label for="image" id="imageLabel">Escolher Imagem do
-                                                Produto</label>
+                                            <label for="image" id="imageLabel">Escolher Imagem do Produto</label>
                                         </div>
                                         <div class="mt-2"
                                              style="display: flex; justify-content: center; align-items: center;">
@@ -78,29 +72,24 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <div
-                                            class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                    <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
                                         <input type="checkbox" class="custom-control-input" id="isActive"
-                                               aria-describedby="statusHelp"
-                                               name="isActive" {{if .Object.IsActive}}checked{{end}}/>
+                                               aria-describedby="statusHelp" name="isActive"
+                                               {{if .Object.IsActive}}checked{{end}} />
                                         <label class="custom-control-label" for="isActive">Ativar/Desativar
                                             Produto</label>
-                                        <small id="statusHelp" class="form-text text-muted">Ao desativar um produto,
-                                            ele não estará mais
-                                            disponível para alterações ou utilização, mas ainda aparecerá na lista
-                                            de cadastro.
-                                        </small>
+                                        <small id="statusHelp" class="form-text text-muted">Ao desativar um produto, ele
+                                            não estará mais disponível para alterações ou utilização, mas ainda
+                                            aparecerá na lista de cadastro. </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             <a href="/products" class="btn btn-default">
-                                <i class="fas fa-undo-alt"></i> Cancelar
-                            </a>
+                                <i class="fas fa-undo-alt"></i> Cancelar </a>
                             <a href="/products/delete/{{.Object.ID}}" class="btn btn-outline-danger">
-                                <i class="fa fa-trash"></i> Deletar
-                            </a>
+                                <i class="fa fa-trash"></i> Deletar </a>
                             <button type="submit" class="btn btn-primary float-right">Atualizar</button>
                         </div>
                     </form>
@@ -110,4 +99,3 @@
     </div>
 </section>
 {{template "products/scripts/product-image"}}
-

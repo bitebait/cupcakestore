@@ -1,6 +1,5 @@
 <div class="card-footer clearfix">
-    <span>Página {{.Page}} de {{.TotalPages}} - Mostrando {{.Limit}} resultado(s) por página de um total de
-        {{.Total}}.</span>
+    <span>Página {{.Page}} de {{.TotalPages}} - Mostrando {{.Limit}} resultado(s) por página de um total de {{.Total}}.</span>
     <ul class="pagination pagination-sm m-0 float-right">
         {{if and (le .Page .TotalPages) (gt .Page 1)}}
             <li class="page-item">
@@ -16,13 +15,11 @@
                 <a class="page-link" href="#">«</a>
             </li>
         {{end}}
-
         <li class="page-item active">
             <a class="page-link" href="?page={{.Page}}&limit={{.Limit}}">
                 <strong>{{.Page}}</strong>
             </a>
         </li>
-
         {{if and (lt .Page .TotalPages) (ne .Page .TotalPages)}}
             <li class="page-item">
                 <a class="page-link" href="?page={{add .Page 1}}&limit={{.Limit}}">

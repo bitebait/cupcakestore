@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
@@ -26,5 +27,16 @@ func (c *stockController) RenderCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *stockController) HandlerCreate(ctx *fiber.Ctx) error {
-	return ctx.Redirect("/stock")
+	stock := &models.Stock{}
+	if err := ctx.BodyParser(stock); err != nil {
+		return views.Render(ctx, "stock/create", nil,
+			"Dados inválidos: "+err.Error(), baseLayout)
+	}
+
+	if err := c.stockService.Create(stock); err != nil {
+		return views.Render(ctx, "stock/create", nil,
+			"Falha ao adicionar ao estoque: "+err.Error(), baseLayout)
+	}
+
+	return ctx.Redirect("/products")
 }

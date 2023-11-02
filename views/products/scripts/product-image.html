@@ -25,7 +25,6 @@
 
     fileInput.addEventListener('change', event => {
         const file = fileInput.files[0];
-
         if (file.size > maxFileSizeInBytes) {
             resetFileInput();
             updateStatus("red", `Por favor, selecione um arquivo de até ${maxFileSizeInMB}MB.`);

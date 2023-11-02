@@ -17,52 +17,140 @@
 </div>
 <section class="content">
     <div class="container-fluid">
+        {{template "snippets/message" .}}
         <div class="row">
             <div class="col-md-4 mx-auto">
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Adicionar Produto ao Estoque</h3>
                     </div>
-                    {{template "snippets/message" .}}
-                    <form method="POST" action="/stock/create" enctype="multipart/form-data">
-                        <div class="card-body">
-                            <div class="form-row">
-                                <div class="col-12">
-                                    <div class="form-group"><label for="name">ID do produto</label> <input type="text"
-                                                                                                           class="form-control"
-                                                                                                           id="productID"
-                                                                                                           name="productID"
-                                                                                                           placeholder="ID do produto"
-                                                                                                           required="required">
-                                    </div>
-                                    <div class="form-group"><label for="quantity">Quantidade</label> <input
-                                                type="number"
-                                                class="form-control"
-                                                id="quantity"
-                                                name="quantity"
-                                                placeholder="Quantidade"
-                                                pattern="\d*"
-                                                step="1"
-                                                min="1"
-                                                required="required"/>
-                                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="productName">Nome do produto</label>
+                                    <input type="text" class="form-control" id="productName" name="productName"
+                                           placeholder="Nome do produto" required="required">
                                 </div>
+                                <form method="POST" action="/stock/create" id="stockForm">
+                                    <div class="form-group">
+                                        <label for="quantity">Quantidade</label>
+                                        <input type="number" class="form-control" id="quantity" name="quantity"
+                                               placeholder="Quantidade" pattern="[1-9]\d*" step="1" min="1"
+                                               required="required"/>
+                                        <input type="number" class="form-control" id="productID" name="productID"
+                                               required="required" value="" hidden="hidden">
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                        <div class="card-footer"><a href="/stock" class="btn btn-default"> <i
-                                        class="fas fa-undo-alt"></i> Cancelar </a>
-                            <button type="submit" class="btn btn-primary float-right">Adicionar</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/stock" class="btn btn-default">
+                            <i class="fas fa-undo-alt"></i> Cancelar </a>
+                        <button type="button" onclick="document.getElementById('stockForm').submit();"
+                                class="btn btn-primary float-right">Adicionar
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="col-md-8 mx-auto">
                 <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">Informacoes do produto</h3>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">Nome do produto</label>
+                                    <p class="text-muted" id="name">Sem informações</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="price">Preço</label>
+                                    <p class="text-muted" id="price">Sem informações</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Descrição</label>
+                                    <p class="text-muted" id="description">Sem informações</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ingredients">Ingredientes</label>
+                                    <p class="text-muted" id="ingredients">Sem informações</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="mt-2"
+                                         style="display: flex; justify-content: center; align-items: center;">
+                                        <img id="previewImage" src="/images/placeholder.jpg"
+                                             alt="Pré-visualização da imagem"
+                                             style="max-width: 100%;height: auto;max-height: 40vh;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+<script>
+    $(document).ready(function () {
+        const $quantity = $('#quantity').prop('disabled', true);
+        const $productName = $('#productName'),
+            $name = $('#name'),
+            $price = $('#price'),
+            $description = $('#description'),
+            $ingredients = $('#ingredients'),
+            $previewImage = $('#previewImage'),
+            $productID = $('#productID');
+        const clearFields = () => {
+            $name.text('Sem informações');
+            $price.text('Sem informações');
+            $description.text('Sem informações');
+            $ingredients.text('Sem informações');
+            $previewImage.attr('src', '/images/placeholder.jpg');
+            $quantity.prop('disabled', true);
+            $productID.val('');
+        };
+        const setFields = (item) => {
+            if (item.name) {
+                $name.text(item.name);
+                $price.text("R$ " + item.price);
+                $description.text(item.description);
+                $ingredients.text(item.ingredients);
+                $previewImage.attr('src', item.imageUrl);
+                $quantity.prop('disabled', false);
+                $productID.val(item.id);
+            } else {
+                clearFields();
+            }
+        };
+        const fetchData = (request, response) => {
+            $.getJSON('/products/json', {
+                q: request.term,
+                limit: 5
+            }, data => {
+                if (data.Products.length !== 0) {
+                    response($.map(data.Products, item => ({
+                        label: item.Name,
+                        value: item.Name,
+                        id: item.ID,
+                        name: item.Name,
+                        description: item.Description,
+                        price: item.Price,
+                        ingredients: item.Ingredients,
+                        imageUrl: item.Image,
+                    })));
+                } else {
+                    clearFields();
+                }
+            });
+        };
+        $productName.autocomplete({
+            source: fetchData,
+            minLength: 2,
+            select: (event, ui) => setFields(ui.item),
+            change: (event, ui) => ui.item || clearFields()
+        });
+    });
+</script>
