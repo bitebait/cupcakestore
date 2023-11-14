@@ -41,6 +41,9 @@ func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 			"Dados de usuário inválidos: "+err.Error(), baseLayout)
 	}
 
+	user.IsStaff = ctx.FormValue("isStaff") == "on"
+	user.IsActive = ctx.FormValue("isActive") == "on"
+
 	if err := c.userService.Create(user); err != nil {
 		return views.Render(ctx, "users/create", nil,
 			"Falha ao criar usuário: "+err.Error(), baseLayout)
