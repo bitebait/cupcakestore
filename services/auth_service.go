@@ -1,8 +1,6 @@
 package services
 
 import (
-	"log"
-
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/session"
@@ -44,7 +42,6 @@ func setUserSession(ctx *fiber.Ctx, user *models.User) error {
 
 	sess.Set("user", user)
 	if err = sess.Save(); err != nil {
-		log.Println(err)
 		return err
 	}
 
