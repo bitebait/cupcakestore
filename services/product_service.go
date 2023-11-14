@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
+	"strings"
 )
 
 type ProductService interface {
@@ -24,6 +25,7 @@ func NewProductService(productRepository repositories.ProductRepository) Product
 }
 
 func (s *productService) Create(product *models.Product) error {
+	s.normalizeProduct(product)
 	return s.productRepository.Create(product)
 }
 
@@ -36,6 +38,7 @@ func (s *productService) FindById(id uint) (models.Product, error) {
 }
 
 func (s *productService) Update(product *models.Product) error {
+	s.normalizeProduct(product)
 	return s.productRepository.Update(product)
 }
 
@@ -45,4 +48,8 @@ func (s *productService) Delete(id uint) error {
 		return err
 	}
 	return s.productRepository.Delete(&product)
+}
+
+func (s *productService) normalizeProduct(product *models.Product) {
+	product.Name = strings.Title(product.Name)
 }
