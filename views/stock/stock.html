@@ -39,9 +39,9 @@
                         <table class="table table-hover text-nowrap">
                             <thead>
                             <tr>
-                                <th>ID da Movimentação</th>
-                                <th>ID do Produto</th>
                                 <th>Nome do Produto</th>
+                                <th>ID do Produto</th>
+                                <th>ID da Movimentação</th>
                                 <th>Quantidade</th>
                                 <th>Data da Movimentação</th>
                             </tr>
@@ -49,9 +49,9 @@
                             <tbody>
                             {{range .Object.Stocks}}
                                 <tr>
-                                    <td>{{.ID}}</td>
+                                    <td><a href="/products/{{.Product.ID}}">{{.Product.Name}}</a></td>
                                     <td>{{.ProductID}} </td>
-                                    <td>{{.Product.Name}}</td>
+                                    <td>{{.ID}}</td>
                                     <td class="{{if ge .Quantity 0 }}text-primary{{else}}text-danger{{end}}">{{if ge .Quantity 0 }}+{{end}}{{.Quantity}}</td>
                                     <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
                                 </tr>
