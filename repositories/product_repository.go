@@ -26,6 +26,7 @@ func NewProductRepository(database *gorm.DB) ProductRepository {
 func (r *productRepository) Create(product *models.Product) error {
 	return r.db.Create(product).Error
 }
+
 func (r *productRepository) FindAll(filter *models.ProductFilter) []models.Product {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 

@@ -53,21 +53,13 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
-	filter := &models.ProductFilter{
-		Product: &models.Product{
-			Name: ctx.Query("q", ""),
-		},
-		Pagination: models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit")),
-	}
-
+	query := ctx.Query("q", "")
+	page := ctx.QueryInt("page")
+	limit := ctx.QueryInt("limit")
+	filter := models.NewProductFilter(query, page, limit)
 	products := c.productService.FindAll(filter)
 
-	data := map[string]interface{}{
-		"Products": products,
-		"Filter":   filter,
-	}
-
-	return views.Render(ctx, "products/products", data, "", baseLayout)
+	return views.Render(ctx, "products/products", fiber.Map{"Products": products, "Filter": filter}, "", baseLayout)
 }
 
 func (c *productController) RenderProduct(ctx *fiber.Ctx) error {

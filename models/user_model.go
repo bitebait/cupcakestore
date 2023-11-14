@@ -15,6 +15,19 @@ type UserFilter struct {
 	Pagination *Pagination
 }
 
+func NewUserFilter(query string, page, limit int) *UserFilter {
+	user := &User{
+		Username: query,
+		Email:    query,
+	}
+	pagination := NewPagination(page, limit)
+
+	return &UserFilter{
+		User:       user,
+		Pagination: pagination,
+	}
+}
+
 type User struct {
 	gorm.Model
 	Username   string    `gorm:"type:varchar(100);" validate:"required"`
