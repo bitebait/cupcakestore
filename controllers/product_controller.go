@@ -53,12 +53,18 @@ func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
-	query := ctx.Query("q", "")
-	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
-	products := c.productService.FindAll(pagination, query)
-	data := fiber.Map{
-		"Products":   products,
-		"Pagination": pagination,
+	filter := &models.ProductFilter{
+		Product: &models.Product{
+			Name: ctx.Query("q", ""),
+		},
+		Pagination: models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit")),
+	}
+
+	products := c.productService.FindAll(filter)
+
+	data := map[string]interface{}{
+		"Products": products,
+		"Filter":   filter,
 	}
 
 	return views.Render(ctx, "products/products", data, "", baseLayout)
@@ -159,12 +165,18 @@ func (c *productController) HandlerDelete(ctx *fiber.Ctx) error {
 }
 
 func (c *productController) JSONProducts(ctx *fiber.Ctx) error {
-	query := ctx.Query("q", "")
-	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
-	products := c.productService.FindAll(pagination, query)
-	data := fiber.Map{
-		"Products":   products,
-		"Pagination": pagination,
+	filter := &models.ProductFilter{
+		Product: &models.Product{
+			Name: ctx.Query("q", ""),
+		},
+		Pagination: models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit")),
+	}
+
+	products := c.productService.FindAll(filter)
+
+	data := map[string]interface{}{
+		"Products": products,
+		"Filter":   filter,
 	}
 
 	return ctx.JSON(data)

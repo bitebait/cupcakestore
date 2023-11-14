@@ -9,7 +9,7 @@ import (
 
 type UserService interface {
 	Create(user *models.User) error
-	FindAll(p *models.Pagination, filter string) []models.User
+	FindAll(filter *models.UserFilter) []models.User
 	FindById(id uint) (models.User, error)
 	FindByUsername(username string) (models.User, error)
 	Update(user *models.User) error
@@ -31,8 +31,8 @@ func (s *userService) Create(user *models.User) error {
 	return s.userRepository.Create(user)
 }
 
-func (s *userService) FindAll(p *models.Pagination, filter string) []models.User {
-	return s.userRepository.FindAll(p, filter)
+func (s *userService) FindAll(filter *models.UserFilter) []models.User {
+	return s.userRepository.FindAll(filter)
 }
 
 func (s *userService) FindById(id uint) (models.User, error) {

@@ -7,7 +7,7 @@ import (
 
 type UserRepository interface {
 	Create(user *models.User) error
-	FindAll(p *models.Pagination, filter string) []models.User
+	FindAll(filter *models.UserFilter) []models.User
 	FindById(id uint) (models.User, error)
 	FindByUsername(username string) (models.User, error)
 	Update(user *models.User) error
@@ -28,13 +28,13 @@ func (r *userRepository) Create(user *models.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepository) FindAll(p *models.Pagination, filter string) []models.User {
-	offset := (p.Page - 1) * p.Limit
+func (r *userRepository) FindAll(filter *models.UserFilter) []models.User {
+	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 
 	query := r.db.Model(&models.User{}).Omit("Password")
 
-	if filter != "" {
-		filterPattern := "%" + filter + "%"
+	if filter.User.Username != "" {
+		filterPattern := "%" + filter.User.Username + "%"
 		query = query.Where("username LIKE ? OR email LIKE ?", filterPattern, filterPattern)
 	}
 
@@ -42,10 +42,10 @@ func (r *userRepository) FindAll(p *models.Pagination, filter string) []models.U
 	if err := query.Count(&total).Error; err != nil {
 		return nil
 	}
-	p.Total = total
+	filter.Pagination.Total = total
 
 	var users []models.User
-	query.Offset(offset).Limit(p.Limit).Order("username, email, is_staff, is_active").Find(&users)
+	query.Offset(offset).Limit(filter.Pagination.Limit).Order("username, email, is_staff, is_active").Find(&users)
 
 	return users
 }

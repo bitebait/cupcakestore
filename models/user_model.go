@@ -10,6 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserFilter struct {
+	User       *User
+	Pagination *Pagination
+}
+
 type User struct {
 	gorm.Model
 	Username   string    `gorm:"type:varchar(100);" validate:"required"`

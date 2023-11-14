@@ -7,7 +7,7 @@ import (
 
 type ProductRepository interface {
 	Create(product *models.Product) error
-	FindAll(p *models.Pagination, filter string) []models.Product
+	FindAll(filter *models.ProductFilter) []models.Product
 	FindById(id uint) (models.Product, error)
 	Update(product *models.Product) error
 	Delete(product *models.Product) error
@@ -26,14 +26,13 @@ func NewProductRepository(database *gorm.DB) ProductRepository {
 func (r *productRepository) Create(product *models.Product) error {
 	return r.db.Create(product).Error
 }
-
-func (r *productRepository) FindAll(p *models.Pagination, filter string) []models.Product {
-	offset := (p.Page - 1) * p.Limit
+func (r *productRepository) FindAll(filter *models.ProductFilter) []models.Product {
+	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 
 	query := r.db.Model(&models.Product{})
 
-	if filter != "" {
-		filterPattern := "%" + filter + "%"
+	if filter.Product.Name != "" {
+		filterPattern := "%" + filter.Product.Name + "%"
 		query = query.Where("name LIKE ? OR description LIKE ?", filterPattern, filterPattern)
 	}
 
@@ -41,10 +40,10 @@ func (r *productRepository) FindAll(p *models.Pagination, filter string) []model
 	if err := query.Count(&total).Error; err != nil {
 		return nil
 	}
-	p.Total = total
+	filter.Pagination.Total = total
 
 	var products []models.Product
-	query.Offset(offset).Limit(p.Limit).Order("name").Find(&products)
+	query.Offset(offset).Limit(filter.Pagination.Limit).Order("name").Find(&products)
 	return products
 }
 

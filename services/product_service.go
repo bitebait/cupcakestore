@@ -7,7 +7,7 @@ import (
 
 type ProductService interface {
 	Create(product *models.Product) error
-	FindAll(p *models.Pagination, filter string) []models.Product
+	FindAll(filter *models.ProductFilter) []models.Product
 	FindById(id uint) (models.Product, error)
 	Update(product *models.Product) error
 	Delete(id uint) error
@@ -27,8 +27,8 @@ func (s *productService) Create(product *models.Product) error {
 	return s.productRepository.Create(product)
 }
 
-func (s *productService) FindAll(p *models.Pagination, filter string) []models.Product {
-	return s.productRepository.FindAll(p, filter)
+func (s *productService) FindAll(filter *models.ProductFilter) []models.Product {
+	return s.productRepository.FindAll(filter)
 }
 
 func (s *productService) FindById(id uint) (models.Product, error) {

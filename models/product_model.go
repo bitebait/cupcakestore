@@ -5,6 +5,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type ProductFilter struct {
+	Product    *Product
+	Pagination *Pagination
+}
+
 type Product struct {
 	gorm.Model
 	Name        string  `gorm:"not null,type:varchar(100)"`

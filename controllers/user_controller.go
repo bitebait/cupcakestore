@@ -68,11 +68,19 @@ func (c *userController) createProfile(userID uint) error {
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 	query := ctx.Query("q", "")
 
-	pagination := models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit"))
-	users := c.userService.FindAll(pagination, query)
-	data := fiber.Map{
-		"Users":      users,
-		"Pagination": pagination,
+	filter := &models.UserFilter{
+		User: &models.User{
+			Username: query,
+			Email:    query,
+		},
+		Pagination: models.NewPagination(ctx.QueryInt("page"), ctx.QueryInt("limit")),
+	}
+
+	users := c.userService.FindAll(filter)
+
+	data := map[string]interface{}{
+		"Users":  users,
+		"Filter": filter,
 	}
 
 	return views.Render(ctx, "users/users", data, "", baseLayout)
