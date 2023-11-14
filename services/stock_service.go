@@ -8,6 +8,7 @@ import (
 
 type StockService interface {
 	Create(stock *models.Stock) error
+	GetTotalStockQuantity(productID uint) (int, error)
 }
 
 type stockService struct {
@@ -26,4 +27,8 @@ func (s *stockService) Create(stock *models.Stock) error {
 	}
 
 	return s.stockRepository.Create(stock)
+}
+
+func (s *stockService) GetTotalStockQuantity(productID uint) (int, error) {
+	return s.stockRepository.SumProductStockQuantity(productID)
 }

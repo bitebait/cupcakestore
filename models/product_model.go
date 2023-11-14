@@ -23,12 +23,13 @@ func NewProductFilter(query string, page, limit int) *ProductFilter {
 
 type Product struct {
 	gorm.Model
-	Name        string  `gorm:"not null,type:varchar(100)"`
-	Description string  `gorm:"not null,type:varchar(300)"`
-	Price       float64 `gorm:"not null"`
-	Ingredients string  `gorm:"not null,type:varchar(300)"`
-	Image       string
-	Thumbnail   string
+	Name         string  `gorm:"not null,type:varchar(100)"`
+	Description  string  `gorm:"not null,type:varchar(300)"`
+	Price        float64 `gorm:"not null"`
+	Ingredients  string  `gorm:"not null,type:varchar(300)"`
+	Image        string
+	Thumbnail    string
+	CurrentStock int
 }
 
 func (p *Product) Validate() error {
