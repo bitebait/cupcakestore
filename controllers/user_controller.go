@@ -49,23 +49,7 @@ func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
 			"Falha ao criar usuário: "+err.Error(), baseLayout)
 	}
 
-	if err := c.createProfile(user.ID); err != nil {
-		return views.Render(ctx, "users/create", nil,
-			"Falha ao criar perfil: "+err.Error(), baseLayout)
-	}
-
 	return ctx.Redirect("/users")
-}
-
-func (c *userController) createProfile(userID uint) error {
-	profile := &models.Profile{
-		UserID: userID,
-	}
-
-	if err := c.profileService.Create(profile); err != nil {
-		return err
-	}
-	return nil
 }
 
 func (c *userController) RenderUsers(ctx *fiber.Ctx) error {

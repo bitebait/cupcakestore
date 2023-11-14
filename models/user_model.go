@@ -40,6 +40,11 @@ type User struct {
 	Profile    Profile
 }
 
+func (u *User) Validate() error {
+	v := validator.New()
+	return v.Struct(u)
+}
+
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	if err := u.Validate(); err != nil {
 		return err
@@ -52,6 +57,13 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
+func (u *User) AfterCreate(tx *gorm.DB) (err error) {
+	profile := &Profile{
+		UserID: u.ID,
+	}
+	return tx.Create(profile).Error
+}
+
 func (u *User) HashPassword() error {
 	hash, err := utils.PasswordHasher(u.Password)
 	if err != nil {
@@ -61,6 +73,10 @@ func (u *User) HashPassword() error {
 	u.Password = hash
 
 	return nil
+}
+
+func (u *User) CheckPassword(inputPassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(inputPassword))
 }
 
 func (u *User) UpdatePassword(oldPassword, newPassword string) error {
@@ -80,13 +96,4 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 	u.Password = hash
 
 	return nil
-}
-
-func (u *User) Validate() error {
-	v := validator.New()
-	return v.Struct(u)
-}
-
-func (u *User) CheckPassword(inputPassword string) error {
-	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(inputPassword))
 }
