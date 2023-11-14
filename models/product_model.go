@@ -29,7 +29,6 @@ type Product struct {
 	Ingredients string  `gorm:"not null,type:varchar(300)"`
 	Image       string
 	Thumbnail   string
-	IsActive    bool `gorm:"default:true"`
 }
 
 func (p *Product) Validate() error {

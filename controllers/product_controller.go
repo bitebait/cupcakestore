@@ -102,7 +102,6 @@ func (c *productController) updateProductFromRequest(ctx *fiber.Ctx, product *mo
 		return err
 	}
 
-	product.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.saveProductImage(ctx, product); err != nil {
 		product.Image = oldImage
 	}
