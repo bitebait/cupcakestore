@@ -33,6 +33,7 @@ func (s *stockService) Create(stock *models.Stock) error {
 func (s *stockService) GetTotalStockQuantity(productID uint) (int, error) {
 	return s.stockRepository.SumProductStockQuantity(productID)
 }
+
 func (s *stockService) FindByProductId(filter *models.StockFilter) []models.Stock {
 	return s.stockRepository.FindByProductId(filter)
 }

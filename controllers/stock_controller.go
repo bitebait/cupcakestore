@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
@@ -41,7 +42,7 @@ func (c *stockController) HandlerCreate(ctx *fiber.Ctx) error {
 			"Falha ao adicionar ao estoque: "+err.Error(), baseLayout)
 	}
 
-	return ctx.Redirect("/products")
+	return ctx.Redirect(fmt.Sprintf("/stock/%v", stock.ProductID))
 }
 
 func (c *stockController) RenderStocks(ctx *fiber.Ctx) error {
@@ -56,10 +57,6 @@ func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
 	page := ctx.QueryInt("page")
 	limit := ctx.QueryInt("limit")
 	filter := models.NewStockFilter(productID, page, limit)
-	stock := c.stockService.FindByProductId(filter)
-	if err != nil {
-		return ctx.Redirect("/stocks")
-	}
-
-	return views.Render(ctx, "stock/stock", fiber.Map{"Stock": stock, "Filter": filter}, "", baseLayout)
+	stocks := c.stockService.FindByProductId(filter)
+	return views.Render(ctx, "stock/stock", fiber.Map{"Stocks": stocks, "Filter": filter}, "", baseLayout) // Updated to use "Stocks" instead of "Stock"
 }

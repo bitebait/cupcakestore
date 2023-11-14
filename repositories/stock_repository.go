@@ -44,6 +44,6 @@ func (r *stockRepository) FindByProductId(filter *models.StockFilter) []models.S
 	filter.Pagination.Total = total
 
 	var stocks []models.Stock
-	query.Offset(offset).Limit(filter.Pagination.Limit).Order("updated_at").Find(&stocks)
+	query.Offset(offset).Limit(filter.Pagination.Limit).Order("updated_at").Preload("Product").Find(&stocks) // Preloading the Product relationship
 	return stocks
 }

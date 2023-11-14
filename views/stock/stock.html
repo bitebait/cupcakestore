@@ -27,7 +27,7 @@
                             <form method="get" id="filters">
                                 <div class="row">
                                     <div class="col-12">
-                                        <a href="/products/{{ (index .Object.Stock 0).ProductID }}"
+                                        <a href="/products/{{ (index .Object.Stocks 0).ProductID }}"
                                            class="btn">
                                             <i class="fa fa-search"></i> <u>Abrir detalhes do produto</u> </a>
                                     </div>
@@ -41,15 +41,17 @@
                             <tr>
                                 <th>ID da Movimentação</th>
                                 <th>ID do Produto</th>
+                                <th>Nome do Produto</th>
                                 <th>Quantidade</th>
                                 <th>Data da Movimentação</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {{range .Object.Stock}}
+                            {{range .Object.Stocks}}
                                 <tr>
                                     <td>{{.ID}}</td>
                                     <td>{{.ProductID}} </td>
+                                    <td>{{.Product.Name}}</td>
                                     <td class="{{if ge .Quantity 0 }}text-primary{{else}}text-danger{{end}}">{{if ge .Quantity 0 }}+{{end}}{{.Quantity}}</td>
                                     <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
                                 </tr>

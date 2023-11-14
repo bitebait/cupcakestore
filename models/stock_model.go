@@ -24,8 +24,9 @@ func NewStockFilter(productID uint, page, limit int) *StockFilter {
 
 type Stock struct {
 	gorm.Model
-	ProductID uint `gorm:"not null"`
-	Quantity  int  `gorm:"not null"`
+	Product   Product // Belongs to relationship with Product
+	ProductID uint    `gorm:"not null"`
+	Quantity  int     `gorm:"not null"`
 }
 
 func (s *Stock) CountStock(tx *gorm.DB) int {
