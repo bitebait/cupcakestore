@@ -2,14 +2,14 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Adicionar produto ao estoque</h1>
+                <h1 class="m-0">Histórico de Movimentações</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item">
-                        <a href="/stock">Estoque de Produtos</a>
+                        <a href="#">Home</a>
                     </li>
-                    <li class="breadcrumb-item active">Adicionar ao Estoque</li>
+                    <li class="breadcrumb-item active">Histórico de Movimentações</li>
                 </ol>
             </div>
         </div>
@@ -22,7 +22,7 @@
             <div class="col-md-4 mx-auto">
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h3 class="card-title">Adicionar Produto ao Estoque</h3>
+                        <h3 class="card-title">Verificar Movimentações do Produto</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-row">
@@ -32,25 +32,15 @@
                                     <input type="text" class="form-control" id="productName" name="productName"
                                            placeholder="Nome do produto" required="required">
                                 </div>
-                                <form method="POST" action="/stock/create" id="stockForm">
-                                    <div class="form-group">
-                                        <label for="quantity">Quantidade</label>
-                                        <input type="number" class="form-control" id="quantity" name="quantity"
-                                               placeholder="Quantidade" pattern="[1-9]\d*" step="1" min="1"
-                                               required="required"/>
-                                        <input type="number" class="form-control" id="productID" name="productID"
-                                               required="required" value="" hidden="hidden">
-                                    </div>
-                                </form>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer">
                         <a href="/stock" class="btn btn-default">
                             <i class="fas fa-undo-alt"></i> Cancelar </a>
-                        <button type="button" onclick="document.getElementById('stockForm').submit();"
-                                class="btn btn-primary float-right">Adicionar
-                        </button>
+                        <a href="javascript:function() { return false; }" id="productID"
+                           class="btn btn-primary float-right" disabled>Carregar Histórico
+                        </a>
                     </div>
                 </div>
             </div>
@@ -58,7 +48,7 @@
                 <div class="card card-primary">
                     <div class="card-body">
                         <div class="form-row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="name">Nome do produto</label>
                                     <p class="text-muted" id="name">Sem informações</p>
@@ -67,10 +57,8 @@
                                     <label for="description">Descrição</label>
                                     <p class="text-muted" id="description">Sem informações</p>
                                 </div>
-                                <div class="form-group">
-                                    <label for="ingredients">Ingredientes</label>
-                                    <p class="text-muted" id="ingredients">Sem informações</p>
-                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="price">Preço</label>
                                     <p class="text-muted" id="price">Sem informações</p>
@@ -80,13 +68,13 @@
                                     <p class="text-muted" id="stock">Sem informações</p>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <div class="mt-2"
                                          style="display: flex; justify-content: center; align-items: center;">
                                         <img id="previewImage" src="/images/placeholder.jpg"
                                              alt="Pré-visualização da imagem"
-                                             style="max-width: 100%;height: auto;max-height: 40vh;">
+                                             style="max-width: 100%;height: auto;max-height: 26.5vh;">
                                     </div>
                                 </div>
                             </div>
@@ -102,32 +90,32 @@
         const $quantity = $('#quantity').prop('disabled', true);
         const $productName = $('#productName'),
             $name = $('#name'),
-            $price = $('#price'),
-            $currentStock = $('#stock'),
             $description = $('#description'),
             $ingredients = $('#ingredients'),
             $previewImage = $('#previewImage'),
+            $price = $('#price'),
+            $currentStock = $('#stock'),
             $productID = $('#productID');
         const clearFields = () => {
             $name.text('Sem informações');
-            $price.text('Sem informações');
-            $currentStock.text('Sem informações');
             $description.text('Sem informações');
             $ingredients.text('Sem informações');
             $previewImage.attr('src', '/images/placeholder.jpg');
-            $quantity.prop('disabled', true);
-            $productID.val('');
+            $price.text('Sem informações');
+            $currentStock.text('Sem informações');
+            $productID.attr('href', 'javascript:function() { return false; }');
+            $productID.prop('disabled', true);
         };
         const setFields = (item) => {
             if (item.name) {
                 $name.text(item.name);
-                $price.text("R$ " + item.price);
-                $currentStock.text(item.currentStock);
                 $description.text(item.description);
                 $ingredients.text(item.ingredients);
                 $previewImage.attr('src', item.imageUrl);
-                $quantity.prop('disabled', false);
-                $productID.val(item.id);
+                $price.text("R$ " + item.price);
+                $currentStock.text(item.currentStock);
+                $productID.attr('href', "stock/" + item.id);
+                $productID.prop('disabled', false);
             } else {
                 clearFields();
             }

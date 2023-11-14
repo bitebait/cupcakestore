@@ -6,6 +6,22 @@ import (
 	"log"
 )
 
+type StockFilter struct {
+	Stock      *Stock
+	Pagination *Pagination
+}
+
+func NewStockFilter(productID uint, page, limit int) *StockFilter {
+	stock := &Stock{
+		ProductID: productID,
+	}
+	pagination := NewPagination(page, limit)
+	return &StockFilter{
+		Stock:      stock,
+		Pagination: pagination,
+	}
+}
+
 type Stock struct {
 	gorm.Model
 	ProductID uint `gorm:"not null"`

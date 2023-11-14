@@ -2,7 +2,7 @@ package models
 
 const (
 	DefaultPage  = 1
-	DefaultLimit = 5
+	DefaultLimit = 8
 )
 
 type Pagination struct {

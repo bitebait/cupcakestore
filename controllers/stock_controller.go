@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,6 +11,8 @@ import (
 type StockController interface {
 	RenderCreate(ctx *fiber.Ctx) error
 	HandlerCreate(ctx *fiber.Ctx) error
+	RenderStocks(ctx *fiber.Ctx) error
+	RenderStock(ctx *fiber.Ctx) error
 }
 
 type stockController struct {
@@ -39,4 +42,24 @@ func (c *stockController) HandlerCreate(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/products")
+}
+
+func (c *stockController) RenderStocks(ctx *fiber.Ctx) error {
+	return views.Render(ctx, "stock/stocks", nil, "", baseLayout)
+}
+
+func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
+	productID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/stocks")
+	}
+	page := ctx.QueryInt("page")
+	limit := ctx.QueryInt("limit")
+	filter := models.NewStockFilter(productID, page, limit)
+	stock := c.stockService.FindByProductId(filter)
+	if err != nil {
+		return ctx.Redirect("/stocks")
+	}
+
+	return views.Render(ctx, "stock/stock", fiber.Map{"Stock": stock, "Filter": filter}, "", baseLayout)
 }

@@ -1,0 +1,68 @@
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Movimentações do Produto</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">
+                        <a href="#">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">Movimentações do Produto</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        {{template "snippets/message" .}}
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title mb-2">Histórico de Movimentação</h3>
+                        <div class="card-tools">
+                            <form method="get" id="filters">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <a href="/products/{{ (index .Object.Stock 0).ProductID }}"
+                                           class="btn">
+                                            <i class="fa fa-search"></i> <u>Abrir detalhes do produto</u> </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>ID da Movimentação</th>
+                                <th>ID do Produto</th>
+                                <th>Quantidade</th>
+                                <th>Data da Movimentação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{range .Object.Stock}}
+                                <tr>
+                                    <td>{{.ID}}</td>
+                                    <td>{{.ProductID}} </td>
+                                    <td class="{{if ge .Quantity 0 }}text-primary{{else}}text-danger{{end}}">{{if ge .Quantity 0 }}+{{end}}{{.Quantity}}</td>
+                                    <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
+                                </tr>
+                            {{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{template "snippets/pagination" .Object.Filter.Pagination}}
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+    </div>
+</section>
+{{template "snippets/table-filter" }}

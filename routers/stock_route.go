@@ -16,9 +16,7 @@ type StockRouter struct {
 
 func NewStockRouter() *StockRouter {
 	stockRepository := repositories.NewStockRepository(database.DB)
-
 	stockService := services.NewStockService(stockRepository)
-
 	stockController := controllers.NewStockController(stockService)
 
 	return &StockRouter{
@@ -31,5 +29,6 @@ func (r *StockRouter) InstallRouters(app *fiber.App) {
 
 	stock.Get("/create", r.stockController.RenderCreate)
 	stock.Post("/create", r.stockController.HandlerCreate)
-
+	stock.Get("/", r.stockController.RenderStocks)
+	stock.Get("/:id", r.stockController.RenderStock)
 }
