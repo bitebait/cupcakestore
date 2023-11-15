@@ -15,6 +15,7 @@ type Profile struct {
 	PostalCode  string `gorm:"type:varchar(20)"`
 	PhoneNumber string `gorm:"type:varchar(20)"`
 	UserID      uint
+	User        User // Belongs to relationship with User
 }
 
 func (p *Profile) Validate() error {

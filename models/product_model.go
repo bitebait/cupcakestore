@@ -44,7 +44,7 @@ func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (p *Product) BeforeDelete(tx *gorm.DB) (err error) {
+func (p *Product) AfterDelete(tx *gorm.DB) (err error) {
 	if err = tx.Model(&Stock{}).Where("product_id = ?", p.ID).Delete(&Stock{}).Error; err != nil {
 		return err
 	}

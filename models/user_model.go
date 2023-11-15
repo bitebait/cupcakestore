@@ -37,7 +37,6 @@ type User struct {
 	IsStaff    bool
 	FirstLogin time.Time `gorm:"type:timestamp"`
 	LastLogin  time.Time `gorm:"type:timestamp"`
-	Profile    Profile
 }
 
 func (u *User) Validate() error {
@@ -62,6 +61,13 @@ func (u *User) AfterCreate(tx *gorm.DB) (err error) {
 		UserID: u.ID,
 	}
 	return tx.Create(profile).Error
+}
+
+func (u *User) AfterDelete(tx *gorm.DB) (err error) {
+	if err = tx.Model(&Profile{}).Where("user_id = ?", u.ID).Delete(&Stock{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *User) HashPassword() error {

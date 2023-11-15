@@ -27,7 +27,7 @@ func (r *profileRepository) Create(profile *models.Profile) error {
 
 func (r *profileRepository) FindByUserId(id uint) (models.Profile, error) {
 	var profile models.Profile
-	err := r.db.Where("user_id = ?", id).First(&profile).Error
+	err := r.db.Where("user_id = ?", id).Preload("User").First(&profile).Error
 	return profile, err
 }
 

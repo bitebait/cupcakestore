@@ -15,11 +15,9 @@ type ProfileRouter struct {
 }
 
 func NewProfileRouter() *ProfileRouter {
-	userRepository := repositories.NewUserRepository(database.DB)
-	userService := services.NewUserService(userRepository)
 	profileRepository := repositories.NewProfileRepository(database.DB)
 	profileService := services.NewProfileService(profileRepository)
-	profileController := controllers.NewProfileController(profileService, userService)
+	profileController := controllers.NewProfileController(profileService)
 
 	return &ProfileRouter{
 		profileController: profileController,
@@ -28,5 +26,6 @@ func NewProfileRouter() *ProfileRouter {
 
 func (r *ProfileRouter) InstallRouters(app *fiber.App) {
 	profile := app.Group("/profile", cors.New()).Use(middlewares.LoginAndStaffRequired())
+	profile.Get("/:id", r.profileController.RenderProfile)
 	profile.Post("/update/:id", r.profileController.HandlerUpdate)
 }

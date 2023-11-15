@@ -9,6 +9,7 @@ import (
 
 type ProfileController interface {
 	HandlerUpdate(ctx *fiber.Ctx) error
+	RenderProfile(ctx *fiber.Ctx) error
 }
 
 type profileController struct {
@@ -16,20 +17,28 @@ type profileController struct {
 	userService    services.UserService
 }
 
-func NewProfileController(p services.ProfileService, u services.UserService) ProfileController {
+func NewProfileController(p services.ProfileService) ProfileController {
 	return &profileController{
 		profileService: p,
-		userService:    u,
 	}
+}
+
+func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
+	userID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	profile, err := c.profileService.FindByUserId(userID)
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	return views.Render(ctx, "users/user", profile, "", baseLayout)
 }
 
 func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
-	if err != nil {
-		return c.redirectToUsers(ctx)
-	}
-
-	user, err := c.userService.FindById(id)
 	if err != nil {
 		return c.redirectToUsers(ctx)
 	}
@@ -39,17 +48,12 @@ func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return c.redirectToUsers(ctx)
 	}
 
-	data := fiber.Map{
-		"User":    user,
-		"Profile": profile,
-	}
-
 	if err := ctx.BodyParser(&profile); err != nil {
-		return views.Render(ctx, "users/user", data, err.Error(), baseLayout)
+		return views.Render(ctx, "users/user", profile, err.Error(), baseLayout)
 	}
 
 	if err := c.profileService.Update(&profile); err != nil {
-		return views.Render(ctx, "users/user", data, "Falha ao atualizar perfil do usuário.", baseLayout)
+		return views.Render(ctx, "users/user", profile, "Falha ao atualizar perfil do usuário.", baseLayout)
 	}
 
 	return ctx.Redirect("/users")
