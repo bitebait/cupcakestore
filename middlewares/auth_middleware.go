@@ -13,16 +13,16 @@ func LoginAndStaffRequired() fiber.Handler {
 			panic(err)
 		}
 
-		user, ok := sess.Get("user").(*models.User)
-		if !ok || user == nil {
+		profile, ok := sess.Get("profile").(*models.Profile)
+		if !ok || profile == nil {
 			return redirectToLogout(c)
 		}
 
-		if !user.IsStaff || !user.IsActive {
+		if !profile.User.IsStaff || !profile.User.IsActive {
 			return redirectToLogout(c)
 		}
 
-		c.Locals("user", user)
+		c.Locals("profile", profile)
 
 		return c.Next()
 	}

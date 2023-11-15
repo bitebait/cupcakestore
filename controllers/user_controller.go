@@ -9,13 +9,13 @@ import (
 )
 
 type UserController interface {
+	Create(ctx *fiber.Ctx) error
+	Update(ctx *fiber.Ctx) error
+	Delete(ctx *fiber.Ctx) error
 	RenderCreate(ctx *fiber.Ctx) error
-	HandlerCreate(ctx *fiber.Ctx) error
 	RenderUsers(ctx *fiber.Ctx) error
 	RenderUser(ctx *fiber.Ctx) error
-	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
-	HandlerDelete(ctx *fiber.Ctx) error
 }
 
 type userController struct {
@@ -32,7 +32,7 @@ func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "users/create", nil, "", baseLayout)
 }
 
-func (c *userController) HandlerCreate(ctx *fiber.Ctx) error {
+func (c *userController) Create(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
 		return views.Render(ctx, "users/create", nil,
@@ -74,7 +74,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "users/user", user, "", baseLayout)
 }
 
-func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
+func (c *userController) Update(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/users")
@@ -98,6 +98,10 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	err = c.userService.Update(&user)
 	if err != nil {
 		return views.Render(ctx, "users/user", user, "Falha ao atualizar usuário.", baseLayout)
+	}
+
+	if user.ID == ctx.Locals("profile").(*models.Profile).UserID {
+		return ctx.Redirect("/auth/logout")
 	}
 
 	return ctx.Redirect("/users")
@@ -142,7 +146,7 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "users/delete", user, "", baseLayout)
 }
 
-func (c *userController) HandlerDelete(ctx *fiber.Ctx) error {
+func (c *userController) Delete(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/users")

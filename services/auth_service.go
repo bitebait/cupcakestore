@@ -12,12 +12,14 @@ type AuthService interface {
 }
 
 type authService struct {
-	userRepository repositories.UserRepository
+	userRepository    repositories.UserRepository
+	profileRepository repositories.ProfileRepository
 }
 
-func NewAuthService(userRepository repositories.UserRepository) AuthService {
+func NewAuthService(userRepository repositories.UserRepository, profileRepository repositories.ProfileRepository) AuthService {
 	return &authService{
-		userRepository: userRepository,
+		userRepository:    userRepository,
+		profileRepository: profileRepository,
 	}
 }
 
@@ -31,16 +33,21 @@ func (s *authService) Authenticate(ctx *fiber.Ctx, username, password string) er
 		return err
 	}
 
-	return setUserSession(ctx, &user)
+	profile, err := s.profileRepository.FindByUserId(user.ID)
+	if err != nil {
+		return err
+	}
+
+	return setUserSession(ctx, &profile)
 }
 
-func setUserSession(ctx *fiber.Ctx, user *models.User) error {
+func setUserSession(ctx *fiber.Ctx, profile *models.Profile) error {
 	sess, err := session.Store.Get(ctx)
 	if err != nil {
 		return err
 	}
 
-	sess.Set("user", user)
+	sess.Set("profile", profile)
 	if err = sess.Save(); err != nil {
 		return err
 	}

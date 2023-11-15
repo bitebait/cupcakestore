@@ -17,9 +17,11 @@ type AuthRouter struct {
 func NewAuthRouter() *AuthRouter {
 	// Initialize repositories
 	userRepository := repositories.NewUserRepository(database.DB)
+	profileRepository := repositories.NewProfileRepository(database.DB)
 
 	// Initialize services with repositories
-	authService := services.NewAuthService(userRepository)
+
+	authService := services.NewAuthService(userRepository, profileRepository)
 
 	// Initialize controllers with services
 	authController := controllers.NewAuthController(authService)

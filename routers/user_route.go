@@ -27,10 +27,10 @@ func NewUserRouter() *UserRouter {
 func (r *UserRouter) InstallRouters(app *fiber.App) {
 	user := app.Group("/users", cors.New()).Use(middlewares.LoginAndStaffRequired())
 	user.Get("/create", r.userController.RenderCreate)
-	user.Post("/create", r.userController.HandlerCreate)
+	user.Post("/create", r.userController.Create)
 	user.Get("/", r.userController.RenderUsers)
 	user.Get("/:id", r.userController.RenderUser)
-	user.Post("/update/:id", r.userController.HandlerUpdate)
+	user.Post("/update/:id", r.userController.Update)
 	user.Get("/delete/:id", r.userController.RenderDelete)
-	user.Post("/delete/:id", r.userController.HandlerDelete)
+	user.Post("/delete/:id", r.userController.Delete)
 }

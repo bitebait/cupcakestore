@@ -14,5 +14,5 @@ func SetupSession() {
 		Expiration: 1 * time.Hour,
 	}
 	Store = session.New(sessConfig)
-	Store.RegisterType(&models.User{})
+	Store.RegisterType(&models.Profile{})
 }

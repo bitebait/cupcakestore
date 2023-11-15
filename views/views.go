@@ -6,27 +6,27 @@ import (
 )
 
 func Render(ctx *fiber.Ctx, templateName string, obj interface{}, message string, baseLayout ...string) error {
-	user := getUserFromContext(ctx)
-	response := createResponse(message, obj, user)
+	profile := getProfileFromContext(ctx)
+	response := createResponse(message, obj, profile)
 	if message != "" {
 		response.Error = true
 	}
 	return ctx.Render(templateName, response, baseLayout...)
 }
 
-func getUserFromContext(ctx *fiber.Ctx) *models.User {
-	user, ok := ctx.Locals("user").(*models.User)
+func getProfileFromContext(ctx *fiber.Ctx) *models.Profile {
+	profile, ok := ctx.Locals("profile").(*models.Profile)
 	if !ok {
 		return nil
 	}
-	return user
+	return profile
 }
 
-func createResponse(message string, obj interface{}, user *models.User) *models.Response {
+func createResponse(message string, obj interface{}, profile *models.Profile) *models.Response {
 	return &models.Response{
 		Error:   message != "",
 		Message: message,
 		Object:  obj,
-		User:    user,
+		Profile: profile,
 	}
 }

@@ -18,6 +18,10 @@ type Profile struct {
 	User        User // Belongs to relationship with User
 }
 
+func (p *Profile) FullName() string {
+	return p.FirstName + " " + p.LastName
+}
+
 func (p *Profile) Validate() error {
 	v := validator.New()
 	return v.Struct(p)

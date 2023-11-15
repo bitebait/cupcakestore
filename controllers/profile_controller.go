@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
@@ -8,7 +9,7 @@ import (
 )
 
 type ProfileController interface {
-	HandlerUpdate(ctx *fiber.Ctx) error
+	Update(ctx *fiber.Ctx) error
 	RenderProfile(ctx *fiber.Ctx) error
 }
 
@@ -25,18 +26,18 @@ func NewProfileController(p services.ProfileService) ProfileController {
 func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
 	userID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return ctx.Redirect("/users")
+		return c.redirectToUsers(ctx)
 	}
 
 	profile, err := c.profileService.FindByUserId(userID)
 	if err != nil {
-		return ctx.Redirect("/users")
+		return c.redirectToUsers(ctx)
 	}
 
 	return views.Render(ctx, "profile/user-profile", profile, "", baseLayout)
 }
 
-func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {
+func (c *profileController) Update(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return c.redirectToUsers(ctx)
@@ -53,6 +54,10 @@ func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {
 
 	if err := c.profileService.Update(&profile); err != nil {
 		return views.Render(ctx, "users/user", profile, "Falha ao atualizar perfil do usuário.", baseLayout)
+	}
+
+	if profile.UserID == ctx.Locals("profile").(*models.Profile).UserID {
+		return ctx.Redirect("/auth/logout")
 	}
 
 	return ctx.Redirect("/users")

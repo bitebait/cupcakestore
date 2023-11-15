@@ -5,6 +5,7 @@ import (
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+	"log"
 )
 
 type AuthController interface {
@@ -32,6 +33,7 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 	password := ctx.FormValue("password")
 
 	err := c.authService.Authenticate(ctx, username, password)
+	log.Println(err)
 	if err != nil {
 		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas")
 	}
@@ -45,7 +47,7 @@ func (c *authController) HandlerLogout(ctx *fiber.Ctx) error {
 		panic(err)
 	}
 
-	sess.Delete("username")
+	sess.Delete("profile")
 	if err := sess.Destroy(); err != nil {
 		panic(err)
 	}
