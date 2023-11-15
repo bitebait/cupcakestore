@@ -14,7 +14,6 @@ type ProfileController interface {
 
 type profileController struct {
 	profileService services.ProfileService
-	userService    services.UserService
 }
 
 func NewProfileController(p services.ProfileService) ProfileController {
@@ -34,7 +33,7 @@ func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	return views.Render(ctx, "users/user", profile, "", baseLayout)
+	return views.Render(ctx, "profile/user-profile", profile, "", baseLayout)
 }
 
 func (c *profileController) HandlerUpdate(ctx *fiber.Ctx) error {

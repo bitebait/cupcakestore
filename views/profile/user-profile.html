@@ -1,58 +1,107 @@
-<div class="card card-primary">
-    <div class="card-header">
-        <h3 class="card-title">Perfil do Usuário</h3>
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Detalhes do usuário</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">
+                        <a href="/users">Usuários Registrados</a>
+                    </li>
+                    <li class="breadcrumb-item active">Detalhes do Usuário</li>
+                </ol>
+            </div>
+        </div>
     </div>
-    <form method="Post" action="/profile/update/{{.UserID}}">
-        <div class="card-body">
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="firstname">Nome</label>
-                    <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Nome"
-                           minlength="4" value="{{.FirstName}}">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="lastname">Sobrenome</label>
-                    <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Sobrenome"
-                           value="{{.LastName}}">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-12">
-                    <label for="address">Endereço</label>
-                    <input type="text" class="form-control" id="address" name="address" placeholder="Endereço"
-                           minlength="4" value="{{.Address}}">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="phonenumber">Telefone</label>
-                    <input type="text" class="form-control phone-number" id="phonenumber" name="phonenumber"
-                           placeholder="Telefone" value="{{.PhoneNumber}}">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="postalcode">Código postal</label>
-                    <input type="text" class="form-control postal-code" id="postalcode" name="postalcode"
-                           placeholder="Código postal" value="{{.PostalCode}}">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="state">Estado</label>
-                    <input type="text" class="form-control" id="state" name="state" placeholder="Estado" minlength="4"
-                           value="{{.State}}">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="city">Cidade</label>
-                    <input type="text" class="form-control" id="city" name="city" placeholder="Cidade"
-                           value="{{.City}}">
-                </div>
-            </div>
-        </div>
-        <div class="card-footer">
-            <button type="submit" class="btn btn-primary float-right">Atualizar perfil</button>
-        </div>
-    </form>
 </div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                {{template "snippets/message" .}}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Perfil do Usuário</h3>
+                        <a href="/users/{{.Object.UserID}}" class="btn float-right">
+                            <i class="fas fa-eye"></i> <u>Conta de Usuário</u>
+                        </a>
+                    </div>
+                    <form method="Post" action="/profile/update/{{.Object.UserID}}">
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="username">Usuário</label>
+                                    <input type="text" class="form-control" id="username"
+                                           value="{{.Object.User.Username}}" disabled>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="mail">E-mail</label>
+                                    <input type="mail" class="form-control" id="mail" value="{{.Object.User.Email}}"
+                                           disabled>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="firstname">Nome</label>
+                                    <input type="text" class="form-control" id="firstname" name="firstname"
+                                           placeholder="Nome"
+                                           minlength="4" value="{{.Object.FirstName}}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="lastname">Sobrenome</label>
+                                    <input type="text" class="form-control" id="lastname" name="lastname"
+                                           placeholder="Sobrenome"
+                                           value="{{.Object.LastName}}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-12">
+                                    <label for="address">Endereço</label>
+                                    <input type="text" class="form-control" id="address" name="address"
+                                           placeholder="Endereço"
+                                           minlength="4" value="{{.Object.Address}}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="phonenumber">Telefone</label>
+                                    <input type="text" class="form-control phone-number" id="phonenumber"
+                                           name="phonenumber"
+                                           placeholder="Telefone" value="{{.Object.PhoneNumber}}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="postalcode">Código postal</label>
+                                    <input type="text" class="form-control postal-code" id="postalcode"
+                                           name="postalcode"
+                                           placeholder="Código postal" value="{{.Object.PostalCode}}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="state">Estado</label>
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="Estado"
+                                           minlength="4"
+                                           value="{{.Object.State}}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="city">Cidade</label>
+                                    <input type="text" class="form-control" id="city" name="city" placeholder="Cidade"
+                                           value="{{.Object.City}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="/users/{{.Object.UserID}}" class="btn btn-default">
+                                <i class="fas fa-undo-alt"></i> Cancelar </a>
+                            <button type="submit" class="btn btn-primary float-right">Atualizar perfil</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 <script src="/plugins/cleave/cleave.min.js"></script>
 <script src="/plugins/cleave/cleave-phone.br.js"></script>
 <script>
@@ -66,3 +115,5 @@
         phoneRegionCode: 'BR'
     });
 </script>
+
+

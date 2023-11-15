@@ -12,6 +12,7 @@ type UserController interface {
 	RenderCreate(ctx *fiber.Ctx) error
 	HandlerCreate(ctx *fiber.Ctx) error
 	RenderUsers(ctx *fiber.Ctx) error
+	RenderUser(ctx *fiber.Ctx) error
 	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
 	HandlerDelete(ctx *fiber.Ctx) error
@@ -59,6 +60,20 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "users/users", fiber.Map{"Users": users, "Filter": filter}, "", baseLayout)
 }
 
+func (c *userController) RenderUser(ctx *fiber.Ctx) error {
+	userID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	user, err := c.userService.FindById(userID)
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	return views.Render(ctx, "users/user", user, "", baseLayout)
+}
+
 func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
@@ -70,11 +85,20 @@ func (c *userController) HandlerUpdate(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	c.updateUserFromRequest(ctx, &user)
+	err = c.updateUserFromRequest(ctx, &user)
+	if err != nil {
+		return views.Render(ctx, "users/user", user, err.Error(), baseLayout)
+	}
 
-	c.updateUserPassword(ctx, &user)
+	err = c.updateUserPassword(ctx, &user)
+	if err != nil {
+		return views.Render(ctx, "users/user", user, "Falha ao atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
+	}
 
-	c.userService.Update(&user)
+	err = c.userService.Update(&user)
+	if err != nil {
+		return views.Render(ctx, "users/user", user, "Falha ao atualizar usuário.", baseLayout)
+	}
 
 	return ctx.Redirect("/users")
 }

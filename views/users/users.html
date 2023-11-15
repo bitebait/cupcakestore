@@ -64,7 +64,7 @@
                                 <tr>
                                     <td>{{.ID}}</td>
                                     <td>
-                                        <a href="/profile/{{.ID}}">{{.Username}}
+                                        <a href="/users/{{.ID}}">{{.Username}}
                                             <br/>
                                         </a>
                                         <small>{{.UpdatedAt|date "02/01/2006 15:04h"}}</small>
@@ -81,7 +81,7 @@
                                             <span class="badge badge-danger">Inativo</span>{{end}}
                                     </td>
                                     <td>
-                                        <a href="/profile/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
+                                        <a href="/users/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
                                             <i class="fas fa-pen"></i>
                                         </a>
                                         <a href="/users/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
