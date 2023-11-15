@@ -43,6 +43,7 @@
                                 <th>ID do Produto</th>
                                 <th>ID da Movimentação</th>
                                 <th>Quantidade</th>
+                                <th>Movimentado Por</th>
                                 <th>Data da Movimentação</th>
                             </tr>
                             </thead>
@@ -52,7 +53,8 @@
                                     <td><a href="/products/{{.Product.ID}}">{{.Product.Name}}</a></td>
                                     <td>{{.ProductID}} </td>
                                     <td>{{.ID}}</td>
-                                    <td class="{{if ge .Quantity 0 }}text-primary{{else}}text-danger{{end}}">{{if ge .Quantity 0 }}+{{end}}{{.Quantity}}</td>
+                                    <td class="{{if ge .Quantity 0 }}text-dark{{else}}text-danger{{end}}">{{if ge .Quantity 0 }}+{{end}}{{.Quantity}}</td>
+                                    <td><a href="/users/{{.Profile.UserID}}">{{.Profile.FullName}}</a></td>
                                     <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
                                 </tr>
                             {{end}}

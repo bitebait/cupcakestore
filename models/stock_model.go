@@ -27,6 +27,8 @@ type Stock struct {
 	Product   Product // Belongs to relationship with Product
 	ProductID uint    `gorm:"not null"`
 	Quantity  int     `gorm:"not null"`
+	Profile   Profile
+	ProfileID uint
 }
 
 func (s *Stock) CountStock(tx *gorm.DB) int {
