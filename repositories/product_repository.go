@@ -44,7 +44,7 @@ func (r *productRepository) FindAll(filter *models.ProductFilter) []models.Produ
 	filter.Pagination.Total = total
 
 	var products []models.Product
-	query.Offset(offset).Limit(filter.Pagination.Limit).Order("name").Find(&products)
+	query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc").Find(&products)
 	return products
 }
 
