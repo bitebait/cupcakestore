@@ -9,9 +9,9 @@ import (
 )
 
 type AuthController interface {
+	Login(ctx *fiber.Ctx) error
+	Logout(ctx *fiber.Ctx) error
 	RenderLogin(ctx *fiber.Ctx) error
-	HandlerLogin(ctx *fiber.Ctx) error
-	HandlerLogout(ctx *fiber.Ctx) error
 }
 
 type authController struct {
@@ -28,7 +28,7 @@ func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "auth/login", nil, "")
 }
 
-func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
+func (c *authController) Login(ctx *fiber.Ctx) error {
 	username := ctx.FormValue("username")
 	password := ctx.FormValue("password")
 
@@ -41,7 +41,7 @@ func (c *authController) HandlerLogin(ctx *fiber.Ctx) error {
 	return ctx.Redirect("/users")
 }
 
-func (c *authController) HandlerLogout(ctx *fiber.Ctx) error {
+func (c *authController) Logout(ctx *fiber.Ctx) error {
 	sess, err := session.Store.Get(ctx)
 	if err != nil {
 		panic(err)

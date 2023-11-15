@@ -10,8 +10,8 @@ import (
 )
 
 type StockController interface {
+	Create(ctx *fiber.Ctx) error
 	RenderCreate(ctx *fiber.Ctx) error
-	HandlerCreate(ctx *fiber.Ctx) error
 	RenderStocks(ctx *fiber.Ctx) error
 	RenderStock(ctx *fiber.Ctx) error
 }
@@ -30,7 +30,7 @@ func (c *stockController) RenderCreate(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "stock/create", nil, "", baseLayout)
 }
 
-func (c *stockController) HandlerCreate(ctx *fiber.Ctx) error {
+func (c *stockController) Create(ctx *fiber.Ctx) error {
 	stock := &models.Stock{}
 	if err := ctx.BodyParser(stock); err != nil {
 		return views.Render(ctx, "stock/create", nil,
@@ -58,5 +58,5 @@ func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
 	limit := ctx.QueryInt("limit")
 	filter := models.NewStockFilter(productID, page, limit)
 	stocks := c.stockService.FindByProductId(filter)
-	return views.Render(ctx, "stock/stock", fiber.Map{"Stocks": stocks, "Filter": filter}, "", baseLayout) // Updated to use "Stocks" instead of "Stock"
+	return views.Render(ctx, "stock/stock", fiber.Map{"Stocks": stocks, "Filter": filter}, "", baseLayout)
 }

@@ -28,7 +28,7 @@ func (r *StockRouter) InstallRouters(app *fiber.App) {
 	stock := app.Group("/stock", cors.New()).Use(middlewares.LoginAndStaffRequired())
 
 	stock.Get("/create", r.stockController.RenderCreate)
-	stock.Post("/create", r.stockController.HandlerCreate)
+	stock.Post("/create", r.stockController.Create)
 	stock.Get("/", r.stockController.RenderStocks)
 	stock.Get("/:id", r.stockController.RenderStock)
 }

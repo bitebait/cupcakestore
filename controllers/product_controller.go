@@ -9,13 +9,13 @@ import (
 )
 
 type ProductController interface {
+	Create(ctx *fiber.Ctx) error
+	Update(ctx *fiber.Ctx) error
+	Delete(ctx *fiber.Ctx) error
 	RenderCreate(ctx *fiber.Ctx) error
-	HandlerCreate(ctx *fiber.Ctx) error
 	RenderProducts(ctx *fiber.Ctx) error
 	RenderProduct(ctx *fiber.Ctx) error
-	HandlerUpdate(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
-	HandlerDelete(ctx *fiber.Ctx) error
 	JSONProducts(ctx *fiber.Ctx) error
 }
 
@@ -33,7 +33,7 @@ func (c *productController) RenderCreate(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "products/create", nil, "", baseLayout)
 }
 
-func (c *productController) HandlerCreate(ctx *fiber.Ctx) error {
+func (c *productController) Create(ctx *fiber.Ctx) error {
 	product := &models.Product{}
 	if err := ctx.BodyParser(product); err != nil {
 		errorMessage := "Dados do produto inválidos: " + err.Error()
@@ -76,7 +76,7 @@ func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "products/product", product, "", baseLayout)
 }
 
-func (c *productController) HandlerUpdate(ctx *fiber.Ctx) error {
+func (c *productController) Update(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/products")
@@ -141,7 +141,7 @@ func (c *productController) RenderDelete(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "products/delete", product, "", baseLayout)
 }
 
-func (c *productController) HandlerDelete(ctx *fiber.Ctx) error {
+func (c *productController) Delete(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/products")

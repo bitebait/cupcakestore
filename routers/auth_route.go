@@ -34,7 +34,7 @@ func NewAuthRouter() *AuthRouter {
 func (r *AuthRouter) InstallRouters(app *fiber.App) {
 	auth := app.Group("/auth", cors.New())
 
+	auth.Post("/login", r.authController.Login)
 	auth.Get("/login", r.authController.RenderLogin)
-	auth.Post("/login", r.authController.HandlerLogin)
-	auth.Get("/logout", r.authController.HandlerLogout).Use(middlewares.LoginAndStaffRequired())
+	auth.Get("/logout", r.authController.Logout).Use(middlewares.LoginAndStaffRequired())
 }

@@ -26,6 +26,7 @@ func NewProfileRouter() *ProfileRouter {
 
 func (r *ProfileRouter) InstallRouters(app *fiber.App) {
 	profile := app.Group("/profile", cors.New()).Use(middlewares.LoginAndStaffRequired())
+
 	profile.Get("/:id", r.profileController.RenderProfile)
 	profile.Post("/update/:id", r.profileController.Update)
 }

@@ -30,11 +30,11 @@ func (r *ProductRouter) InstallRouters(app *fiber.App) {
 	product := app.Group("/products", cors.New()).Use(middlewares.LoginAndStaffRequired())
 
 	product.Get("/create", r.productController.RenderCreate)
-	product.Post("/create", r.productController.HandlerCreate)
+	product.Post("/create", r.productController.Create)
 	product.Get("/json", r.productController.JSONProducts)
 	product.Get("/", r.productController.RenderProducts)
 	product.Get("/:id", r.productController.RenderProduct)
-	product.Post("/update/:id", r.productController.HandlerUpdate)
+	product.Post("/update/:id", r.productController.Update)
 	product.Get("/delete/:id", r.productController.RenderDelete)
-	product.Post("/delete/:id", r.productController.HandlerDelete)
+	product.Post("/delete/:id", r.productController.Delete)
 }
