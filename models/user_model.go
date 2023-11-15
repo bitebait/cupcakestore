@@ -64,7 +64,7 @@ func (u *User) AfterCreate(tx *gorm.DB) (err error) {
 }
 
 func (u *User) AfterDelete(tx *gorm.DB) (err error) {
-	if err = tx.Model(&Profile{}).Where("user_id = ?", u.ID).Delete(&Stock{}).Error; err != nil {
+	if err = tx.Where("user_id = ?", u.ID).Delete(&Profile{}).Error; err != nil {
 		return err
 	}
 	return nil
