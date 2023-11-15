@@ -26,7 +26,7 @@ type stockType string
 
 const (
 	StockEntrada stockType = "entrada"
-	StockSaida   stockType = "saida"
+	StockSaida   stockType = "saída"
 )
 
 type Stock struct {
