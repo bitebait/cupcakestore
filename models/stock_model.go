@@ -22,6 +22,13 @@ func NewStockFilter(productID uint, page, limit int) *StockFilter {
 	}
 }
 
+type stockType string
+
+const (
+	StockEntrada stockType = "entrada"
+	StockSaida   stockType = "saida"
+)
+
 type Stock struct {
 	gorm.Model
 	Product   Product // Belongs to relationship with Product
@@ -29,6 +36,7 @@ type Stock struct {
 	Quantity  int     `gorm:"not null"`
 	Profile   Profile
 	ProfileID uint
+	Type      stockType
 }
 
 func (s *Stock) CountStock(tx *gorm.DB) int {
@@ -43,6 +51,13 @@ func (s *Stock) CountStock(tx *gorm.DB) int {
 func (s *Stock) Validate() error {
 	v := validator.New()
 	return v.Struct(s)
+}
+
+func (s *Stock) BeforeSave(tx *gorm.DB) error {
+	if s.Type == StockSaida {
+		s.Quantity = -s.Quantity
+	}
+	return nil
 }
 
 func (s *Stock) BeforeCreate(tx *gorm.DB) error {
