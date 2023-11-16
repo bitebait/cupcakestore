@@ -44,32 +44,6 @@ func (u *User) Validate() error {
 	return v.Struct(u)
 }
 
-func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	if err := u.Validate(); err != nil {
-		return err
-	}
-
-	if err := u.HashPassword(); err != nil {
-		return err
-	}
-
-	return
-}
-
-func (u *User) AfterCreate(tx *gorm.DB) (err error) {
-	profile := &Profile{
-		UserID: u.ID,
-	}
-	return tx.Create(profile).Error
-}
-
-func (u *User) AfterDelete(tx *gorm.DB) (err error) {
-	if err = tx.Where("user_id = ?", u.ID).Delete(&Profile{}).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
 func (u *User) HashPassword() error {
 	hash, err := utils.PasswordHasher(u.Password)
 	if err != nil {
@@ -91,7 +65,7 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 	}
 
 	if newPassword == "" {
-		return errors.New("nova senha não pode estar vazia")
+		return errors.New("new password cannot be empty")
 	}
 
 	hash, err := utils.PasswordHasher(newPassword)
@@ -101,5 +75,45 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 
 	u.Password = hash
 
+	return nil
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	if err := u.Validate(); err != nil {
+		return err
+	}
+
+	if err := u.HashPassword(); err != nil {
+		return err
+	}
+
+	return
+}
+
+func (u *User) BeforeSave(tx *gorm.DB) (err error) {
+	if err := u.Validate(); err != nil {
+		return err
+	}
+
+	if err := u.HashPassword(); err != nil {
+		return err
+	}
+
+	return
+}
+
+func (u *User) AfterCreate(tx *gorm.DB) (err error) {
+	profile := &Profile{
+		FirstName: "",
+		LastName:  "",
+		UserID:    u.ID,
+	}
+	return tx.Create(profile).Error
+}
+
+func (u *User) AfterDelete(tx *gorm.DB) (err error) {
+	if err = tx.Where("user_id = ?", u.ID).Delete(&Profile{}).Error; err != nil {
+		return err
+	}
 	return nil
 }

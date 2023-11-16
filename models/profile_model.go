@@ -7,8 +7,8 @@ import (
 
 type Profile struct {
 	gorm.Model
-	FirstName   string `gorm:"type:varchar(100)"`
-	LastName    string `gorm:"type:varchar(100)"`
+	FirstName   string `gorm:"type:varchar(100)" validate:"required"`
+	LastName    string `gorm:"type:varchar(100)" validate:"required"`
 	Address     string `gorm:"type:varchar(200)"`
 	City        string `gorm:"type:varchar(100)"`
 	State       string `gorm:"type:varchar(100)"`
@@ -20,6 +20,14 @@ type Profile struct {
 
 func (p *Profile) FullName() string {
 	return p.FirstName + " " + p.LastName
+}
+
+func (p *Profile) BeforeSave(tx *gorm.DB) error {
+	return p.Validate()
+}
+
+func (p *Profile) BeforeCreate(tx *gorm.DB) error {
+	return p.Validate()
 }
 
 func (p *Profile) Validate() error {

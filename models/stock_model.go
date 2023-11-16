@@ -31,12 +31,12 @@ const (
 
 type Stock struct {
 	gorm.Model
-	Product   Product // Belongs to relationship with Product
-	ProductID uint    `gorm:"not null"`
-	Quantity  int     `gorm:"not null"`
+	Product   Product `validate:"-"`
+	ProductID uint    `gorm:"not null" validate:"required"`
+	Quantity  int     `gorm:"not null" validate:"required"`
 	Profile   Profile
 	ProfileID uint
-	Type      stockType
+	Type      stockType `validate:"required"`
 }
 
 func (s *Stock) CountStock(tx *gorm.DB) int {
@@ -54,20 +54,22 @@ func (s *Stock) Validate() error {
 }
 
 func (s *Stock) BeforeSave(tx *gorm.DB) error {
+	if err := s.Validate(); err != nil {
+		return err
+	}
+
 	if s.Type == StockSaida {
 		s.Quantity = -s.Quantity
 	}
+
 	return nil
 }
 
 func (s *Stock) BeforeCreate(tx *gorm.DB) error {
-	if err := s.Validate(); err != nil {
-		return err
-	}
-	return nil
+	return s.Validate()
 }
 
-func (s *Stock) AfterSave(tx *gorm.DB) (err error) {
+func (s *Stock) AfterSave(tx *gorm.DB) error {
 	tx.Model(&Product{}).Where("id = ?", s.ProductID).Update("CurrentStock", s.CountStock(tx))
-	return
+	return nil
 }
