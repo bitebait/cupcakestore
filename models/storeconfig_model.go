@@ -6,10 +6,15 @@ import (
 
 type StoreConfig struct {
 	gorm.Model
-	PaymentMethods       []PaymentMethod `gorm:"foreignKey:StoreConfigID"`
-	PixInfo              PixInformation  `gorm:"foreignKey:StoreConfigID"`
-	DeliveryValue        float64         `gorm:"not null"`
-	PhysicalStoreAddress string          `gorm:"not null"`
+	PaymentMethods           []PaymentMethod `gorm:"foreignKey:StoreConfigID"`
+	PixInfo                  PixInformation  `gorm:"foreignKey:StoreConfigID"`
+	DeliveryValue            float64
+	DeliveryIsActive         bool   `gorm:"not null;default:true"`
+	PhysicalStoreAddress     string `gorm:"type:varchar(200)"`
+	PhysicalStoreCity        string `gorm:"type:varchar(100)"`
+	PhysicalStoreState       string `gorm:"type:varchar(100)"`
+	PhysicalStorePostalCode  string `gorm:"type:varchar(20)"`
+	PhysicalStorePhoneNumber string `gorm:"type:varchar(20)"`
 }
 
 type PaymentMethod struct {

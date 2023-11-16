@@ -15,31 +15,32 @@
         </div>
     </div>
 </div>
+
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6 mx-auto">
+            <div class="col-md-4 mx-auto">
                 {{template "snippets/message" .}}
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h3 class="card-title">Gerenciar as configurações da sua loja</h3>
+                        <h3 class="card-title">Gerenciar as Configurações de Entrega</h3>
                     </div>
-                    <form method="Post" action="">
+                    <form method="Post" action="/config">
                         <div class="card-body">
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="physicalStoreAddress">Endereco da Loja</label>
-                                    <input type="text" class="form-control" id="physicalStoreAddress"
-                                           name="physicalStoreAddress" minlength="4"
-                                           value="{{.Object.PhysicalStoreAddress}}">
-                                </div>
-                                <div class="form-group  col-md-6">
-                                    <label for="deliveryValue">Valor da Taxa de Entrega</label>
-                                    <input type="number" step="0.01" class="form-control" id="deliveryValue"
-                                           name="deliveryValue"
-                                           placeholder="Valor da Taxa de Entrega" min="0.01"
-                                           value="{{.Object.DeliveryValue}}"
-                                           required="required"/>
+                            <div class="form-group">
+                                <label for="deliveryValue">Valor da Taxa de Entrega (R$)</label>
+                                <input type="number" step="0.01" class="form-control" id="deliveryValue"
+                                       name="deliveryValue"
+                                       placeholder="Valor da Taxa de Entrega" min="0.01"
+                                       value="{{.Object.DeliveryValue}}"
+                                       required="required"/>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                    <input type="checkbox" class="custom-control-input" id="deliveryIsActive"
+                                           name="deliveryIsActive" {{if .Object.DeliveryIsActive}}checked{{end}} />
+                                    <label class="custom-control-label" for="deliveryIsActive">Ativar/Desativar
+                                        Entrega</label>
                                 </div>
                             </div>
                         </div>

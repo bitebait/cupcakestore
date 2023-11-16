@@ -8,7 +8,8 @@ import (
 
 type StoreConfigController interface {
 	Update(ctx *fiber.Ctx) error
-	RenderStoreConfig(ctx *fiber.Ctx) error
+	RenderStoreConfigAddress(ctx *fiber.Ctx) error
+	RenderStoreConfigDelivery(ctx *fiber.Ctx) error
 }
 
 type storeConfigController struct {
@@ -27,27 +28,34 @@ func (c *storeConfigController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	err = ctx.BodyParser(&storeConfig)
+	err = ctx.BodyParser(storeConfig)
 	if err != nil {
-		if err != nil {
-			return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
-		}
+		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
 	}
 
+	storeConfig.DeliveryIsActive = ctx.FormValue("deliveryIsActive") == "on"
 	err = c.storeConfigService.Update(storeConfig)
 	if err != nil {
 		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
 	}
 
-	return ctx.Redirect("/config")
+	return ctx.Redirect("/users")
 }
 
-func (c storeConfigController) RenderStoreConfig(ctx *fiber.Ctx) error {
+func (c *storeConfigController) RenderStoreConfigAddress(ctx *fiber.Ctx) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		//TODO Change Users to Dashboard
 		return ctx.Redirect("/users")
 	}
 
-	return views.Render(ctx, "config/config", storeConfig, "", baseLayout)
+	return views.Render(ctx, "config/address", storeConfig, "", baseLayout)
+}
+
+func (c *storeConfigController) RenderStoreConfigDelivery(ctx *fiber.Ctx) error {
+	storeConfig, err := c.storeConfigService.GetStoreConfig()
+	if err != nil {
+		return ctx.Redirect("/users")
+	}
+
+	return views.Render(ctx, "config/delivery", storeConfig, "", baseLayout)
 }
