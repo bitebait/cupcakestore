@@ -37,8 +37,14 @@ func (c *stockController) Create(ctx *fiber.Ctx) error {
 		return views.Render(ctx, "stock/create", nil,
 			"Dados inválidos: "+err.Error(), baseLayout)
 	}
+
 	profile := ctx.Locals("profile").(*models.Profile)
+	if profile == nil || profile.ID == 0 {
+		return views.Render(ctx, "stock/create", nil,
+			"Falha ao identificar perfil do usuário.", baseLayout)
+	}
 	stock.ProfileID = profile.ID
+
 	if err := c.stockService.Create(stock); err != nil {
 		return views.Render(ctx, "stock/create", nil,
 			"Falha ao adicionar ao estoque: "+err.Error(), baseLayout)

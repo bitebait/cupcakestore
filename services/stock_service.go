@@ -27,6 +27,10 @@ func (s *stockService) Create(stock *models.Stock) error {
 		return errors.New("quantidade inválida")
 	}
 
+	if stock.ProfileID == 0 {
+		return errors.New("ProfileID não fornecido")
+	}
+
 	return s.stockRepository.Create(stock)
 }
 
