@@ -34,12 +34,16 @@
                             </div>
                             <div class="form-group">
                                 <label for="pixType">Tipo de Chave</label>
-                                <select class="form-control" id="pixType" name="pixType" value="{{.Object.PixType}}">
-                                    <option value="email">Email</option>
-                                    <option value="celular">Celular</option>
-                                    <option value="aleatoria">Aleatória</option>
-                                    <option value="cpf">CPF</option>
-                                    <option value="cnpj">CNPJ</option>
+                                <select class="form-control" id="pixType" name="pixType">
+                                    <option value="email" {{if eq .Object.PixType "email"}}selected{{end}}>Email
+                                    </option>
+                                    <option value="celular" {{if eq .Object.PixType "celular"}}selected{{end}}>Celular
+                                    </option>
+                                    <option value="aleatoria" {{if eq .Object.PixType "aleatoria"}}selected{{end}}>
+                                        Aleatória
+                                    </option>
+                                    <option value="cpf" {{if eq .Object.PixType "cpf"}}selected{{end}}>CPF</option>
+                                    <option value="cnpj" {{if eq .Object.PixType "cnpj"}}selected{{end}}>CNPJ</option>
                                 </select>
                             </div>
                         </div>
