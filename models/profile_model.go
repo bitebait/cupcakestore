@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -19,4 +20,9 @@ type Profile struct {
 
 func (p *Profile) FullName() string {
 	return p.FirstName + " " + p.LastName
+}
+
+func (p *Profile) Validate() error {
+	v := validator.New()
+	return v.Struct(p)
 }

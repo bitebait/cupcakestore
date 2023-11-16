@@ -34,7 +34,7 @@ type Stock struct {
 	Product   Product `validate:"-"`
 	ProductID uint    `gorm:"not null" validate:"required"`
 	Quantity  int     `gorm:"not null" validate:"required"`
-	Profile   Profile
+	Profile   Profile `validate:"-"`
 	ProfileID uint
 	Type      stockType `validate:"required"`
 }

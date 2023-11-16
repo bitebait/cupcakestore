@@ -55,8 +55,10 @@
                                     <td>{{.ProductID}}</td>
                                     <td>{{.ID}}</td>
                                     <td class="{{if ge .Quantity 0 }}text-dark{{else}}text-danger{{end}}">{{if ge .Quantity 0 }}+{{end}}{{.Quantity}}</td>
-                                    <td><span class="badge {{if eq .Type "entrada" }}badge-primary{{else}}badge-danger{{end}}">{{.Type}}</span></td>
-                                    <td><a href="/users/{{.Profile.UserID}}">{{.Profile.FullName}}</a></td>
+                                    <td>
+                                        <span class="badge {{if eq .Type "entrada" }}badge-primary{{else}}badge-danger{{end}}">{{.Type}}</span>
+                                    </td>
+                                    <td><a href="/users/{{.Profile.UserID}}">{{.Profile.User.Email}}</a></td>
                                     <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
                                 </tr>
                             {{end}}

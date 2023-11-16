@@ -23,10 +23,10 @@ func NewProductFilter(query string, page, limit int) *ProductFilter {
 
 type Product struct {
 	gorm.Model
-	Name         string  `gorm:"not null,type:varchar(100)" validate:"required"`
-	Description  string  `gorm:"not null,type:varchar(300)" validate:"required"`
-	Price        float64 `gorm:"not null" validate:"required,gt=0"`
-	Ingredients  string  `gorm:"not null,type:varchar(300)" validate:"required"`
+	Name         string  `gorm:"not null,type:varchar(100)"`
+	Description  string  `gorm:"not null,type:varchar(300)"`
+	Price        float64 `gorm:"not null"`
+	Ingredients  string  `gorm:"not null,type:varchar(300)"`
 	Image        string
 	Thumbnail    string
 	CurrentStock int
@@ -38,15 +38,14 @@ func (p *Product) Validate() error {
 }
 
 func (p *Product) BeforeCreate(tx *gorm.DB) error {
-	return p.Validate()
+	if err := p.Validate(); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (p *Product) BeforeSave(tx *gorm.DB) error {
-	return p.Validate()
-}
-
-func (p *Product) AfterDelete(tx *gorm.DB) error {
-	if err := tx.Where("product_id = ?", p.ID).Delete(&Stock{}).Error; err != nil {
+func (p *Product) AfterDelete(tx *gorm.DB) (err error) {
+	if err = tx.Where("product_id = ?", p.ID).Delete(&Stock{}).Error; err != nil {
 		return err
 	}
 	return nil

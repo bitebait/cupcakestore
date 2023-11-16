@@ -48,7 +48,7 @@ func (r *stockRepository) FindByProductId(filter *models.StockFilter) []models.S
 		Limit(filter.Pagination.Limit).
 		Order("created_at desc").
 		Preload("Product").
-		Preload("Profile").
+		Preload("Profile.User").
 		Find(&stocks)
 	return stocks
 }
