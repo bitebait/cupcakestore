@@ -28,5 +28,7 @@ func (r *StoreConfigRouter) InstallRouters(app *fiber.App) {
 	storeConfig := app.Group("/config", cors.New()).Use(middlewares.LoginAndStaffRequired())
 	storeConfig.Get("/address", r.storeConfigController.RenderStoreConfigAddress)
 	storeConfig.Get("/delivery", r.storeConfigController.RenderStoreConfigDelivery)
+	storeConfig.Get("/payment", r.storeConfigController.RenderStoreConfigPayment)
+	storeConfig.Get("/pix", r.storeConfigController.RenderStoreConfigPix)
 	storeConfig.Post("/", r.storeConfigController.Update)
 }

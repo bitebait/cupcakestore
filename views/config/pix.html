@@ -2,14 +2,14 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Configurar Entrega</h1>
+                <h1 class="m-0">Configurar Pix</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item">
                         <a href="#">Home</a>
                     </li>
-                    <li class="breadcrumb-item active">Configurar Entrega</li>
+                    <li class="breadcrumb-item active">Configurar Pix</li>
                 </ol>
             </div>
         </div>
@@ -23,25 +23,24 @@
                 {{template "snippets/message" .}}
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h3 class="card-title">Gerenciar as Configurações de Entrega</h3>
+                        <h3 class="card-title">Gerenciar as Configurações do Pix</h3>
                     </div>
                     <form method="Post" action="/config">
                         <div class="card-body">
                             <div class="form-group">
-                                <label for="deliveryValue">Valor da Taxa de Entrega (R$)</label>
-                                <input type="number" step="0.01" class="form-control" id="deliveryValue"
-                                       name="deliveryValue"
-                                       placeholder="Valor da Taxa de Entrega" min="0.01"
-                                       value="{{.Object.DeliveryValue}}"
-                                       required="required"/>
+                                <label for="pixKey">Chave Pix</label>
+                                <input type="text" class="form-control" id="pixKey" name="pixKey"
+                                       placeholder="Chave Pix" value="{{.Object.PixKey}}"/>
                             </div>
                             <div class="form-group">
-                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-                                    <input type="checkbox" class="custom-control-input" id="deliveryIsActive"
-                                           name="deliveryIsActive" {{if .Object.DeliveryIsActive}}checked{{end}} />
-                                    <label class="custom-control-label" for="deliveryIsActive">Ativar/Desativar
-                                        Entrega</label>
-                                </div>
+                                <label for="pixType">Tipo de Chave</label>
+                                <select class="form-control" id="pixType" name="pixType" value="{{.Object.PixType}}">
+                                    <option value="email">Email</option>
+                                    <option value="celular">Celular</option>
+                                    <option value="aleatoria">Aleatória</option>
+                                    <option value="cpf">CPF</option>
+                                    <option value="cnpj">CNPJ</option>
+                                </select>
                             </div>
                         </div>
                         <div class="card-footer">

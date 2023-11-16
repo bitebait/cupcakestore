@@ -28,8 +28,6 @@ func migrateModels(db *gorm.DB) {
 		&models.Product{},
 		&models.Stock{},
 		&models.StoreConfig{},
-		&models.PaymentMethod{},
-		&models.PixInformation{},
 	)
 	if err != nil {
 		log.Panic("erro ao migrar os modelos")
@@ -42,36 +40,10 @@ func seedStoreConfig(db *gorm.DB) {
 	db.Model(&models.StoreConfig{}).Count(&count)
 	if count == 0 {
 		// Criar uma nova StoreConfig
-		storeConfig := models.StoreConfig{
-			// Inicializar campos necessários caso existam valores padrão
-			DeliveryValue:        0,  // Definir valor padrão ou valor inicial necessário
-			PhysicalStoreAddress: "", // Definir valor padrão ou valor inicial necessário
-		}
+		storeConfig := models.StoreConfig{}
 
 		if err := db.Create(&storeConfig).Error; err != nil {
 			log.Fatalf("Falha ao criar StoreConfig: %v", err)
-		}
-
-		// Criar o método de pagamento Pix
-		pixPaymentMethod := models.PaymentMethod{
-			Name:          "Pix",
-			IsActive:      true,
-			StoreConfigID: storeConfig.ID,
-		}
-
-		if err := db.Create(&pixPaymentMethod).Error; err != nil {
-			log.Fatalf("falha ao criar método de pagamento 'Pix': %v", err)
-		}
-
-		// Criar o método de pagamento Dinheiro
-		cashPaymentMethod := models.PaymentMethod{
-			Name:          "Dinheiro",
-			IsActive:      true,
-			StoreConfigID: storeConfig.ID,
-		}
-
-		if err := db.Create(&cashPaymentMethod).Error; err != nil {
-			log.Fatalf("falha ao criar método de pagamento 'Dinheiro': %v", err)
 		}
 
 	}
