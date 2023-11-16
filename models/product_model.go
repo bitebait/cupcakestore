@@ -5,6 +5,22 @@ import (
 	"gorm.io/gorm"
 )
 
+type ProductFilter struct {
+	Product    *Product
+	Pagination *Pagination
+}
+
+func NewProductFilter(query string, page, limit int) *ProductFilter {
+	product := &Product{
+		Name: query,
+	}
+	pagination := NewPagination(page, limit)
+	return &ProductFilter{
+		Product:    product,
+		Pagination: pagination,
+	}
+}
+
 type Product struct {
 	gorm.Model
 	Name         string  `gorm:"not null,type:varchar(100)" validate:"required"`
