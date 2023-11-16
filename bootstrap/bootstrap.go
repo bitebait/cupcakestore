@@ -4,7 +4,6 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
-	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/routers"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
@@ -12,24 +11,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
-	"log"
 )
 
+// NewApplication creates a new instance of the Fiber application.
 func NewApplication() *fiber.App {
 	// Config
 	config.SetupEnvFile()
 
 	// Database
 	database.SetupDatabase()
-	err := database.DB.AutoMigrate(
-		&models.User{},
-		&models.Profile{},
-		&models.Product{},
-		&models.Stock{},
-	)
-	if err != nil {
-		log.Panic("error migrate models")
-	}
 
 	// Session
 	session.SetupSession()
@@ -44,6 +34,7 @@ func NewApplication() *fiber.App {
 		Level: compress.LevelBestCompression,
 	}))
 	app.Static("/", "./web")
+
 	// Routes
 	routers.InstallRouters(app)
 
