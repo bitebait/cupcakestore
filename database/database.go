@@ -44,7 +44,7 @@ func seedStoreConfig(db *gorm.DB) {
 		// Criar uma nova StoreConfig
 		storeConfig := models.StoreConfig{
 			// Inicializar campos necessários caso existam valores padrão
-			ShippingValue:        0,  // Definir valor padrão ou valor inicial necessário
+			DeliveryValue:        0,  // Definir valor padrão ou valor inicial necessário
 			PhysicalStoreAddress: "", // Definir valor padrão ou valor inicial necessário
 		}
 

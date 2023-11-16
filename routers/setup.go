@@ -9,7 +9,13 @@ type Routers interface {
 }
 
 func InstallRouters(app *fiber.App) {
-	setup(app, NewAuthRouter(), NewUserRouter(), NewProfileRouter(), NewProductRouter(), NewStockRouter())
+	setup(app,
+		NewAuthRouter(),
+		NewUserRouter(),
+		NewProfileRouter(),
+		NewProductRouter(),
+		NewStockRouter(),
+		NewStoreConfigRouter())
 }
 
 func setup(app *fiber.App, routes ...Routers) {
