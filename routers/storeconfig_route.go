@@ -27,4 +27,5 @@ func NewStoreConfigRouter() *StoreConfigRouter {
 func (r *StoreConfigRouter) InstallRouters(app *fiber.App) {
 	storeConfig := app.Group("/config", cors.New()).Use(middlewares.LoginAndStaffRequired())
 	storeConfig.Get("/", r.storeConfigController.RenderStoreConfig)
+	storeConfig.Post("/", r.storeConfigController.Update)
 }

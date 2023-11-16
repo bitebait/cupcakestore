@@ -21,9 +21,25 @@ func NewStoreConfigController(s services.StoreConfigService) StoreConfigControll
 	}
 }
 
-func (c storeConfigController) Update(ctx *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+func (c *storeConfigController) Update(ctx *fiber.Ctx) error {
+	storeConfig, err := c.storeConfigService.GetStoreConfig()
+	if err != nil {
+		return err
+	}
+
+	err = ctx.BodyParser(&storeConfig)
+	if err != nil {
+		if err != nil {
+			return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
+		}
+	}
+
+	err = c.storeConfigService.Update(storeConfig)
+	if err != nil {
+		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
+	}
+
+	return ctx.Redirect("/config")
 }
 
 func (c storeConfigController) RenderStoreConfig(ctx *fiber.Ctx) error {

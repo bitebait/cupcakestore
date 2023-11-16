@@ -7,6 +7,7 @@ import (
 
 type StoreConfigService interface {
 	GetStoreConfig() (*models.StoreConfig, error)
+	Update(storeConfig *models.StoreConfig) error
 }
 
 type storeConfigService struct {
@@ -21,4 +22,8 @@ func NewStoreConfigService(storeConfigRepository repositories.StoreConfigReposit
 
 func (s storeConfigService) GetStoreConfig() (*models.StoreConfig, error) {
 	return s.storeConfigRepository.GetStoreConfig()
+}
+
+func (s *storeConfigService) Update(storeConfig *models.StoreConfig) error {
+	return s.storeConfigRepository.Update(storeConfig)
 }
