@@ -28,10 +28,10 @@ func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
 }
 
 func (c *authController) Login(ctx *fiber.Ctx) error {
-	username := ctx.FormValue("username")
+	email := ctx.FormValue("email")
 	password := ctx.FormValue("password")
 
-	err := c.authService.Authenticate(ctx, username, password)
+	err := c.authService.Authenticate(ctx, email, password)
 	if err != nil {
 		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas")
 	}

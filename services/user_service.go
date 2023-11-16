@@ -11,7 +11,7 @@ type UserService interface {
 	Create(user *models.User) error
 	FindAll(filter *models.UserFilter) []models.User
 	FindById(id uint) (models.User, error)
-	FindByUsername(username string) (models.User, error)
+	FindByEmail(email string) (models.User, error)
 	Update(user *models.User) error
 	Delete(id uint) error
 }
@@ -39,8 +39,8 @@ func (s *userService) FindById(id uint) (models.User, error) {
 	return s.userRepository.FindById(id)
 }
 
-func (s *userService) FindByUsername(username string) (models.User, error) {
-	return s.userRepository.FindByUsername(username)
+func (s *userService) FindByEmail(email string) (models.User, error) {
+	return s.userRepository.FindByEmail(email)
 }
 
 func (s *userService) Update(user *models.User) error {
@@ -57,6 +57,5 @@ func (s *userService) Delete(id uint) error {
 }
 
 func (s *userService) normalizeUser(user *models.User) {
-	user.Username = strings.ToLower(user.Username)
 	user.Email = strings.ToLower(user.Email)
 }

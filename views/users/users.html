@@ -48,8 +48,8 @@
                             <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Nome de Usuário</th>
                                 <th>E-mail</th>
+                                <th>Criado Em</th>
                                 <th>Tipo</th>
                                 <th>Status</th>
                                 <th>Opções</th>
@@ -60,12 +60,11 @@
                                 <tr>
                                     <td>{{.ID}}</td>
                                     <td>
-                                        <a href="/users/{{.ID}}">{{.Username}}
+                                        <a href="/users/{{.ID}}">{{.Email}}
                                             <br/>
                                         </a>
-                                        <small>{{.UpdatedAt|date "02/01/2006 15:04h"}}</small>
                                     </td>
-                                    <td>{{.Email}}</td>
+                                    <td>{{.UpdatedAt|date "02/01/2006 15:04h"}}</td>
                                     <td>{{if .IsStaff}}
                                             <span class="badge badge-primary">Administrador</span>
                                         {{else}}

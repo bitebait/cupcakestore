@@ -30,13 +30,7 @@
                     <form method="Post" action="/users/update/{{.Object.ID}}">
                         <div class="card-body">
                             <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="username">Nome de usuário</label>
-                                    <input type="text" class="form-control" id="username" name="username"
-                                           placeholder="Nome de usuário" minlength="4"
-                                           value="{{.Object.Username}}">
-                                </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-12">
                                     <label for="email">E-mail</label>
                                     <input type="email" class="form-control" id="email" name="email"
                                            placeholder="E-mail do usuário" value="{{.Object.Email}}">

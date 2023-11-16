@@ -9,7 +9,7 @@ type UserRepository interface {
 	Create(user *models.User) error
 	FindAll(filter *models.UserFilter) []models.User
 	FindById(id uint) (models.User, error)
-	FindByUsername(username string) (models.User, error)
+	FindByEmail(email string) (models.User, error)
 	Update(user *models.User) error
 	Delete(user *models.User) error
 }
@@ -33,9 +33,8 @@ func (r *userRepository) FindAll(filter *models.UserFilter) []models.User {
 
 	query := r.db.Model(&models.User{}).Omit("Password")
 
-	if filter.User.Username != "" {
-		filterPattern := "%" + filter.User.Username + "%"
-		query = query.Where("username LIKE ? OR email LIKE ?", filterPattern, filterPattern)
+	if filter.User.Email != "" {
+		query = query.Where("email LIKE ?", "%"+filter.User.Email+"%")
 	}
 
 	var total int64
@@ -56,9 +55,9 @@ func (r *userRepository) FindById(id uint) (models.User, error) {
 	return user, err
 }
 
-func (r *userRepository) FindByUsername(username string) (models.User, error) {
+func (r *userRepository) FindByEmail(email string) (models.User, error) {
 	var user models.User
-	err := r.db.Where("username = ?", username).First(&user).Error
+	err := r.db.Where("email = ?", email).First(&user).Error
 	return user, err
 }
 

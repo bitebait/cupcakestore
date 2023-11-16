@@ -8,7 +8,7 @@ import (
 )
 
 type AuthService interface {
-	Authenticate(ctx *fiber.Ctx, username, password string) error
+	Authenticate(ctx *fiber.Ctx, email, password string) error
 }
 
 type authService struct {
@@ -23,8 +23,8 @@ func NewAuthService(userRepository repositories.UserRepository, profileRepositor
 	}
 }
 
-func (s *authService) Authenticate(ctx *fiber.Ctx, username, password string) error {
-	user, err := s.userRepository.FindByUsername(username)
+func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error {
+	user, err := s.userRepository.FindByEmail(email)
 	if err != nil {
 		return err
 	}

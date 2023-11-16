@@ -30,12 +30,7 @@
                     <form method="Post" action="/profile/update/{{.Object.UserID}}">
                         <div class="card-body">
                             <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="username">Usuário</label>
-                                    <input type="text" class="form-control" id="username"
-                                           value="{{.Object.User.Username}}" disabled>
-                                </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-12">
                                     <label for="mail">E-mail</label>
                                     <input type="mail" class="form-control" id="mail" value="{{.Object.User.Email}}"
                                            disabled>
