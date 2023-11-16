@@ -10,5 +10,5 @@ import (
 
 func main() {
 	app := bootstrap.NewApplication()
-	log.Fatal(app.Listen(fmt.Sprintf("%s:%s", config.GetConfig().AppHost, config.GetConfig().AppPort)))
+	log.Fatal(app.Listen(fmt.Sprintf("%s:%s", config.GetEnv("APP_HOST", "localhost"), config.GetEnv("APP_PORT", "4000"))))
 }

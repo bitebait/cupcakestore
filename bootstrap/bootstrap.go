@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"github.com/Masterminds/sprig"
+	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/routers"
@@ -15,6 +16,9 @@ import (
 )
 
 func NewApplication() *fiber.App {
+	// Config
+	config.SetupEnvFile()
+
 	// Database
 	database.SetupDatabase()
 	err := database.DB.AutoMigrate(
