@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
+	"strings"
 )
 
 type StoreConfigService interface {
@@ -25,5 +26,12 @@ func (s storeConfigService) GetStoreConfig() (*models.StoreConfig, error) {
 }
 
 func (s *storeConfigService) Update(storeConfig *models.StoreConfig) error {
+	s.normalizeStoreConfig(storeConfig)
 	return s.storeConfigRepository.Update(storeConfig)
+}
+
+func (s *storeConfigService) normalizeStoreConfig(storeConfig *models.StoreConfig) {
+	storeConfig.PhysicalStoreAddress = strings.Title(storeConfig.PhysicalStoreAddress)
+	storeConfig.PhysicalStoreCity = strings.Title(storeConfig.PhysicalStoreCity)
+	storeConfig.PhysicalStoreState = strings.Title(storeConfig.PhysicalStoreState)
 }
