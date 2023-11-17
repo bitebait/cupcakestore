@@ -6,14 +6,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func LoginAndStaffRequired() fiber.Handler {
+func Auth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sess, err := session.Store.Get(c)
 		if err != nil {
 			panic(err)
 		}
 
-		profile, ok := sess.Get("profile").(*models.Profile)
+		profile := sess.Get("profile")
+		if profile != nil {
+			c.Locals("profile", profile.(*models.Profile))
+		}
+		return c.Next()
+	}
+}
+
+func LoginAndStaffRequired() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		profile, ok := c.Locals("profile").(*models.Profile)
 		if !ok || profile == nil {
 			return redirectToLogout(c)
 		}
@@ -21,8 +31,6 @@ func LoginAndStaffRequired() fiber.Handler {
 		if !profile.User.IsStaff || !profile.User.IsActive {
 			return redirectToLogout(c)
 		}
-
-		c.Locals("profile", profile)
 
 		return c.Next()
 	}

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/session"
@@ -56,7 +57,7 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas")
 	}
 
-	return ctx.Redirect("/users")
+	return ctx.Redirect(config.GetEnv("REDIRECT_AFTER_LOGIN", "/"))
 }
 
 func (c *authController) Logout(ctx *fiber.Ctx) error {
