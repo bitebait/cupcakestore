@@ -1,4 +1,4 @@
-<div class="card-footer clearfix">
+<div class="card-footer clearfix" style="background-color: transparent !important;">
     <span>Página {{.Page}} de {{.TotalPages}} - Mostrando {{.Limit}} resultado(s) por página de um total de {{.Total}}.</span>
     <ul class="pagination pagination-sm m-0 float-right">
         {{if and (le .Page .TotalPages) (gt .Page 1)}}

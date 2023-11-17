@@ -25,8 +25,18 @@ func (c *storeController) RenderStore(ctx *fiber.Ctx) error {
 	query := ctx.Query("q", "")
 	page := ctx.QueryInt("page")
 	limit := ctx.QueryInt("limit")
+
+	if limit == 0 {
+		limit = 4
+	}
+
 	filter := models.NewProductFilter(query, page, limit)
 	products := c.productService.FindAll(filter)
 
-	return views.Render(ctx, "store/store", fiber.Map{"Products": products, "Filter": filter}, "", storeLayout)
+	data := fiber.Map{
+		"Products": products,
+		"Filter":   filter,
+	}
+
+	return views.Render(ctx, "store/store", data, "", storeLayout)
 }
