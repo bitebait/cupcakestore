@@ -34,7 +34,8 @@
                                     <div class="form-group">
                                         <label for="name">Nome do produto</label>
                                         <input type="text" class="form-control" id="name" name="name"
-                                               placeholder="Nome do produto" minlength="4" value="{{.Object.Name}}"
+                                               placeholder="Nome do produto" minlength="4" maxlength="60"
+                                               value="{{.Object.Name}}"
                                                required="required">
                                     </div>
                                     <div class="form-row">
@@ -53,13 +54,15 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="description">Descrição</label>
-                                        <textarea class="form-control" id="description" name="description" rows="3"
+                                        <textarea class="form-control" id="description" name="description"
+                                                  maxlength="80" rows="3"
                                                   required="required"
                                                   placeholder="Descrição do produto">{{.Object.Description}}</textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="ingredients">Ingredientes</label>
-                                        <textarea class="form-control" id="ingredients" name="ingredients" rows="3"
+                                        <textarea class="form-control" id="ingredients" name="ingredients"
+                                                  maxlength="300" rows="3"
                                                   required="required"
                                                   placeholder="Lista de ingredientes">{{.Object.Ingredients}}</textarea>
                                     </div>
