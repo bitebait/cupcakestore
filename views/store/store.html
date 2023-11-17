@@ -1,0 +1,45 @@
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Vitrine da Loja</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">
+                        <a href="#">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">Vitrine da Loja</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+
+<!-- Main content -->
+<div class="content">
+    <div class="container">
+        <div class="row row-eq-height">
+            {{range .Object.Products}}
+                <div class="col-md-3">
+                    <div class="card card-produto  text-center">
+                        <img src="{{.Image}}" class="card-img-top" alt="{{.Name}}">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title font-weight-bold">{{.Name}}</h5>
+                            <p class="card-text text-muted"><small>{{abbrev 120 .Description}}</small></p>
+                            <div class="mt-auto">
+                                <p class="card-text font-weight-bold fontsize-20">R$ {{ printf "%.2f" .Price}}<small
+                                            class="text-muted">/uni</small></p>
+                                <a href="#">Adicionar ao Carrinho</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{end}}
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content -->
