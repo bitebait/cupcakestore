@@ -20,8 +20,9 @@ func NewAuthRouter() *AuthRouter {
 	profileRepository := repositories.NewProfileRepository(database.DB)
 
 	// Initialize services with repositories
-
-	authService := services.NewAuthService(userRepository, profileRepository)
+	userService := services.NewUserService(userRepository)
+	profileService := services.NewProfileService(profileRepository)
+	authService := services.NewAuthService(userService, profileService)
 
 	// Initialize controllers with services
 	authController := controllers.NewAuthController(authService)
@@ -34,7 +35,9 @@ func NewAuthRouter() *AuthRouter {
 func (r *AuthRouter) InstallRouters(app *fiber.App) {
 	auth := app.Group("/auth", cors.New())
 
-	auth.Post("/login", r.authController.Login)
 	auth.Get("/login", r.authController.RenderLogin)
+	auth.Post("/login", r.authController.Login)
+	auth.Get("/register", r.authController.RenderRegister)
+	auth.Post("/register", r.authController.Register)
 	auth.Get("/logout", r.authController.Logout).Use(middlewares.LoginAndStaffRequired())
 }

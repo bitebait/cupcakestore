@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AdminLTE 3 | Página de Registro</title>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition register-page">
+<div class="register-box">
+    <div class="register-logo">
+        <a href="../../index2.html"><b>Admin</b>LTE</a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="row">
+        <div class="col-12 mb-2">
+            {{template "snippets/message" .}}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body register-card-body">
+            <p class="login-box-msg">Formulário de registro de conta</p>
+
+            <form action="/auth/register" method="Post" id="registrationForm">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <input type="text" class="form-control" id="firstname" name="firstname"
+                               placeholder="Nome"
+                               minlength="4">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="text" class="form-control" id="lastname" name="lastname"
+                               placeholder="Sobrenome">
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="email" class="form-control" name="email" id="email" placeholder="Email">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="password" class="form-control" name="password" id="password" placeholder="Senha">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="password" class="form-control" id="password2" placeholder="Digite a senha novamente">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div id="passwordError" style="display: none; color: red; text-align: center; margin-bottom: 10px;">
+                    As senhas não coincidem. Por favor, digite senhas iguais.
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary btn-block">Cadastrar</button>
+                    </div>
+                </div>
+                <p class="mb-0 mt-2 text-center">
+                    <a href="/auth/login" class="text-center">Clique aqui para fazer login</a>
+                </p>
+            </form>
+        </div>
+    </div><!-- /.card -->
+</div><!-- /.register-box -->
+
+<!-- jQuery -->
+<script src="/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="/dist/js/adminlte.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#registrationForm').submit(function (e) {
+            var senha = $('#password').val();
+            var confirmarSenha = $('#password2').val();
+
+            if (senha !== confirmarSenha) {
+                e.preventDefault();
+                $('#passwordError').show();
+            } else {
+                $('#passwordError').hide();
+            }
+        });
+
+        $('#password, #password2').on('keyup', function () {
+            $('#passwordError').hide();
+        });
+    });
+</script>
+</body>
+</html>

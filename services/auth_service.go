@@ -2,29 +2,46 @@ package services
 
 import (
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
 )
 
 type AuthService interface {
+	Register(profile *models.Profile) error
 	Authenticate(ctx *fiber.Ctx, email, password string) error
 }
 
 type authService struct {
-	userRepository    repositories.UserRepository
-	profileRepository repositories.ProfileRepository
+	userService    UserService
+	profileService ProfileService
 }
 
-func NewAuthService(userRepository repositories.UserRepository, profileRepository repositories.ProfileRepository) AuthService {
+func NewAuthService(u UserService, p ProfileService) AuthService {
 	return &authService{
-		userRepository:    userRepository,
-		profileRepository: profileRepository,
+		userService:    u,
+		profileService: p,
 	}
 }
 
+func (s *authService) Register(profile *models.Profile) error {
+	err := s.userService.Create(&profile.User)
+	if err != nil {
+		return err
+	}
+
+	p, err := s.profileService.FindByUserId(profile.User.ID)
+	if err != nil {
+		return err
+	}
+
+	p.FirstName = profile.FirstName
+	p.LastName = profile.LastName
+
+	return s.profileService.Update(&p)
+}
+
 func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error {
-	user, err := s.userRepository.FindByEmail(email)
+	user, err := s.userService.FindByEmail(email)
 	if err != nil {
 		return err
 	}
@@ -33,7 +50,7 @@ func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error
 		return err
 	}
 
-	profile, err := s.profileRepository.FindByUserId(user.ID)
+	profile, err := s.profileService.FindByUserId(user.ID)
 	if err != nil {
 		return err
 	}

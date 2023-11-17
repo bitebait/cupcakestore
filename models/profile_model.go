@@ -14,8 +14,8 @@ type Profile struct {
 	State       string `gorm:"type:varchar(100)"`
 	PostalCode  string `gorm:"type:varchar(20)"`
 	PhoneNumber string `gorm:"type:varchar(20)"`
-	UserID      uint
-	User        User // Belongs to relationship with User
+	UserID      uint   `gorm:"unique;not null"`
+	User        User   `gorm:"foreignKey:UserID"`
 }
 
 func (p *Profile) FullName() string {

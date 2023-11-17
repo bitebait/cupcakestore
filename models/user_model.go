@@ -29,10 +29,10 @@ func NewUserFilter(query string, page, limit int) *UserFilter {
 
 type User struct {
 	gorm.Model
-	Email      string `gorm:"type:varchar(100);unique_index" validate:"required,email"`
-	Password   string `gorm:"type:varchar(100);" validate:"required,min=8"`
-	IsActive   bool
-	IsStaff    bool
+	Email      string    `gorm:"type:varchar(100);unique" validate:"required,email"`
+	Password   string    `gorm:"type:varchar(100);" validate:"required,min=8"`
+	IsActive   bool      `gorm:"default:true"`
+	IsStaff    bool      `gorm:"default:false"`
 	FirstLogin time.Time `gorm:"type:timestamp"`
 	LastLogin  time.Time `gorm:"type:timestamp"`
 }
@@ -55,10 +55,18 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func (u *User) AfterCreate(tx *gorm.DB) (err error) {
-	profile := &Profile{
-		UserID: u.ID,
+	var existingProfile Profile
+	result := tx.Where("user_id = ?", u.ID).First(&existingProfile)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			profile := &Profile{
+				UserID: u.ID,
+			}
+			return tx.Create(profile).Error
+		}
+		return result.Error
 	}
-	return tx.Create(profile).Error
+	return nil
 }
 
 func (u *User) AfterDelete(tx *gorm.DB) (err error) {
