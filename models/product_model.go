@@ -30,6 +30,7 @@ type Product struct {
 	Image        string
 	Thumbnail    string
 	CurrentStock int
+	IsActive     bool `gorm:"default:true"`
 }
 
 func (p *Product) Validate() error {

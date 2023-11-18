@@ -54,6 +54,7 @@
                                 <th>Ingredientes</th>
                                 <th>Imagem</th>
                                 <th>Qtd Estoque</th>
+                                <th>Status</th>
                                 <th>Opções</th>
                             </tr>
                             </thead>
@@ -79,6 +80,11 @@
                                         </div>
                                     </td>
                                     <td>{{.CurrentStock}}</td>
+                                    <td>{{if .IsActive}}
+                                            <span class="badge badge-success">Ativo</span>
+                                        {{else}}
+                                            <span class="badge badge-danger">Inativo</span>{{end}}
+                                    </td>
                                     <td>
                                         <a href="/products/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
                                             <i class="fas fa-pen"></i>
