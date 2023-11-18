@@ -13,64 +13,90 @@ type ProfileController interface {
 	RenderProfile(ctx *fiber.Ctx) error
 }
 
+func NewProfileController(profileService services.ProfileService) ProfileController {
+	return &profileController{profileService: profileService}
+}
+
 type profileController struct {
 	profileService services.ProfileService
 }
 
-func NewProfileController(p services.ProfileService) ProfileController {
-	return &profileController{
-		profileService: p,
-	}
-}
-
 func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
-	userID, err := utils.StringToId(ctx.Params("id"))
+	profile, err := c.getProfile(ctx)
 	if err != nil {
-		return c.redirectToUsers(ctx)
+		return err
 	}
 
-	profile, err := c.profileService.FindByUserId(userID)
+	userSess, err := c.getUserSession(ctx)
 	if err != nil {
-		return c.redirectToUsers(ctx)
+		return err
 	}
 
-	userSess := ctx.Locals("profile").(*models.Profile)
-
-	if profile.UserID == userSess.UserID {
-		return views.Render(ctx, "profile/user-profile", profile, "", storeLayout)
-	} else if userSess.User.IsStaff {
-		return views.Render(ctx, "profile/user-profile", profile, "", baseLayout)
-	} else {
-		return ctx.Redirect("/")
+	layout := selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID)
+	if layout == "" {
+		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
+
+	return views.Render(ctx, "profile/user-profile", profile, "", layout)
 }
 
 func (c *profileController) Update(ctx *fiber.Ctx) error {
-	id, err := utils.StringToId(ctx.Params("id"))
+	profile, err := c.getProfile(ctx)
 	if err != nil {
-		return c.redirectToUsers(ctx)
+		return err
 	}
 
-	profile, err := c.profileService.FindByUserId(id)
+	if err = ctx.BodyParser(&profile); err != nil {
+		return views.Render(ctx, "profile/user-profile", profile, err.Error(), baseLayout)
+	}
+
+	userSess, err := c.getUserSession(ctx)
 	if err != nil {
-		return c.redirectToUsers(ctx)
+		return err
 	}
 
-	if err := ctx.BodyParser(&profile); err != nil {
-		return views.Render(ctx, "users/user", profile, err.Error(), baseLayout)
+	if userSess.User.IsStaff || profile.UserID == userSess.UserID {
+		if err = c.profileService.Update(&profile); err != nil {
+			return views.Render(ctx, "profile/user-profile", profile, "Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, false))
+		}
+	} else {
+		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	if err := c.profileService.Update(&profile); err != nil {
-		return views.Render(ctx, "users/user", profile, "Falha ao atualizar perfil do usuário.", baseLayout)
-	}
-
-	if profile.UserID == ctx.Locals("profile").(*models.Profile).UserID {
-		return ctx.Redirect("/auth/logout")
-	}
-
-	return ctx.Redirect("/users")
+	redirectPath := selectRedirectPath(userSess.User.IsStaff)
+	return ctx.Redirect(redirectPath)
 }
 
-func (c *profileController) redirectToUsers(ctx *fiber.Ctx) error {
-	return ctx.Redirect("/users")
+func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
+	userID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return models.Profile{}, ctx.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.profileService.FindByUserId(userID)
+}
+
+func (c *profileController) getUserSession(ctx *fiber.Ctx) (*models.Profile, error) {
+	userSess, ok := ctx.Locals("profile").(*models.Profile)
+	if !ok || userSess == nil {
+		return nil, fiber.ErrUnauthorized
+	}
+	return userSess, nil
+}
+
+func selectLayout(isStaff bool, isUserProfile bool) string {
+	switch {
+	case isStaff:
+		return baseLayout
+	case isUserProfile:
+		return storeLayout
+	default:
+		return ""
+	}
+}
+
+func selectRedirectPath(isStaff bool) string {
+	if isStaff {
+		return "/users"
+	}
+	return "/"
 }

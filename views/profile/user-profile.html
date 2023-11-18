@@ -2,14 +2,20 @@
     <div class="container">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Detalhes do usuário</h1>
+                <h1 class="m-0">Detalhes do Perfil</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item">
-                        <a href="/users">Usuários Registrados</a>
-                    </li>
-                    <li class="breadcrumb-item active">Detalhes do Usuário</li>
+                    {{ if.Object.User.IsStaff }}
+                        <li class="breadcrumb-item">
+                            <a href="/users">Usuários Registrados</a>
+                        </li>
+                    {{else}}
+                        <li class="breadcrumb-item">
+                            <a href="/">Home</a>
+                        </li>
+                    {{end}}
+                    <li class="breadcrumb-item active">Detalhes do Perfil</li>
                 </ol>
             </div>
         </div>
@@ -87,8 +93,13 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="/users/{{.Object.UserID}}" class="btn btn-default">
-                                <i class="fas fa-undo-alt"></i> Cancelar </a>
+                            {{ if.Object.User.IsStaff }}
+                                <a href="/users/{{.Object.UserID}}" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
+                            {{else}}
+                                <a href="javascript:history.back()" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
+                            {{end}}
                             <button type="submit" class="btn btn-primary float-right">Atualizar perfil</button>
                         </div>
                     </form>

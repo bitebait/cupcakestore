@@ -65,7 +65,7 @@
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
         <div class="container">
-            <a href="/index3.html" class="navbar-brand">
+            <a href="/" class="navbar-brand">
                 <img src="/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                      style="opacity: .8">
                 <span class="brand-text font-weight-light">AdminLTE 3</span>
@@ -79,8 +79,8 @@
             <div class="collapse navbar-collapse order-3" id="navbarCollapse">
                 <!-- Left navbar links -->
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a href="index3.html" class="nav-link">Home</a>
+                    <li class="nav-item d-flex">
+                        <a href="/" class="nav-link">Home</a>
                     </li>
                 </ul>
             </div>
@@ -88,14 +88,15 @@
             <!-- Right navbar links -->
             <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
                 {{ if and .Profile .Profile.User }}
-                    <li class="nav-item">
-                        <a href="/profile/{{.Profile.User.ID}}"
-                           class="nav-link">{{.Profile.User.Email}}</a>
+                    <li class="nav-item d-flex align-items-center">
+                        <a href="/profile/{{.Profile.User.ID}}" class="nav-link">{{.Profile.User.Email}}</a>
+                        <a href="/auth/logout" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </a>
                     </li>
                 {{else}}
-                    <li class="nav-item">
-                        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="/auth/login"
-                           role="button">
+                    <li class="nav-item d-flex align-items-center">
+                        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="/auth/login" role="button">
                             <i class="fas fa-user"></i> Fazer Login/Cadastro
                         </a>
                     </li>
@@ -103,6 +104,7 @@
             </ul>
         </div>
     </nav>
+
     <!-- /.navbar -->
 
     <!-- Content Wrapper. Contains page content -->
@@ -127,11 +129,10 @@
         <strong>CupCakeStore</strong>
     </footer>
 </div>
+<!-- jQuery -->
+<script src="/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
-<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
-<script src="/dist/js/adminlte.min.js"></script>
+
 </body>
 </html>
