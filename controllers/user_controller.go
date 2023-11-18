@@ -35,16 +35,16 @@ func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 func (c *userController) Create(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
-		return views.Render(ctx, "users/create", nil,
-			"Dados de usuário inválidos: "+err.Error(), baseLayout)
+		errorMessage := "Dados de usuário inválidos: " + err.Error()
+		return views.Render(ctx, "users/create", nil, errorMessage, baseLayout)
 	}
 
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 
 	if err := c.userService.Create(user); err != nil {
-		return views.Render(ctx, "users/create", nil,
-			"Falha ao criar usuário: "+err.Error(), baseLayout)
+		errorMessage := "Falha ao criar usuário: " + err.Error()
+		return views.Render(ctx, "users/create", nil, errorMessage, baseLayout)
 	}
 
 	return ctx.Redirect("/users")
@@ -61,17 +61,38 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
+	user, err := c.getUser(ctx)
+	if err != nil {
+		return err
+	}
+
+	userSess, err := c.getUserSession(ctx)
+	if err != nil {
+		return err
+	}
+
+	layout := selectLayout(userSess.IsStaff, user.ID == userSess.ID)
+	if layout == "" {
+		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	return views.Render(ctx, "users/user", user, "", layout)
+}
+
+func (c *userController) getUser(ctx *fiber.Ctx) (models.User, error) {
 	userID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return ctx.Redirect("/users")
+		return models.User{}, ctx.SendStatus(fiber.StatusInternalServerError)
 	}
+	return c.userService.FindById(userID)
+}
 
-	user, err := c.userService.FindById(userID)
-	if err != nil {
-		return ctx.Redirect("/users")
+func (c *userController) getUserSession(ctx *fiber.Ctx) (*models.User, error) {
+	userSess, ok := ctx.Locals("profile").(*models.Profile)
+	if !ok || userSess == nil {
+		return nil, fiber.ErrUnauthorized
 	}
-
-	return views.Render(ctx, "users/user", user, "", baseLayout)
+	return &userSess.User, nil
 }
 
 func (c *userController) Update(ctx *fiber.Ctx) error {
@@ -90,21 +111,31 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 		return views.Render(ctx, "users/user", user, err.Error(), baseLayout)
 	}
 
-	err = c.updateUserPassword(ctx, &user)
+	userSess, err := c.getUserSession(ctx)
 	if err != nil {
-		return views.Render(ctx, "users/user", user, "Falha ao atualizar a senha do usuário. Por favor, verifique os dados.", baseLayout)
+		return err
 	}
 
-	err = c.userService.Update(&user)
-	if err != nil {
-		return views.Render(ctx, "users/user", user, "Falha ao atualizar usuário.", baseLayout)
+	if userSess.IsStaff || user.ID == userSess.ID {
+		err = c.updateUserPassword(ctx, &user)
+		if err != nil {
+			return views.Render(ctx, "users/user", user,
+				"Falha ao atualizar usuário.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
+		}
+		if err = c.userService.Update(&user); err != nil {
+			return views.Render(ctx, "users/user", user,
+				"Falha ao atualizar usuário.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
+		}
+	} else {
+		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
 
 	if user.ID == ctx.Locals("profile").(*models.Profile).UserID {
 		return ctx.Redirect("/auth/logout")
 	}
 
-	return ctx.Redirect("/users")
+	redirectPath := selectRedirectPath(userSess.IsStaff)
+	return ctx.Redirect(redirectPath)
 }
 
 func (c *userController) updateUserFromRequest(ctx *fiber.Ctx, user *models.User) error {

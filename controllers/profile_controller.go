@@ -57,7 +57,8 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 
 	if userSess.User.IsStaff || profile.UserID == userSess.UserID {
 		if err = c.profileService.Update(&profile); err != nil {
-			return views.Render(ctx, "profile/user-profile", profile, "Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, false))
+			return views.Render(ctx, "profile/user-profile", profile,
+				"Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID))
 		}
 	} else {
 		return ctx.SendStatus(fiber.StatusUnauthorized)
@@ -81,22 +82,4 @@ func (c *profileController) getUserSession(ctx *fiber.Ctx) (*models.Profile, err
 		return nil, fiber.ErrUnauthorized
 	}
 	return userSess, nil
-}
-
-func selectLayout(isStaff bool, isUserProfile bool) string {
-	switch {
-	case isStaff:
-		return baseLayout
-	case isUserProfile:
-		return storeLayout
-	default:
-		return ""
-	}
-}
-
-func selectRedirectPath(isStaff bool) string {
-	if isStaff {
-		return "/users"
-	}
-	return "/"
 }
