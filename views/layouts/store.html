@@ -89,7 +89,7 @@
             <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
                 {{ if and .Profile .Profile.User }}
                     <li class="nav-item">
-                        <a href="{{if .Profile.User.IsStaff}}/users/{{.Profile.User.ID}}{{else}}#{{end}}"
+                        <a href="/profile/{{.Profile.User.ID}}"
                            class="nav-link">{{.Profile.User.Email}}</a>
                     </li>
                 {{else}}

@@ -34,7 +34,15 @@ func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
 		return c.redirectToUsers(ctx)
 	}
 
-	return views.Render(ctx, "profile/user-profile", profile, "", baseLayout)
+	userSess := ctx.Locals("profile").(*models.Profile)
+
+	if profile.UserID == userSess.UserID {
+		return views.Render(ctx, "profile/user-profile", profile, "", storeLayout)
+	} else if userSess.User.IsStaff {
+		return views.Render(ctx, "profile/user-profile", profile, "", baseLayout)
+	} else {
+		return ctx.Redirect("/")
+	}
 }
 
 func (c *profileController) Update(ctx *fiber.Ctx) error {
