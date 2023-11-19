@@ -9,6 +9,7 @@ import (
 type ShoppingCartRepository interface {
 	FindByUserId(id uint) (models.ShoppingCart, error)
 	AddItemToCart(cartItem *models.ShoppingCartItem) error
+	UpdateCartItem(item *models.ShoppingCartItem) error
 }
 
 type shoppingCartRepository struct {
@@ -23,7 +24,7 @@ func NewShoppingCartRepository(database *gorm.DB) ShoppingCartRepository {
 
 func (r shoppingCartRepository) FindByUserId(id uint) (models.ShoppingCart, error) {
 	var cart models.ShoppingCart
-	err := r.db.Where("profile_id = ? AND status = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items").First(&cart).Error
+	err := r.db.Where("profile_id = ? AND status = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items.Product").First(&cart).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		cart.ProfileID = id
 		err = r.db.Create(&cart).Error
@@ -33,5 +34,9 @@ func (r shoppingCartRepository) FindByUserId(id uint) (models.ShoppingCart, erro
 }
 
 func (r shoppingCartRepository) AddItemToCart(cartItem *models.ShoppingCartItem) error {
-	return r.db.FirstOrCreate(cartItem).Error
+	return r.db.Create(cartItem).Error
+}
+
+func (r shoppingCartRepository) UpdateCartItem(item *models.ShoppingCartItem) error {
+	return r.db.Save(item).Error
 }

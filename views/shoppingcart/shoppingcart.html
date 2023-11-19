@@ -30,9 +30,9 @@
                                 {{range .Object.Items}}
                                     <tr>
                                         <td>{{.Product.Name}}</td>
-                                        <td>{{.ItemPrice}}</td>
-                                        <td>{{.Quantity}}</td>
-                                        <td>{{mul .Quantity .ItemPrice}}</td>
+                                        <td>R$ {{.ItemPrice}}</td>
+                                        <td>{{.Quantity}}<small>x</small></td>
+                                        <td>R$ {{mul .Quantity .ItemPrice}}</td>
                                         <td>x</td>
                                     </tr>
                                 {{end}}
@@ -41,7 +41,7 @@
                         </div>
 
                         <div class="card-footer">
-                            Total: <span id="totalPrice">R$0,00</span>
+                             <strong id="totalPrice">Total: R$ {{ printf "%.2f" .Object.TotalPrice}}</strong>
                             {{if gt .Object.TotalPrice  0.0}}
                                 <a class="btn btn-success float-right">Finalizar Compra</a>
                             {{else}}

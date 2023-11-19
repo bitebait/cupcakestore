@@ -25,4 +25,5 @@ func NewShoppingCartRouter() *ShoppingCartRouter {
 func (r *ShoppingCartRouter) InstallRouters(app *fiber.App) {
 	cart := app.Group("/cart", cors.New())
 	cart.Get("/", r.shoppingCartController.RenderShoppingCart)
+	cart.Post("/", r.shoppingCartController.AddShoppingCartItem)
 }
