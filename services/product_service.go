@@ -9,6 +9,7 @@ import (
 type ProductService interface {
 	Create(product *models.Product) error
 	FindAll(filter *models.ProductFilter) []models.Product
+	FindActiveWithStock(filter *models.ProductFilter) []models.Product
 	FindById(id uint) (models.Product, error)
 	Update(product *models.Product) error
 	Delete(id uint) error
@@ -33,6 +34,9 @@ func (s *productService) FindAll(filter *models.ProductFilter) []models.Product 
 	return s.productRepository.FindAll(filter)
 }
 
+func (s *productService) FindActiveWithStock(filter *models.ProductFilter) []models.Product {
+	return s.productRepository.FindActiveWithStock(filter)
+}
 func (s *productService) FindById(id uint) (models.Product, error) {
 	return s.productRepository.FindById(id)
 }

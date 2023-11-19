@@ -31,7 +31,7 @@ func (c *storeController) RenderStore(ctx *fiber.Ctx) error {
 	}
 
 	filter := models.NewProductFilter(query, page, limit)
-	products := c.productService.FindAll(filter)
+	products := c.productService.FindActiveWithStock(filter)
 
 	data := fiber.Map{
 		"Products": products,

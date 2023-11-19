@@ -1,4 +1,4 @@
-<!-- Content Header (Page header) -->
+<!-- Cabeçalho do conteúdo (cabeçalho da página) -->
 <div class="content-header">
     <div class="container">
         <div class="row mb-2">
@@ -18,29 +18,38 @@
 </div>
 <!-- /.content-header -->
 
-<!-- Main content -->
+<!-- Conteúdo principal -->
 <div class="content">
     <div class="container">
         <div class="row row-eq-height">
-            {{range .Object.Products}}
-                <div class="col-md-3">
-                    <div class="card card-produto  text-center">
-                        <img src="{{.Image}}" class="card-img-top" alt="{{.Name}}">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title font-weight-bold">{{.Name}}</h5>
-                            <p class="card-text text-muted"><small>{{abbrev 70 .Description}}</small></p>
-                            <div class="mt-auto">
-                                <p class="card-text font-weight-bold fontsize-20">R$ {{ printf "%.2f" .Price}}<small
-                                            class="text-muted">/uni</small></p>
-                                <a href="#">Adicionar ao Carrinho</a>
+            {{ if  .Object.Products}}
+                {{range .Object.Products}}
+                    <div class="col-md-3">
+                        <div class="card card-produto  text-center">
+                            <img src="{{.Image}}" class="card-img-top" alt="{{.Name}}">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title font-weight-bold">{{.Name}}</h5>
+                                <p class="card-text text-muted"><small>{{abbrev 70 .Description}}</small></p>
+                                <div class="mt-auto">
+                                    <p class="card-text font-weight-bold fontsize-20">R$ {{ printf "%.2f" .Price}}<small
+                                                class="text-muted">/uni</small></p>
+                                    <a href="#">Adicionar ao Carrinho</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                {{end}}
             {{end}}
-
         </div>
+        {{ if not .Object.Products}}
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>Nenhum produto disponível no momento.</p>
+                </div>
+            </div>
+        {{end}}
         <div class="mb-5">{{template "snippets/pagination" .Object.Filter.Pagination}}</div>
+
         <!-- /.row -->
     </div><!-- /.container-fluid -->
 </div>
