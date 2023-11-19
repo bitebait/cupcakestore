@@ -10,15 +10,15 @@ func Auth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sess, err := session.Store.Get(c)
 		if err != nil {
-			panic(err)
+			return c.Status(fiber.StatusInternalServerError).SendString("Erro interno do servidor")
 		}
 
-		profile := sess.Get("profile")
-		if profile != nil {
+		if profile := sess.Get("profile"); profile != nil {
 			c.Locals("profile", profile.(*models.Profile))
-		} else {
+		} else if c.Path() != "/auth/login" && c.Path() != "/store" {
 			return c.Redirect("/auth/login")
 		}
+
 		return c.Next()
 	}
 }
@@ -26,11 +26,7 @@ func Auth() fiber.Handler {
 func LoginAndStaffRequired() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		profile, ok := c.Locals("profile").(*models.Profile)
-		if !ok || profile == nil {
-			return redirectToLogout(c)
-		}
-
-		if !profile.User.IsStaff || !profile.User.IsActive {
+		if !ok || profile == nil || !profile.User.IsStaff || !profile.User.IsActive {
 			return redirectToLogout(c)
 		}
 

@@ -25,7 +25,7 @@ func NewUserRouter() *UserRouter {
 }
 
 func (r *UserRouter) InstallRouters(app *fiber.App) {
-	userGroup := app.Group("/users", cors.New()).Use(middlewares.Auth())
+	userGroup := app.Group("/users", cors.New())
 	userGroup.Get("/:id", r.userController.RenderUser)
 	userGroup.Post("/update/:id", r.userController.Update)
 
