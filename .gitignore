@@ -21,3 +21,4 @@ web/
 
 # Go workspace file
 go.work
+/web/
