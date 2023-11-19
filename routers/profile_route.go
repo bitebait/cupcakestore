@@ -6,7 +6,6 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type ProfileRouter struct {
@@ -24,7 +23,7 @@ func NewProfileRouter() *ProfileRouter {
 }
 
 func (r *ProfileRouter) InstallRouters(app *fiber.App) {
-	profile := app.Group("/profile", cors.New())
+	profile := app.Group("/profile")
 
 	profile.Get("/:id", r.profileController.RenderProfile)
 	profile.Post("/update/:id", r.profileController.Update)

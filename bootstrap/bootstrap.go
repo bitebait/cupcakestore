@@ -9,6 +9,7 @@ import (
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
@@ -34,8 +35,11 @@ func NewApplication() *fiber.App {
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestCompression,
 	}))
-	app.Use(middlewares.Auth())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
 	app.Static("/", "./web")
+	app.Use(middlewares.Auth())
 
 	// Routes
 	routers.InstallRouters(app)

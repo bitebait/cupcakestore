@@ -7,7 +7,6 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type ProductRouter struct {
@@ -27,7 +26,7 @@ func NewProductRouter() *ProductRouter {
 }
 
 func (r *ProductRouter) InstallRouters(app *fiber.App) {
-	product := app.Group("/products", cors.New()).Use(middlewares.LoginAndStaffRequired())
+	product := app.Group("/products").Use(middlewares.LoginAndStaffRequired())
 
 	product.Get("/create", r.productController.RenderCreate)
 	product.Post("/create", r.productController.Create)

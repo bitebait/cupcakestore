@@ -7,7 +7,6 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type UserRouter struct {
@@ -25,11 +24,11 @@ func NewUserRouter() *UserRouter {
 }
 
 func (r *UserRouter) InstallRouters(app *fiber.App) {
-	userGroup := app.Group("/users", cors.New())
+	userGroup := app.Group("/users")
 	userGroup.Get("/:id", r.userController.RenderUser)
 	userGroup.Post("/update/:id", r.userController.Update)
 
-	adminGroup := app.Group("/users", cors.New(), middlewares.LoginAndStaffRequired())
+	adminGroup := app.Group("/users", middlewares.LoginAndStaffRequired())
 	adminGroup.Get("/create", r.userController.RenderCreate)
 	adminGroup.Post("/create", r.userController.Create)
 	adminGroup.Get("/", r.userController.RenderUsers)

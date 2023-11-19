@@ -7,7 +7,6 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type StockRouter struct {
@@ -25,7 +24,7 @@ func NewStockRouter() *StockRouter {
 }
 
 func (r *StockRouter) InstallRouters(app *fiber.App) {
-	stock := app.Group("/stock", cors.New()).Use(middlewares.LoginAndStaffRequired())
+	stock := app.Group("/stock").Use(middlewares.LoginAndStaffRequired())
 
 	stock.Get("/create", r.stockController.RenderCreate)
 	stock.Post("/create", r.stockController.Create)

@@ -6,7 +6,6 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type AuthRouter struct {
@@ -32,7 +31,7 @@ func NewAuthRouter() *AuthRouter {
 }
 
 func (r *AuthRouter) InstallRouters(app *fiber.App) {
-	auth := app.Group("/auth", cors.New())
+	auth := app.Group("/auth")
 
 	auth.Get("/login", r.authController.RenderLogin)
 	auth.Post("/login", r.authController.Login)
