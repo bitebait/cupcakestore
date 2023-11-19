@@ -8,8 +8,8 @@
     <section class="content">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-
+                <div class="col-12 mx-auto">
+                    {{template "snippets/message" .}}
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">Seu Carrinho</h3>
@@ -27,14 +27,26 @@
                                 </tr>
                                 </thead>
                                 <tbody id="cartItems">
-                                <!-- Itens do carrinho serão inseridos aqui pelo JavaScript -->
+                                {{range .Object.Items}}
+                                    <tr>
+                                        <td>{{.Product.Name}}</td>
+                                        <td>{{.ItemPrice}}</td>
+                                        <td>{{.Quantity}}</td>
+                                        <td>{{mul .Quantity .ItemPrice}}</td>
+                                        <td>x</td>
+                                    </tr>
+                                {{end}}
                                 </tbody>
                             </table>
                         </div>
 
                         <div class="card-footer">
                             Total: <span id="totalPrice">R$0,00</span>
-                            <button class="btn btn-success float-right" onclick="checkout()">Finalizar Compra</button>
+                            {{if gt .Object.TotalPrice  0.0}}
+                                <a class="btn btn-success float-right">Finalizar Compra</a>
+                            {{else}}
+                                <a class="btn btn-info float-right" href="/">Adicionar Items</a>
+                            {{end}}
                         </div>
 
                     </div>

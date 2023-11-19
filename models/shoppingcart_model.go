@@ -5,7 +5,7 @@ import (
 )
 
 type paymentMethod string
-type paymentStatus string
+type shoppingCartStatus string
 
 const (
 	CashPaymentMethod paymentMethod = "Dinheiro"
@@ -13,13 +13,13 @@ const (
 )
 
 const (
-	ActiveStatus          paymentStatus = "Em Aberto"
-	AwaitingPaymentStatus paymentStatus = "Aguardando Pagamento"
-	PaymentApprovedStatus paymentStatus = "Pagamento Aprovado"
-	ProcessingStatus      paymentStatus = "Em Processamento"
-	ShippedStatus         paymentStatus = "Enviado"
-	DeliveredStatus       paymentStatus = "Entregue"
-	CancelledStatus       paymentStatus = "Cancelado"
+	ActiveStatus          shoppingCartStatus = "Em Aberto"
+	AwaitingPaymentStatus shoppingCartStatus = "Aguardando Pagamento"
+	PaymentApprovedStatus shoppingCartStatus = "Pagamento Aprovado"
+	ProcessingStatus      shoppingCartStatus = "Em Processamento"
+	ShippedStatus         shoppingCartStatus = "Enviado"
+	DeliveredStatus       shoppingCartStatus = "Entregue"
+	CancelledStatus       shoppingCartStatus = "Cancelado"
 )
 
 type ShoppingCart struct {
@@ -28,7 +28,7 @@ type ShoppingCart struct {
 	Profile         Profile            `validate:"-"`
 	Items           []ShoppingCartItem `gorm:"foreignKey:ShoppingCartID"`
 	TotalPrice      float64            `gorm:"default:0"`
-	PaymentStatus   paymentStatus      `gorm:"default:'Em Aberto'"`
+	Status          shoppingCartStatus `gorm:"default:'Em Aberto'"`
 	PaymentMethod   paymentMethod      `gorm:"default:'Pix'"`
 	DeliveryAddress string             `gorm:"default:''"`
 }

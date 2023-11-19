@@ -29,6 +29,7 @@ func migrateModels(db *gorm.DB) {
 		&models.Stock{},
 		&models.StoreConfig{},
 		&models.ShoppingCart{},
+		&models.ShoppingCartItem{},
 	)
 	if err != nil {
 		log.Panic("erro ao migrar os modelos")

@@ -7,6 +7,7 @@ import (
 
 type ShoppingCartService interface {
 	FindByUserId(id uint) (models.ShoppingCart, error)
+	AddItemToCart(cartItem *models.ShoppingCartItem) error
 }
 
 type shoppingCartService struct {
@@ -21,4 +22,8 @@ func NewShoppingCartService(shoppingCartRepository repositories.ShoppingCartRepo
 
 func (s shoppingCartService) FindByUserId(id uint) (models.ShoppingCart, error) {
 	return s.shoppingCartRepository.FindByUserId(id)
+}
+
+func (s shoppingCartService) AddItemToCart(cartItem *models.ShoppingCartItem) error {
+	return s.shoppingCartRepository.AddItemToCart(cartItem)
 }

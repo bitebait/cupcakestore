@@ -2,6 +2,9 @@ package routers
 
 import (
 	"github.com/bitebait/cupcakestore/controllers"
+	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/repositories"
+	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -11,10 +14,11 @@ type ShoppingCartRouter struct {
 }
 
 func NewShoppingCartRouter() *ShoppingCartRouter {
-	// Initialize controllers with services
-	shoppingCartController := controllers.NewShoppingCartController()
+	shoppginCartRepository := repositories.NewShoppingCartRepository(database.DB)
+	shoppginCartService := services.NewShoppingCartService(shoppginCartRepository)
+	shoppginCartController := controllers.NewShoppingCartController(shoppginCartService)
 	return &ShoppingCartRouter{
-		shoppingCartController: shoppingCartController,
+		shoppingCartController: shoppginCartController,
 	}
 }
 
