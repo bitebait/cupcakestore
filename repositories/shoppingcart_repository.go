@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
 )
@@ -22,11 +23,11 @@ func NewShoppingCartRepository(database *gorm.DB) ShoppingCartRepository {
 
 func (r shoppingCartRepository) FindByUserId(id uint) (models.ShoppingCart, error) {
 	var cart models.ShoppingCart
-	err := r.db.Where("profile_id = ? AND status = 'Em Aberto'", id).Preload("Profile").Preload("ShoppingCartItem").First(&cart).Error
-	if err != nil {
+	err := r.db.Where("profile_id = ? AND status = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items").First(&cart).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		cart.ProfileID = id
-		r.db.Create(&cart)
-		return cart, nil
+		err = r.db.Create(&cart).Error
+		return cart, err
 	}
 	return cart, err
 }
