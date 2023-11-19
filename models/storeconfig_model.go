@@ -26,5 +26,5 @@ type StoreConfig struct {
 	PaymentCashIsActive      bool    `gorm:"not null;default:true"`
 	PaymentPixIsActive       bool    `gorm:"not null;default:true"`
 	PixKey                   string  `gorm:"default:''"`
-	PixType                  pixType
+	PixKeyType               pixType
 }

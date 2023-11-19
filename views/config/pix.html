@@ -33,17 +33,17 @@
                                        placeholder="Chave Pix" value="{{.Object.PixKey}}"/>
                             </div>
                             <div class="form-group">
-                                <label for="pixType">Tipo de Chave</label>
-                                <select class="form-control" id="pixType" name="pixType">
-                                    <option value="email" {{if eq .Object.PixType "email"}}selected{{end}}>Email
+                                <label for="pixKeyType">Tipo de Chave</label>
+                                <select class="form-control" id="pixKeyType" name="pixKeyType">
+                                    <option value="email" {{if eq .Object.PixKeyType "email"}}selected{{end}}>Email
                                     </option>
-                                    <option value="celular" {{if eq .Object.PixType "celular"}}selected{{end}}>Celular
+                                    <option value="celular" {{if eq .Object.PixKeyType "celular"}}selected{{end}}>Celular
                                     </option>
-                                    <option value="aleatoria" {{if eq .Object.PixType "aleatoria"}}selected{{end}}>
+                                    <option value="aleatoria" {{if eq .Object.PixKeyType "aleatoria"}}selected{{end}}>
                                         Aleatória
                                     </option>
-                                    <option value="cpf" {{if eq .Object.PixType "cpf"}}selected{{end}}>CPF</option>
-                                    <option value="cnpj" {{if eq .Object.PixType "cnpj"}}selected{{end}}>CNPJ</option>
+                                    <option value="cpf" {{if eq .Object.PixKeyType "cpf"}}selected{{end}}>CPF</option>
+                                    <option value="cnpj" {{if eq .Object.PixKeyType "cnpj"}}selected{{end}}>CNPJ</option>
                                 </select>
                             </div>
                         </div>
