@@ -20,5 +20,7 @@
 # vendor/
 /web/images
 
+/web
+
 # Go workspace file
 go.work
