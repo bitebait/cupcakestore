@@ -33,6 +33,11 @@
                                 <div class="mt-auto">
                                     <p class="card-text font-weight-bold fontsize-20">R$ {{ printf "%.2f" .Price}}<small
                                                 class="text-muted">/uni</small></p>
+                                    <div class="input-group mb-3">
+                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-decrement" onclick="decrementQuantity('{{.ID}}')">-</button>
+                                        <input type="text" id="{{.ID}}-quantity" class="form-control text-center" value="1" aria-label="Example text with button addon" aria-describedby="{{.ID}}-decrement {{.ID}}-increment" data-max="{{.CurrentStock}}">
+                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-increment" onclick="incrementQuantity('{{.ID}}')">+</button>
+                                    </div>
                                     <a href="#" class="adicionar-ao-carrinho" data-id="{{.ID}}">Adicionar ao Carrinho</a>
                                 </div>
                             </div>
@@ -62,7 +67,14 @@
         var id = item.dataset.id;
 
         // Obter a quantidade do produto selecionado
-        var quantity = 1; // Defina a quantidade desejada
+        var quantityInput = document.getElementById(id + '-quantity');
+        var quantity = quantityInput.value;
+        var maxQuantity = quantityInput.getAttribute('data-max');
+
+        if (parseInt(quantity, 10) > parseInt(maxQuantity, 10)) {
+            alert('Quantidade excede o estoque disponível');
+            return;
+        }
 
         // Criar um formulário dinamicamente
         var form = document.createElement('form');
@@ -100,4 +112,25 @@
             adicionarAoCarrinho(link);
         });
     });
+
+    // Função para incrementar a quantidade
+    function incrementQuantity(id) {
+        var quantityInput = document.getElementById(id + '-quantity');
+        var value = parseInt(quantityInput.value, 10);
+        var maxQuantity = quantityInput.getAttribute('data-max');
+
+        if (!isNaN(value) && value < parseInt(maxQuantity, 10)) {
+            quantityInput.value = value + 1;
+        }
+    }
+
+    // Função para decrementar a quantidade
+    function decrementQuantity(id) {
+        var quantityInput = document.getElementById(id + '-quantity');
+        var value = parseInt(quantityInput.value, 10);
+
+        if (!isNaN(value) && value > 1) {
+            quantityInput.value = value - 1;
+        }
+    }
 </script>
