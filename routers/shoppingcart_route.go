@@ -6,7 +6,6 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type ShoppingCartRouter struct {
@@ -23,7 +22,8 @@ func NewShoppingCartRouter() *ShoppingCartRouter {
 }
 
 func (r *ShoppingCartRouter) InstallRouters(app *fiber.App) {
-	cart := app.Group("/cart", cors.New())
+	cart := app.Group("/cart")
 	cart.Get("/", r.shoppingCartController.RenderShoppingCart)
 	cart.Post("/", r.shoppingCartController.AddShoppingCartItem)
+	cart.Get("/remove/:id", r.shoppingCartController.RemoveFromCart) // Alterado de Post para Get
 }

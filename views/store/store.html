@@ -34,11 +34,18 @@
                                     <p class="card-text font-weight-bold fontsize-20">R$ {{ printf "%.2f" .Price}}<small
                                                 class="text-muted">/uni</small></p>
                                     <div class="input-group mb-3">
-                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-decrement" onclick="decrementQuantity('{{.ID}}')">-</button>
-                                        <input type="text" id="{{.ID}}-quantity" class="form-control text-center" value="1" aria-label="Example text with button addon" aria-describedby="{{.ID}}-decrement {{.ID}}-increment" data-max="{{.CurrentStock}}">
-                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-increment" onclick="incrementQuantity('{{.ID}}')">+</button>
+                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-decrement"
+                                                onclick="decrementQuantity('{{.ID}}')">-
+                                        </button>
+                                        <input type="text" id="{{.ID}}-quantity" class="form-control text-center"
+                                               value="1" aria-label="Example text with button addon"
+                                               aria-describedby="{{.ID}}-decrement {{.ID}}-increment">
+                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-increment"
+                                                onclick="incrementQuantity('{{.ID}}')">+
+                                        </button>
                                     </div>
-                                    <a href="#" class="adicionar-ao-carrinho" data-id="{{.ID}}">Adicionar ao Carrinho</a>
+                                    <a href="#" class="adicionar-ao-carrinho" data-id="{{.ID}}">Adicionar ao
+                                        Carrinho</a>
                                 </div>
                             </div>
                         </div>
@@ -69,12 +76,6 @@
         // Obter a quantidade do produto selecionado
         var quantityInput = document.getElementById(id + '-quantity');
         var quantity = quantityInput.value;
-        var maxQuantity = quantityInput.getAttribute('data-max');
-
-        if (parseInt(quantity, 10) > parseInt(maxQuantity, 10)) {
-            alert('Quantidade excede o estoque disponível');
-            return;
-        }
 
         // Criar um formulário dinamicamente
         var form = document.createElement('form');
@@ -106,8 +107,8 @@
 
     // Adicionar um evento de clique para cada link "Adicionar ao Carrinho"
     var links = document.querySelectorAll('.adicionar-ao-carrinho');
-    links.forEach(function(link) {
-        link.addEventListener('click', function(event) {
+    links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
             event.preventDefault();
             adicionarAoCarrinho(link);
         });
@@ -117,9 +118,8 @@
     function incrementQuantity(id) {
         var quantityInput = document.getElementById(id + '-quantity');
         var value = parseInt(quantityInput.value, 10);
-        var maxQuantity = quantityInput.getAttribute('data-max');
 
-        if (!isNaN(value) && value < parseInt(maxQuantity, 10)) {
+        if (!isNaN(value)) {
             quantityInput.value = value + 1;
         }
     }

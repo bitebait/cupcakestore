@@ -1,6 +1,8 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type ShoppingCartItem struct {
 	gorm.Model
@@ -11,33 +13,27 @@ type ShoppingCartItem struct {
 	ShoppingCartID uint    `gorm:"not null"`
 }
 
-func (p *ShoppingCartItem) BeforeSave(tx *gorm.DB) error {
+func (item *ShoppingCartItem) BeforeCreate(tx *gorm.DB) error {
 	var product Product
-	if err := tx.First(&product, p.ProductID).Error; err != nil {
+	if err := tx.First(&product, item.ProductID).Error; err != nil {
 		return err
 	}
-	p.ItemPrice = product.Price
+	item.ItemPrice = product.Price
 	return nil
 }
 
-func (p *ShoppingCartItem) AfterSave(tx *gorm.DB) error {
-	var shoppingCart ShoppingCart
-	if err := tx.First(&shoppingCart, p.ShoppingCartID).Error; err != nil {
-		return err
-	}
-	err := tx.Model(&shoppingCart).Association("Items").Find(&shoppingCart.Items)
-	if err != nil {
-		return err
-	}
-	shoppingCart.TotalPrice = calculateTotalPrice(shoppingCart.Items)
-	tx.Model(&shoppingCart).UpdateColumn("TotalPrice", shoppingCart.TotalPrice)
+func (item *ShoppingCartItem) AfterCreate(tx *gorm.DB) error {
+	shoppingCart := &ShoppingCart{}
+	tx.First(shoppingCart, item.ShoppingCartID)
+	shoppingCart.TotalPrice += item.ItemPrice * float64(item.Quantity)
+	tx.Save(shoppingCart)
 	return nil
 }
 
-func calculateTotalPrice(items []ShoppingCartItem) float64 {
-	var totalPrice float64
-	for _, cartItem := range items {
-		totalPrice += cartItem.ItemPrice * float64(cartItem.Quantity)
-	}
-	return totalPrice
+func (item *ShoppingCartItem) AfterDelete(tx *gorm.DB) error {
+	shoppingCart := &ShoppingCart{}
+	tx.First(shoppingCart, item.ShoppingCartID)
+	shoppingCart.TotalPrice -= item.ItemPrice * float64(item.Quantity)
+	tx.Save(shoppingCart)
+	return nil
 }

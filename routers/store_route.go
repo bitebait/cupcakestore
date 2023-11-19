@@ -6,7 +6,6 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type StoreRouter struct {
@@ -28,6 +27,6 @@ func NewStoreRouter() *StoreRouter {
 }
 
 func (r *StoreRouter) InstallRouters(app *fiber.App) {
-	store := app.Group("/store", cors.New())
+	store := app.Group("/store")
 	store.Get("/", r.storeController.RenderStore)
 }

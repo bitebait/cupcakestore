@@ -12,6 +12,7 @@ import (
 type ShoppingCartController interface {
 	RenderShoppingCart(ctx *fiber.Ctx) error
 	AddShoppingCartItem(ctx *fiber.Ctx) error
+	RemoveFromCart(ctx *fiber.Ctx) error
 }
 
 type shoppingCartController struct {
@@ -25,7 +26,7 @@ func NewShoppingCartController(shoppingCartService services.ShoppingCartService)
 }
 
 func (c *shoppingCartController) RenderShoppingCart(ctx *fiber.Ctx) error {
-	userID := ctx.Locals("profile").(*models.Profile).ID
+	userID := c.getUserID(ctx)
 	cart, err := c.shoppingCartService.FindByUserId(userID)
 	if err != nil {
 		return ctx.Redirect("/")
@@ -51,6 +52,24 @@ func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 	err = c.shoppingCartService.AddItemToCart(userID, productID, quantity)
 	if err != nil {
 		errorMessage := "Houve um erro ao adicionar o item ao carrinho de compras: " + err.Error()
+		return c.renderError(ctx, errorMessage)
+	}
+
+	return ctx.Redirect("/cart")
+}
+
+func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
+	productID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		errorMessage := "Houve um erro ao remover o item do carrinho de compras: " + err.Error()
+		return c.renderError(ctx, errorMessage)
+	}
+
+	userID := c.getUserID(ctx)
+
+	err = c.shoppingCartService.RemoveFromCart(userID, productID)
+	if err != nil {
+		errorMessage := "Houve um erro ao remover o item do carrinho de compras: " + err.Error()
 		return c.renderError(ctx, errorMessage)
 	}
 

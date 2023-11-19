@@ -8,6 +8,7 @@ import (
 type ShoppingCartService interface {
 	FindByUserId(id uint) (models.ShoppingCart, error)
 	AddItemToCart(userID uint, productID uint, quantity int) error
+	RemoveFromCart(userID uint, productID uint) error
 }
 
 type shoppingCartService struct {
@@ -43,4 +44,13 @@ func (s shoppingCartService) AddItemToCart(userID uint, productID uint, quantity
 		Quantity:       quantity,
 	}
 	return s.shoppingCartRepository.AddItemToCart(cartItem)
+}
+
+func (s shoppingCartService) RemoveFromCart(userID uint, productID uint) error {
+	cart, err := s.FindByUserId(userID)
+	if err != nil {
+		return err
+	}
+
+	return s.shoppingCartRepository.RemoveFromCart(cart.ID, productID)
 }
