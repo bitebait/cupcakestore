@@ -17,10 +17,7 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
-/web/images
-
-/web
+web/
 
 # Go workspace file
 go.work
