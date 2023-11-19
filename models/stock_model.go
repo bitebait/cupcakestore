@@ -31,11 +31,11 @@ const (
 
 type Stock struct {
 	gorm.Model
-	Product   Product `validate:"-"`
-	ProductID uint    `gorm:"not null" validate:"required"`
-	Quantity  int     `gorm:"not null" validate:"required"`
-	Profile   Profile `validate:"-"`
-	ProfileID uint
+	ProfileID uint      `gorm:"not null" validate:"required"`
+	Profile   Profile   `validate:"-"`
+	ProductID uint      `gorm:"not null" validate:"required"`
+	Product   Product   `validate:"-"`
+	Quantity  int       `gorm:"not null" validate:"required"`
 	Type      stockType `validate:"required"`
 }
 
