@@ -7,6 +7,6 @@ type ShoppingCartItem struct {
 	ProductID      uint    `gorm:"not null" validate:"required"`
 	Product        Product `validate:"-"`
 	ItemPrice      float64
-	ShoppingCartID uint `gorm:"not null" validate:"required"`
 	Quantity       int
+	ShoppingCartID uint `gorm:"not null"`
 }

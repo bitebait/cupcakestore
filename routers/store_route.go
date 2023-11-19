@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/bitebait/cupcakestore/controllers"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +29,6 @@ func NewStoreRouter() *StoreRouter {
 }
 
 func (r *StoreRouter) InstallRouters(app *fiber.App) {
-	store := app.Group("/store", cors.New())
+	store := app.Group("/store", cors.New()).Use(middlewares.Auth())
 	store.Get("/", r.storeController.RenderStore)
 }

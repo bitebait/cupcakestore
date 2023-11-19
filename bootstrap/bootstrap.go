@@ -4,7 +4,6 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
-	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/routers"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
@@ -34,7 +33,6 @@ func NewApplication() *fiber.App {
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestCompression,
 	}))
-	app.Use(middlewares.Auth())
 	app.Static("/", "./web")
 
 	// Routes

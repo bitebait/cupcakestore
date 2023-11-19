@@ -63,12 +63,12 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 func (c *authController) Logout(ctx *fiber.Ctx) error {
 	sess, err := session.Store.Get(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	sess.Delete("profile")
-	if err := sess.Destroy(); err != nil {
-		panic(err)
+	err = sess.Destroy()
+	if err != nil {
+		return err
 	}
 
 	return ctx.Redirect("/auth/login")

@@ -39,5 +39,5 @@ func (r *AuthRouter) InstallRouters(app *fiber.App) {
 	auth.Post("/login", r.authController.Login)
 	auth.Get("/register", r.authController.RenderRegister)
 	auth.Post("/register", r.authController.Register)
-	auth.Get("/logout", r.authController.Logout).Use(middlewares.LoginAndStaffRequired())
+	auth.Get("/logout", r.authController.Logout).Use(middlewares.Auth())
 }

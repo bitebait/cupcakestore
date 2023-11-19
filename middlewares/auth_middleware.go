@@ -16,6 +16,8 @@ func Auth() fiber.Handler {
 		profile := sess.Get("profile")
 		if profile != nil {
 			c.Locals("profile", profile.(*models.Profile))
+		} else {
+			return c.Redirect("/auth/login")
 		}
 		return c.Next()
 	}
