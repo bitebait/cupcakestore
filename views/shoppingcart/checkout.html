@@ -9,9 +9,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-12 mx-auto">
-                    <!-- Main content -->
+                    {{template "snippets/message" .}}
                     <div class="invoice p-3 mb-3">
-                        <!-- info row -->
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col">
                                 De
@@ -87,23 +86,25 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-md-6">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p class="lead">Formas de Pagamento:</p>
-                                        <select class="form-control" id="paymentMethod" name="paymentMethod">
-                                            <option value="Pix">Pix</option>
-                                            <option value="Dinheiro">Dinheiro</option>
-                                        </select>
+                                <form method="Post" action="/cart/payment/{{.Object.ShoppingCart.ID}}" id="payment" class="form-row">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="lead">Formas de Pagamento:</p>
+                                            <select class="form-control" id="paymentMethod" name="paymentMethod">
+                                                <option value="Pix">Pix</option>
+                                                <option value="Dinheiro">Dinheiro</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="lead">Receber Produto Por:</p>
+                                            <select class="form-control" id="isDelivery" name="isDelivery">
+                                                {{if .Object.StoreConfig.DeliveryIsActive}}
+                                                    <option value="1">Entregar no Endereço</option>{{end}}
+                                                <option value="0">Retirada na Loja</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <p class="lead">Receber Produto Por:</p>
-                                        <select class="form-control" id="isDelivery" name="isDelivery">
-                                            {{if .Object.StoreConfig.DeliveryIsActive}}
-                                                <option value="1">Entregar no Endereço</option>{{end}}
-                                            <option value="0">Retirada na Loja</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                             <div class="col-md-6">
                                 <p class="lead">Valor da Compra</p>
@@ -132,13 +133,15 @@
                         </div>
                         <!-- /.row -->
 
-                        <!-- this row will not appear when printing -->
                         <div class="row no-print">
                             <div class="col-12">
                                 <a href="javascript:history.back()" class="btn btn-default">
-                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
-                                <button type="button" class="btn btn-success float-right"><i
-                                            class="far fa-credit-card"></i> Realizar Pagamento
+                                    <i class="fas fa-undo-alt"></i> Cancelar
+                                </a>
+                                <button type="submit" form="payment"
+                                        onClick="document.getElementById('payment').style.display = 'none'"
+                                        class="btn btn-success float-right"><i
+                                            class="far fa-credit-card"></i> Finalizar
                                 </button>
                             </div>
                         </div>

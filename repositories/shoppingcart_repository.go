@@ -9,6 +9,7 @@ import (
 type ShoppingCartRepository interface {
 	FindByUserId(id uint) (models.ShoppingCart, error)
 	FindById(id uint) (models.ShoppingCart, error)
+	Update(cart *models.ShoppingCart) error
 }
 
 type shoppingCartRepository struct {
@@ -23,7 +24,7 @@ func NewShoppingCartRepository(database *gorm.DB) ShoppingCartRepository {
 
 func (r shoppingCartRepository) FindById(id uint) (models.ShoppingCart, error) {
 	var cart models.ShoppingCart
-	err := r.db.Where("id = ? AND status = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items.Product").First(&cart).Error
+	err := r.db.Where("id = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items.Product").First(&cart).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		cart.ProfileID = id
 		err = r.db.Create(&cart).Error
@@ -34,11 +35,15 @@ func (r shoppingCartRepository) FindById(id uint) (models.ShoppingCart, error) {
 
 func (r shoppingCartRepository) FindByUserId(id uint) (models.ShoppingCart, error) {
 	var cart models.ShoppingCart
-	err := r.db.Where("profile_id = ? AND status = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items.Product").First(&cart).Error
+	cart.ProfileID = id
+	err := r.db.Where("profile_id = ? AND status = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items.Product").FirstOrCreate(&cart).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		cart.ProfileID = id
 		err = r.db.Create(&cart).Error
 		return cart, err
 	}
 	return cart, err
+}
+
+func (r shoppingCartRepository) Update(cart *models.ShoppingCart) error {
+	return r.db.Save(cart).Error
 }
