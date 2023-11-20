@@ -12,12 +12,14 @@ type ShoppingCartService interface {
 }
 
 type shoppingCartService struct {
-	shoppingCartRepository repositories.ShoppingCartRepository
+	shoppingCartRepository  repositories.ShoppingCartRepository
+	shoppingCartItemService ShoppingCartItemService
 }
 
-func NewShoppingCartService(shoppingCartRepository repositories.ShoppingCartRepository) ShoppingCartService {
+func NewShoppingCartService(shoppingCartRepository repositories.ShoppingCartRepository, shoppingCartItemService ShoppingCartItemService) ShoppingCartService {
 	return &shoppingCartService{
-		shoppingCartRepository: shoppingCartRepository,
+		shoppingCartRepository:  shoppingCartRepository,
+		shoppingCartItemService: shoppingCartItemService,
 	}
 }
 
@@ -34,16 +36,11 @@ func (s shoppingCartService) AddItemToCart(userID uint, productID uint, quantity
 	for _, item := range cart.Items {
 		if item.ProductID == productID {
 			item.Quantity += quantity
-			return s.shoppingCartRepository.UpdateCartItem(&item)
+			return s.shoppingCartItemService.Update(&item)
 		}
 	}
 
-	cartItem := &models.ShoppingCartItem{
-		ShoppingCartID: cart.ID,
-		ProductID:      productID,
-		Quantity:       quantity,
-	}
-	return s.shoppingCartRepository.AddItemToCart(cartItem)
+	return s.shoppingCartItemService.Create(cart.ID, productID, quantity)
 }
 
 func (s shoppingCartService) RemoveFromCart(userID uint, productID uint) error {
@@ -52,5 +49,5 @@ func (s shoppingCartService) RemoveFromCart(userID uint, productID uint) error {
 		return err
 	}
 
-	return s.shoppingCartRepository.RemoveFromCart(cart.ID, productID)
+	return s.shoppingCartItemService.Delete(cart.ID, productID)
 }

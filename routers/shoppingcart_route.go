@@ -14,7 +14,9 @@ type ShoppingCartRouter struct {
 
 func NewShoppingCartRouter() *ShoppingCartRouter {
 	shoppginCartRepository := repositories.NewShoppingCartRepository(database.DB)
-	shoppginCartService := services.NewShoppingCartService(shoppginCartRepository)
+	shoppginCartItemRepository := repositories.NewShoppingCartItemRepository(database.DB)
+	shoppginCartItemService := services.NewShoppingCartItemService(shoppginCartItemRepository)
+	shoppginCartService := services.NewShoppingCartService(shoppginCartRepository, shoppginCartItemService)
 	shoppginCartController := controllers.NewShoppingCartController(shoppginCartService)
 	return &ShoppingCartRouter{
 		shoppingCartController: shoppginCartController,

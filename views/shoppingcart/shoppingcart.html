@@ -42,8 +42,8 @@
                         </div>
 
                         <div class="card-footer">
-                            <strong id="totalPrice">Total: R$ {{ printf "%.2f" .Object.TotalPrice}}</strong>
-                            {{if gt .Object.TotalPrice  0.0}}
+                            <strong >Total: R$ {{ printf "%.2f" .Object.Total}}</strong>
+                            {{if gt .Object.Total  0.0}}
                                 <a class="btn btn-success float-right">Finalizar Compra</a>
                             {{else}}
                                 <a class="btn btn-info float-right" href="/">Adicionar Items</a>

@@ -4,22 +4,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type paymentMethod string
-type shoppingCartStatus string
+type PaymentMethod string
+type ShoppingCartStatus string
 
 const (
-	CashPaymentMethod paymentMethod = "Dinheiro"
-	PixPaymentMethod  paymentMethod = "Pix"
-)
+	CashPaymentMethod PaymentMethod = "Dinheiro"
+	PixPaymentMethod  PaymentMethod = "Pix"
 
-const (
-	ActiveStatus          shoppingCartStatus = "Em Aberto"
-	AwaitingPaymentStatus shoppingCartStatus = "Aguardando Pagamento"
-	PaymentApprovedStatus shoppingCartStatus = "Pagamento Aprovado"
-	ProcessingStatus      shoppingCartStatus = "Em Processamento"
-	ShippedStatus         shoppingCartStatus = "Enviado"
-	DeliveredStatus       shoppingCartStatus = "Entregue"
-	CancelledStatus       shoppingCartStatus = "Cancelado"
+	ActiveStatus          ShoppingCartStatus = "Em Aberto"
+	AwaitingPaymentStatus ShoppingCartStatus = "Aguardando Pagamento"
+	PaymentApprovedStatus ShoppingCartStatus = "Pagamento Aprovado"
+	ProcessingStatus      ShoppingCartStatus = "Em Processamento"
+	ShippedStatus         ShoppingCartStatus = "Enviado"
+	DeliveredStatus       ShoppingCartStatus = "Entregue"
+	CancelledStatus       ShoppingCartStatus = "Cancelado"
 )
 
 type ShoppingCart struct {
@@ -27,8 +25,16 @@ type ShoppingCart struct {
 	ProfileID       uint               `gorm:"not null" validate:"required"`
 	Profile         Profile            `validate:"-"`
 	Items           []ShoppingCartItem `gorm:"foreignKey:ShoppingCartID"`
-	TotalPrice      float64            `gorm:"default:0"`
-	Status          shoppingCartStatus `gorm:"default:'Em Aberto'"`
-	PaymentMethod   paymentMethod      `gorm:"default:'Pix'"`
+	Total           float64            `gorm:"default:0;trigger:false"`
+	Status          ShoppingCartStatus `gorm:"default:'Em Aberto'"`
+	PaymentMethod   PaymentMethod      `gorm:"default:'Pix'"`
 	DeliveryAddress string             `gorm:"default:''"`
+}
+
+func (c *ShoppingCart) UpdateTotal() {
+	var subtotal float64
+	for _, item := range c.Items {
+		subtotal += item.ItemPrice * float64(item.Quantity)
+	}
+	c.Total = subtotal
 }
