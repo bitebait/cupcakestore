@@ -13,13 +13,16 @@ type ShoppingCartRouter struct {
 }
 
 func NewShoppingCartRouter() *ShoppingCartRouter {
-	shoppginCartRepository := repositories.NewShoppingCartRepository(database.DB)
-	shoppginCartItemRepository := repositories.NewShoppingCartItemRepository(database.DB)
-	shoppginCartItemService := services.NewShoppingCartItemService(shoppginCartItemRepository)
-	shoppginCartService := services.NewShoppingCartService(shoppginCartRepository, shoppginCartItemService)
-	shoppginCartController := controllers.NewShoppingCartController(shoppginCartService)
+	shoppingCartRepository := repositories.NewShoppingCartRepository(database.DB)
+	shoppingCartItemRepository := repositories.NewShoppingCartItemRepository(database.DB)
+	shoppingCartItemService := services.NewShoppingCartItemService(shoppingCartItemRepository)
+	shoppingCartService := services.NewShoppingCartService(shoppingCartRepository, shoppingCartItemService)
+
+	storeConfigRepository := repositories.NewStoreConfigRepository(database.DB)
+	storeConfigService := services.NewStoreConfigService(storeConfigRepository)
+	shoppingCartController := controllers.NewShoppingCartController(shoppingCartService, storeConfigService)
 	return &ShoppingCartRouter{
-		shoppingCartController: shoppginCartController,
+		shoppingCartController: shoppingCartController,
 	}
 }
 
@@ -27,5 +30,6 @@ func (r *ShoppingCartRouter) InstallRouters(app *fiber.App) {
 	cart := app.Group("/cart")
 	cart.Get("/", r.shoppingCartController.RenderShoppingCart)
 	cart.Post("/", r.shoppingCartController.AddShoppingCartItem)
-	cart.Get("/remove/:id", r.shoppingCartController.RemoveFromCart) // Alterado de Post para Get
+	cart.Get("/remove/:id", r.shoppingCartController.RemoveFromCart)
+	cart.Get("/checkout/:id", r.shoppingCartController.Checkout)
 }

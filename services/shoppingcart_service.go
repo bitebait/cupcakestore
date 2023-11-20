@@ -6,6 +6,7 @@ import (
 )
 
 type ShoppingCartService interface {
+	FindById(id uint) (models.ShoppingCart, error)
 	FindByUserId(id uint) (models.ShoppingCart, error)
 	AddItemToCart(userID uint, productID uint, quantity int) error
 	RemoveFromCart(userID uint, productID uint) error
@@ -21,6 +22,9 @@ func NewShoppingCartService(shoppingCartRepository repositories.ShoppingCartRepo
 		shoppingCartRepository:  shoppingCartRepository,
 		shoppingCartItemService: shoppingCartItemService,
 	}
+}
+func (s shoppingCartService) FindById(id uint) (models.ShoppingCart, error) {
+	return s.shoppingCartRepository.FindById(id)
 }
 
 func (s shoppingCartService) FindByUserId(id uint) (models.ShoppingCart, error) {

@@ -13,15 +13,18 @@ type ShoppingCartController interface {
 	RenderShoppingCart(ctx *fiber.Ctx) error
 	AddShoppingCartItem(ctx *fiber.Ctx) error
 	RemoveFromCart(ctx *fiber.Ctx) error
+	Checkout(ctx *fiber.Ctx) error
 }
 
 type shoppingCartController struct {
 	shoppingCartService services.ShoppingCartService
+	storeConfig         services.StoreConfigService
 }
 
-func NewShoppingCartController(shoppingCartService services.ShoppingCartService) ShoppingCartController {
+func NewShoppingCartController(shoppingCartService services.ShoppingCartService, storeConfig services.StoreConfigService) ShoppingCartController {
 	return &shoppingCartController{
 		shoppingCartService: shoppingCartService,
+		storeConfig:         storeConfig,
 	}
 }
 
@@ -82,4 +85,27 @@ func (c *shoppingCartController) getUserID(ctx *fiber.Ctx) uint {
 
 func (c *shoppingCartController) renderError(ctx *fiber.Ctx, errorMessage string) error {
 	return views.Render(ctx, "shoppingcart/shoppingcart", nil, errorMessage, storeLayout)
+}
+
+func (c *shoppingCartController) Checkout(ctx *fiber.Ctx) error {
+	cartID, err := ctx.ParamsInt("id")
+	if err != nil {
+		return ctx.Redirect("/")
+	}
+	cart, err := c.shoppingCartService.FindById(uint(cartID))
+	if err != nil {
+		return ctx.Redirect("/")
+	}
+
+	storeConfig, err := c.storeConfig.GetStoreConfig()
+	if err != nil {
+		errorMessage := "Houve um erro ao adicionar o item ao carrinho de compras: " + err.Error()
+		return c.renderError(ctx, errorMessage)
+	}
+
+	data := fiber.Map{
+		"ShoppingCart": cart,
+		"StoreConfig":  storeConfig,
+	}
+	return views.Render(ctx, "shoppingcart/checkout", data, "", storeLayout)
 }

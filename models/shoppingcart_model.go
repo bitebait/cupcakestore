@@ -22,13 +22,13 @@ const (
 
 type ShoppingCart struct {
 	gorm.Model
-	ProfileID       uint               `gorm:"not null" validate:"required"`
-	Profile         Profile            `validate:"-"`
-	Items           []ShoppingCartItem `gorm:"foreignKey:ShoppingCartID"`
-	Total           float64            `gorm:"default:0;trigger:false"`
-	Status          ShoppingCartStatus `gorm:"default:'Em Aberto'"`
-	PaymentMethod   PaymentMethod      `gorm:"default:'Pix'"`
-	DeliveryAddress string             `gorm:"default:''"`
+	ProfileID     uint               `gorm:"not null" validate:"required"`
+	Profile       Profile            `validate:"-"`
+	Items         []ShoppingCartItem `gorm:"foreignKey:ShoppingCartID"`
+	Total         float64            `gorm:"default:0;trigger:false"`
+	Status        ShoppingCartStatus `gorm:"default:'Em Aberto'"`
+	PaymentMethod PaymentMethod      `gorm:"default:'Pix'"`
+	IsDelivery    bool               `gorm:"not null;default:true"`
 }
 
 func (c *ShoppingCart) updateTotal() {

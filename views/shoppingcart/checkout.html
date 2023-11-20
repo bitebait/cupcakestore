@@ -1,0 +1,182 @@
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container">
+            <h1 class="m-0 text-dark">Checkout - Carrinho de Compras</h1>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 mx-auto">
+                    <!-- Main content -->
+                    <div class="invoice p-3 mb-3">
+                        <!-- info row -->
+                        <div class="row invoice-info">
+                            <div class="col-sm-4 invoice-col">
+                                De
+                                <address>
+                                    <strong>Cupcake Store</strong><br>
+                                    {{.Object.StoreConfig.PhysicalStoreAddress}}<br>
+                                    {{.Object.StoreConfig.PhysicalStoreCity}}
+                                    , {{.Object.StoreConfig.PhysicalStoreState}}
+                                    {{.Object.StoreConfig.PhysicalStorePostalCode}}<br>
+                                    Telefone: {{.Object.StoreConfig.PhysicalStorePhoneNumber}}<br>
+                                    Email: {{.Object.StoreConfig.PhysicalStoreEmail}}
+                                </address>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-sm-4 invoice-col" id="addressToDelivery">
+                                Para
+                                <address>
+                                    <strong>{{.Profile.FullName}}</strong><br>
+                                    {{.Profile.Address}}<br>
+                                    {{.Profile.City}}<br>
+                                    Telefone: {{.Profile.PhoneNumber}}<br>
+                                    Email: {{.Profile.User.Email}}
+                                </address>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-sm-4 invoice-col">
+                                <b>Carrinho #{{.Object.ShoppingCart.ID}}</b><br>
+                                <br>
+                                <b>Data do Pedido:</b> {{now | date "02/01/2006 15:04h"}}<br>
+                                <b>Cliente:</b> {{.Profile.FullName}}
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+
+                        <!-- Table row -->
+                        <div class="row">
+                            <div class="col-12 table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Qtde</th>
+                                        <th>Produto</th>
+                                        <th>Description</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{range .Object.ShoppingCart.Items}}
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; justify-content: center; align-items: center;">
+                                                    <img id="previewImage"
+                                                         src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/600x400.svg{{end}}"
+                                                         alt="Pré-visualização da imagem"
+                                                         style="max-width: 100%;height: auto;max-height: 5vh;">
+                                                </div>
+                                            </td>
+                                            <td>{{.Quantity}}</td>
+                                            <td>{{.Product.Name}}</td>
+                                            <td>{{abbrev 60 .Product.Description}}</td>
+                                            <td>R$ {{mul .Quantity .ItemPrice}}</td>
+                                        </tr>
+                                    {{end}}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+
+                        <div class="row">
+                            <!-- accepted payments column -->
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="lead">Formas de Pagamento:</p>
+                                        <select class="form-control" id="paymentMethod" name="paymentMethod">
+                                            <option value="Pix">Pix</option>
+                                            <option value="Dinheiro">Dinheiro</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="lead">Receber Produto Por:</p>
+                                        <select class="form-control" id="isDelivery" name="isDelivery">
+                                            {{if .Object.StoreConfig.DeliveryIsActive}}
+                                                <option value="1">Entregar no Endereço</option>{{end}}
+                                            <option value="0">Retirada na Loja</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="lead">Valor da Compra</p>
+
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tr>
+                                            <th style="width:50%">Subtotal:</th>
+                                            <td>R$ {{ printf "%.2f" .Object.ShoppingCart.Total}}</td>
+                                        </tr>
+                                        {{if .Object.StoreConfig.DeliveryIsActive}}
+                                            <tr id="deliveryRow">
+                                                <th>Entrega:</th>
+                                                <td>R$ {{ printf "%.2f" .Object.StoreConfig.DeliveryPrice}}</td>
+                                            </tr>
+                                        {{end}}
+                                        <tr id="totalRow">
+                                            <th>Total:</th>
+                                            <td id="total"> R$ {{ printf "%.2f" .Object.ShoppingCart.Total}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+
+                        <!-- this row will not appear when printing -->
+                        <div class="row no-print">
+                            <div class="col-12">
+                                <a href="javascript:history.back()" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
+                                <button type="button" class="btn btn-success float-right"><i
+                                            class="far fa-credit-card"></i> Realizar Pagamento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    $(document).ready(function () {
+        function updateDeliveryInfo() {
+            let subtotal;
+            const isDelivery = $('#isDelivery').val();
+
+            if (isDelivery === '1') {
+                const deliveryPrice = parseFloat('{{.Object.StoreConfig.DeliveryPrice}}');
+
+                subtotal = parseFloat('{{.Object.ShoppingCart.Total}}');
+                const total = subtotal + deliveryPrice;
+
+                $('#total').text('R$ ' + total.toFixed(2));
+                $('#deliveryRow').show();
+                $('#addressToDelivery').show();
+            } else {
+                subtotal = parseFloat('{{.Object.ShoppingCart.Total}}');
+
+                $('#total').text('R$ ' + subtotal.toFixed(2));
+                $('#deliveryRow').hide();
+                $('#addressToDelivery').hide();
+            }
+        }
+
+        updateDeliveryInfo();
+
+        $('#isDelivery').change(function () {
+            updateDeliveryInfo();
+        });
+    });
+</script>

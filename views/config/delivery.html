@@ -28,11 +28,11 @@
                     <form method="Post" action="/config">
                         <div class="card-body">
                             <div class="form-group">
-                                <label for="deliveryValue">Valor da Taxa de Entrega (R$)</label>
-                                <input type="number" step="0.01" class="form-control" id="deliveryValue"
-                                       name="deliveryValue"
+                                <label for="deliveryPrice">Valor da Taxa de Entrega (R$)</label>
+                                <input type="number" step="0.01" class="form-control" id="deliveryPrice"
+                                       name="deliveryPrice"
                                        placeholder="Valor da Taxa de Entrega" min="0.01"
-                                       value="{{.Object.DeliveryValue}}"
+                                       value="{{.Object.DeliveryPrice}}"
                                        required="required"/>
                             </div>
                             <div class="form-group">
