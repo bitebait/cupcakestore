@@ -18,6 +18,7 @@ type StoreConfig struct {
 	gorm.Model
 	DeliveryValue            float64 `gorm:"default:0"`
 	DeliveryIsActive         bool    `gorm:"not null;default:true"`
+	PhysicalStoreEmail       string  `gorm:"type:varchar(100);default:''"`
 	PhysicalStoreAddress     string  `gorm:"type:varchar(200);default:''"`
 	PhysicalStoreCity        string  `gorm:"type:varchar(100);default:''"`
 	PhysicalStoreState       string  `gorm:"type:varchar(100);default:''"`
