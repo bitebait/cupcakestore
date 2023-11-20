@@ -32,6 +32,7 @@ func (s *storeConfigService) Update(storeConfig *models.StoreConfig) error {
 
 func (s *storeConfigService) normalizeStoreConfig(storeConfig *models.StoreConfig) {
 	storeConfig.PhysicalStoreAddress = strings.Title(storeConfig.PhysicalStoreAddress)
+	storeConfig.PhysicalStoreEmail = strings.ToLower(storeConfig.PhysicalStoreEmail)
 	storeConfig.PhysicalStoreCity = strings.Title(storeConfig.PhysicalStoreCity)
 	storeConfig.PhysicalStoreState = strings.Title(storeConfig.PhysicalStoreState)
 }
