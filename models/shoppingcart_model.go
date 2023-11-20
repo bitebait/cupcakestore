@@ -31,7 +31,7 @@ type ShoppingCart struct {
 	DeliveryAddress string             `gorm:"default:''"`
 }
 
-func (c *ShoppingCart) UpdateTotal() {
+func (c *ShoppingCart) updateTotal() {
 	var subtotal float64
 	for _, item := range c.Items {
 		subtotal += item.ItemPrice * float64(item.Quantity)
