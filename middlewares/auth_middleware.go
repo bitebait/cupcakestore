@@ -15,7 +15,7 @@ func Auth() fiber.Handler {
 
 		if profile := sess.Get("profile"); profile != nil {
 			c.Locals("profile", profile.(*models.Profile))
-		} else if c.Path() != "/auth/login" && c.Path() != "/store" {
+		} else if c.Path() != "/auth/login" && c.Path() != "/store" && c.Path() != "/auth/register" {
 			return c.Redirect("/auth/login")
 		}
 
