@@ -4,6 +4,22 @@ import (
 	"gorm.io/gorm"
 )
 
+type ShoppingCartFilter struct {
+	ShoppingCart *ShoppingCart
+	Pagination   *Pagination
+}
+
+func NewShoppingCartFilter(profileID uint, page, limit int) *ShoppingCartFilter {
+	shoppingCart := &ShoppingCart{
+		ProfileID: profileID,
+	}
+	pagination := NewPagination(page, limit)
+	return &ShoppingCartFilter{
+		ShoppingCart: shoppingCart,
+		Pagination:   pagination,
+	}
+}
+
 type PaymentMethod string
 type ShoppingCartStatus string
 
@@ -12,7 +28,7 @@ const (
 	PixPaymentMethod  PaymentMethod = "Pix"
 
 	ActiveStatus             ShoppingCartStatus = "Em Aberto"
-	AwaitingPaymentStatus    ShoppingCartStatus = "Aguardando Pagamento"
+	AwaitingPaymentStatus    ShoppingCartStatus = "Processando Pagamento"
 	PaymentApprovedStatus    ShoppingCartStatus = "Pagamento Aprovado"
 	ProcessingStatus         ShoppingCartStatus = "Preparando Pedido"
 	DeliveredStatusAwaiting  ShoppingCartStatus = "Aguardando Envio"

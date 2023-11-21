@@ -72,19 +72,6 @@ func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
 	return ctx.Redirect("/cart")
 }
 
-func (c *shoppingCartController) renderErrorMessage(ctx *fiber.Ctx, err error, action string) error {
-	errorMessage := "Houve um erro ao " + action + ": " + err.Error()
-	return c.renderError(ctx, errorMessage)
-}
-
-func (c *shoppingCartController) getUserID(ctx *fiber.Ctx) uint {
-	return ctx.Locals("profile").(*models.Profile).ID
-}
-
-func (c *shoppingCartController) renderError(ctx *fiber.Ctx, errorMessage string) error {
-	return views.Render(ctx, "shoppingcart/shoppingcart", nil, errorMessage, storeLayout)
-}
-
 func (c *shoppingCartController) Checkout(ctx *fiber.Ctx) error {
 	cartID, err := strconv.Atoi(ctx.Params("id"))
 	if err != nil {
@@ -150,4 +137,17 @@ func (c *shoppingCartController) Payment(ctx *fiber.Ctx) error {
 	} else {
 		return ctx.Redirect("/")
 	}
+}
+
+func (c *shoppingCartController) renderErrorMessage(ctx *fiber.Ctx, err error, action string) error {
+	errorMessage := "Houve um erro ao " + action + ": " + err.Error()
+	return c.renderError(ctx, errorMessage)
+}
+
+func (c *shoppingCartController) getUserID(ctx *fiber.Ctx) uint {
+	return ctx.Locals("profile").(*models.Profile).ID
+}
+
+func (c *shoppingCartController) renderError(ctx *fiber.Ctx, errorMessage string) error {
+	return views.Render(ctx, "shoppingcart/shoppingcart", nil, errorMessage, storeLayout)
 }

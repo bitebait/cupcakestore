@@ -19,6 +19,7 @@ func InstallRouters(app *fiber.App) {
 		NewStoreRouter(),
 		NewHomeRouter(),
 		NewShoppingCartRouter(),
+		NewOrderRouter(),
 	)
 }
 

@@ -1,0 +1,54 @@
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container">
+            <h1 class="m-0 text-dark">Meus Pedidos</h1>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 mx-auto">
+                    {{template "snippets/message" .}}
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Meus Pedidos</h3>
+                        </div>
+
+                        <div class="card-body table-responsive p-0">
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-hover text-nowrap">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Status do Pedido</th>
+                                        <th>Metodo de Pagamento</th>
+                                        <th>Tipo de Entrega</th>
+                                        <th>Total</th>
+                                        <th>Data do Pedido</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{range .Object.Orders}}
+                                        <tr>
+                                            <td><strong>{{.ID}}</strong></td>
+                                            <td><strong>{{.Status}}</strong></td>
+                                            <td>{{.PaymentMethod}}</td>
+                                            <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
+                                            <td>R$ {{ printf "%.2f" .Total}}</td>
+                                            <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
+                                        </tr>
+                                    {{end}}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{template "snippets/pagination" .Object.Filter.Pagination}}
+                            <!-- /.card-body -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

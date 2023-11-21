@@ -15,29 +15,29 @@ type ShoppingCartService interface {
 	Payment(cart *models.ShoppingCart) error
 }
 
-type shoppingCartServiceImpl struct {
+type shoppingCartService struct {
 	shoppingCartRepository  repositories.ShoppingCartRepository
 	shoppingCartItemService ShoppingCartItemService
 	storeConfigService      StoreConfigService
 }
 
 func NewShoppingCartService(shoppingCartRepository repositories.ShoppingCartRepository, shoppingCartItemService ShoppingCartItemService, storeConfigService StoreConfigService) ShoppingCartService {
-	return &shoppingCartServiceImpl{
+	return &shoppingCartService{
 		shoppingCartRepository:  shoppingCartRepository,
 		shoppingCartItemService: shoppingCartItemService,
 		storeConfigService:      storeConfigService,
 	}
 }
 
-func (s *shoppingCartServiceImpl) FindById(id uint) (models.ShoppingCart, error) {
+func (s *shoppingCartService) FindById(id uint) (models.ShoppingCart, error) {
 	return s.shoppingCartRepository.FindById(id)
 }
 
-func (s *shoppingCartServiceImpl) FindByUserId(userID uint) (models.ShoppingCart, error) {
+func (s *shoppingCartService) FindByUserId(userID uint) (models.ShoppingCart, error) {
 	return s.shoppingCartRepository.FindByUserId(userID)
 }
 
-func (s *shoppingCartServiceImpl) AddItemToCart(userID, productID uint, quantity int) error {
+func (s *shoppingCartService) AddItemToCart(userID, productID uint, quantity int) error {
 	cart, err := s.FindByUserId(userID)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (s *shoppingCartServiceImpl) AddItemToCart(userID, productID uint, quantity
 	return s.shoppingCartItemService.Create(cart.ID, productID, quantity)
 }
 
-func (s *shoppingCartServiceImpl) RemoveFromCart(userID, productID uint) error {
+func (s *shoppingCartService) RemoveFromCart(userID, productID uint) error {
 	cart, err := s.FindByUserId(userID)
 	if err != nil {
 		return err
@@ -62,17 +62,18 @@ func (s *shoppingCartServiceImpl) RemoveFromCart(userID, productID uint) error {
 	return s.shoppingCartItemService.Delete(cart.ID, productID)
 }
 
-func (s *shoppingCartServiceImpl) Update(cart *models.ShoppingCart) error {
+func (s *shoppingCartService) Update(cart *models.ShoppingCart) error {
 	return s.shoppingCartRepository.Update(cart)
 }
 
-func (s *shoppingCartServiceImpl) Payment(cart *models.ShoppingCart) error {
+func (s *shoppingCartService) Payment(cart *models.ShoppingCart) error {
 	var err error
 	cart.Status = models.AwaitingPaymentStatus
 
-	if cart.PaymentMethod == models.CashPaymentMethod {
+	switch cart.PaymentMethod {
+	case models.CashPaymentMethod:
 		cart.Status = models.ProcessingStatus
-	} else if cart.PaymentMethod == models.PixPaymentMethod {
+	case models.PixPaymentMethod:
 		err = s.processPixPayment(cart)
 	}
 
@@ -83,7 +84,7 @@ func (s *shoppingCartServiceImpl) Payment(cart *models.ShoppingCart) error {
 	return s.shoppingCartRepository.Update(cart)
 }
 
-func (s *shoppingCartServiceImpl) processPixPayment(cart *models.ShoppingCart) error {
+func (s *shoppingCartService) processPixPayment(cart *models.ShoppingCart) error {
 	storeConfig, err := s.storeConfigService.GetStoreConfig()
 	if err != nil {
 		return err
