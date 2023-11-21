@@ -35,9 +35,6 @@ func (c *storeConfigController) Update(ctx *fiber.Ctx) error {
 		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
 	}
 
-	storeConfig.DeliveryIsActive = ctx.FormValue("deliveryIsActive") == "on"
-	storeConfig.PaymentCashIsActive = ctx.FormValue("paymentCashIsActive") == "on"
-	storeConfig.PaymentPixIsActive = ctx.FormValue("paymentPixIsActive") == "on"
 	err = c.storeConfigService.Update(storeConfig)
 	if err != nil {
 		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)

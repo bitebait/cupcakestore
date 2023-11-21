@@ -21,7 +21,7 @@ func NewStoreConfigService(storeConfigRepository repositories.StoreConfigReposit
 	}
 }
 
-func (s storeConfigService) GetStoreConfig() (*models.StoreConfig, error) {
+func (s *storeConfigService) GetStoreConfig() (*models.StoreConfig, error) {
 	return s.storeConfigRepository.GetStoreConfig()
 }
 
