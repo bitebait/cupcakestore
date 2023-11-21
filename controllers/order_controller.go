@@ -28,7 +28,7 @@ func (c *orderController) RenderOrders(ctx *fiber.Ctx) error {
 	filter := models.NewShoppingCartFilter(profileID, page, limit)
 	orders := c.orderService.FindAll(filter)
 
-	return views.Render(ctx, "shoppingcart/orders", fiber.Map{"Orders": orders, "Filter": filter}, "", storeLayout)
+	return views.Render(ctx, "orders/orders", fiber.Map{"Orders": orders, "Filter": filter}, "", storeLayout)
 }
 
 func (c *orderController) getUserID(ctx *fiber.Ctx) uint {
