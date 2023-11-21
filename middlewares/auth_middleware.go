@@ -6,34 +6,34 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Auth() fiber.Handler {
+func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sess, err := session.Store.Get(c)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString("Erro interno do servidor")
+			return c.Status(fiber.StatusInternalServerError).SendString("Internal server error")
 		}
 
 		if profile := sess.Get("profile"); profile != nil {
 			c.Locals("profile", profile.(*models.Profile))
-		} else if c.Path() != "/auth/login" && c.Path() != "/store" && c.Path() != "/auth/register" {
+			return c.Next()
+		}
+
+		switch c.Path() {
+		case "/auth/login", "/store", "/auth/register":
+			return c.Next()
+		default:
 			return c.Redirect("/auth/login")
 		}
-
-		return c.Next()
 	}
 }
 
-func LoginAndStaffRequired() fiber.Handler {
+func LoginAndStaffRequiredMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		profile, ok := c.Locals("profile").(*models.Profile)
-		if !ok || profile == nil || !profile.User.IsStaff || !profile.User.IsActive {
-			return redirectToLogout(c)
+		if !(ok && profile != nil && profile.User.IsStaff && profile.User.IsActive) {
+			return c.Redirect("/auth/logout")
 		}
 
 		return c.Next()
 	}
-}
-
-func redirectToLogout(c *fiber.Ctx) error {
-	return c.Redirect("/auth/logout")
 }
