@@ -28,22 +28,18 @@
                     <form method="Post" action="/config">
                         <div class="card-body">
                             <div class="form-group">
-                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-                                    <input type="checkbox" class="custom-control-input" id="paymentCashIsActive"
-                                           name="paymentCashIsActive"
-                                           {{if .Object.PaymentCashIsActive}}checked{{end}} />
-                                    <label class="custom-control-label" for="paymentCashIsActive">Ativar/Desativar
-                                        Pagamento em Dinheiro</label>
-                                </div>
+                                <label for="paymentCashIsActive">Aceitar Pagamento em Dinheiro?</label>
+                                <select class="form-control" id="paymentCashIsActive" name="paymentCashIsActive">
+                                    <option value="1" {{if .Object.PaymentCashIsActive}}selected{{end}}>Sim</option>
+                                    <option value="0" {{if not .Object.PaymentCashIsActive}}selected{{end}}>Não</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-                                    <input type="checkbox" class="custom-control-input" id="paymentPixIsActive"
-                                           name="paymentPixIsActive"
-                                           {{if .Object.PaymentPixIsActive}}checked{{end}} />
-                                    <label class="custom-control-label" for="paymentPixIsActive">Ativar/Desativar
-                                        Pagamento via Pix</label>
-                                </div>
+                                <label for="paymentPixIsActive">Aceitar Pagamento em Pix?</label>
+                                <select class="form-control" id="paymentPixIsActive" name="paymentPixIsActive">
+                                    <option value="1" {{if .Object.PaymentPixIsActive}}selected{{end}}>Sim</option>
+                                    <option value="0" {{if not .Object.PaymentPixIsActive}}selected{{end}}>Não</option>
+                                </select>
                             </div>
                         </div>
                         <div class="card-footer">

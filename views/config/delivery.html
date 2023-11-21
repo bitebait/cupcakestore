@@ -36,12 +36,11 @@
                                        required="required"/>
                             </div>
                             <div class="form-group">
-                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-                                    <input type="checkbox" class="custom-control-input" id="deliveryIsActive"
-                                           name="deliveryIsActive" {{if .Object.DeliveryIsActive}}checked{{end}} />
-                                    <label class="custom-control-label" for="deliveryIsActive">Ativar/Desativar
-                                        Entrega</label>
-                                </div>
+                                <label for="deliveryIsActive">Oferecer serviço de entrega?</label>
+                                <select class="form-control" id="deliveryIsActive" name="deliveryIsActive">
+                                    <option value="1" {{if .Object.DeliveryIsActive}}selected{{end}}>Sim</option>
+                                    <option value="0" {{if not .Object.DeliveryIsActive}}selected{{end}}>Não</option>
+                                </select>
                             </div>
                         </div>
                         <div class="card-footer">
