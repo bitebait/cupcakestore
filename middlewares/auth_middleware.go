@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func AuthMiddleware() fiber.Handler {
+func Auth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sess, err := session.Store.Get(c)
 		if err != nil {
@@ -27,7 +27,7 @@ func AuthMiddleware() fiber.Handler {
 	}
 }
 
-func LoginAndStaffRequiredMiddleware() fiber.Handler {
+func LoginAndStaffRequired() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		profile, ok := c.Locals("profile").(*models.Profile)
 		if !(ok && profile != nil && profile.User.IsStaff && profile.User.IsActive) {
