@@ -28,6 +28,7 @@ func migrateModels(db *gorm.DB) {
 		&models.Product{},
 		&models.Stock{},
 		&models.StoreConfig{},
+		&models.Order{},
 		&models.ShoppingCart{},
 		&models.ShoppingCartItem{},
 	)

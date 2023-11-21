@@ -35,7 +35,7 @@
                                             <td><strong>{{.Status}}</strong></td>
                                             <td>{{.PaymentMethod}}</td>
                                             <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
-                                            <td>R$ {{ printf "%.2f" .Total}}</td>
+                                            <td>R$ {{ printf "%.2f" .ShoppingCart.Total}}</td>
                                             <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
                                         </tr>
                                     {{end}}

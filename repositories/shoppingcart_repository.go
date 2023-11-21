@@ -10,7 +10,6 @@ type ShoppingCartRepository interface {
 	FindAll(filter *models.ShoppingCartFilter) []models.ShoppingCart
 	FindByUserId(id uint) (models.ShoppingCart, error)
 	FindById(id uint) (models.ShoppingCart, error)
-	Update(cart *models.ShoppingCart) error
 }
 
 type shoppingCartRepository struct {
@@ -54,13 +53,9 @@ func (r *shoppingCartRepository) FindById(id uint) (models.ShoppingCart, error) 
 func (r *shoppingCartRepository) FindByUserId(id uint) (models.ShoppingCart, error) {
 	var cart models.ShoppingCart
 	cart.ProfileID = id
-	err := r.db.Where("profile_id = ? AND status = ?", id, models.ActiveStatus).Preload("Profile").Preload("Items.Product").FirstOrCreate(&cart).Error
+	err := r.db.Where("profile_id = ? AND order_id IS NULL", id).Preload("Profile").Preload("Items.Product").FirstOrCreate(&cart).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = r.db.Create(&cart).Error
 	}
 	return cart, err
-}
-
-func (r *shoppingCartRepository) Update(cart *models.ShoppingCart) error {
-	return r.db.Save(cart).Error
 }

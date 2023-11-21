@@ -14,8 +14,10 @@ type OrderRouter struct {
 
 func NewOrderRouter() *OrderRouter {
 	orderRepository := repositories.NewOrderRepository(database.DB)
-	orderService := services.NewOrderService(orderRepository)
-	orderController := controllers.NewOrderController(orderService)
+	storeConfigRepository := repositories.NewStoreConfigRepository(database.DB)
+	storeConfigService := services.NewStoreConfigService(storeConfigRepository)
+	orderService := services.NewOrderService(orderRepository, storeConfigService)
+	orderController := controllers.NewOrderController(orderService, storeConfigService)
 
 	return &OrderRouter{
 		orderController: orderController,
@@ -25,4 +27,7 @@ func NewOrderRouter() *OrderRouter {
 func (r *OrderRouter) InstallRouters(app *fiber.App) {
 	order := app.Group("/orders")
 	order.Get("/", r.orderController.RenderOrders)
+	order.Get("/checkout/:id", r.orderController.Checkout)
+	order.Post("/payment/:id", r.orderController.Payment)
+	order.Get("/payment/:id", r.orderController.Payment)
 }
