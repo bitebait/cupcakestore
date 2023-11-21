@@ -26,16 +26,16 @@ func (r *stockRepository) Create(stock *models.Stock) error {
 }
 
 func (r *stockRepository) SumProductStockQuantity(productID uint) (int, error) {
-	var count int64
-	result := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("SUM(quantity)").Scan(&count)
-	return int(count), result.Error
+	var totalQuantity int64
+	result := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("SUM(quantity)").Scan(&totalQuantity)
+	return int(totalQuantity), result.Error
 }
 
 func (r *stockRepository) FindByProductId(filter *models.StockFilter) []models.Stock {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 
-	query := r.db.Model(&models.Stock{})
-	query = query.Where("product_id = ?", filter.Stock.ProductID)
+	query := r.db.Model(&models.Stock{}).
+		Where("product_id = ?", filter.Stock.ProductID)
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {

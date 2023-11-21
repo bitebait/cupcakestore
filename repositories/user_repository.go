@@ -63,10 +63,8 @@ func (r *userRepository) FindByEmail(email string) (models.User, error) {
 
 func (r *userRepository) Update(user *models.User) error {
 	if user.Password == "" {
-		query := r.db.Omit("Password")
-		return query.Save(user).Error
+		return r.db.Omit("Password").Save(user).Error
 	}
-
 	return r.db.Save(user).Error
 }
 
