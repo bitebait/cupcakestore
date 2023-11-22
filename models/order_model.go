@@ -41,7 +41,7 @@ type Order struct {
 	gorm.Model
 	ProfileID        uint               `gorm:"not null" validate:"required"`
 	Profile          Profile            `validate:"-"`
-	ShoppingCart     ShoppingCart       `gorm:"foreignKey:OrderID"`
+	ShoppingCart     ShoppingCart       `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
 	ShoppingCartID   uint               `gorm:"not null" validate:"required"`
 	Status           ShoppingCartStatus `gorm:"default:'Em Aberto'"`
 	PaymentMethod    PaymentMethod      `gorm:"default:'Pix'"`

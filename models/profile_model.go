@@ -15,7 +15,7 @@ type Profile struct {
 	PostalCode  string `gorm:"type:varchar(20)"`
 	PhoneNumber string `gorm:"type:varchar(20)"`
 	UserID      uint   `gorm:"unique;not null"`
-	User        User   `gorm:"foreignKey:UserID"`
+	User        User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }
 
 func (p *Profile) FullName() string {

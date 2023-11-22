@@ -24,7 +24,7 @@ type ShoppingCart struct {
 	gorm.Model
 	ProfileID uint               `gorm:"not null" validate:"required"`
 	Profile   Profile            `validate:"-"`
-	Items     []ShoppingCartItem `gorm:"foreignKey:ShoppingCartID"`
+	Items     []ShoppingCartItem `gorm:"foreignKey:ShoppingCartID;constraint:OnDelete:CASCADE"`
 	Total     float64            `gorm:"default:0;trigger:false"`
 	OrderID   uint               `gorm:"default:null"`
 }
