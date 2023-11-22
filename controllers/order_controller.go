@@ -46,7 +46,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 	}
 
 	if order.ShoppingCart.Total <= 0 || !order.IsActiveOrAwaitingPayment() {
-		return ctx.Redirect("/cart")
+		return ctx.Redirect("/orders/myorders")
 	}
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
@@ -73,13 +73,13 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 	}
 
 	if order.ShoppingCart.Total <= 0 {
-		return ctx.Redirect("/cart")
+		return ctx.Redirect("/orders/myorders")
 	}
 
 	switch ctx.Method() {
 	case fiber.MethodPost:
 		if !order.IsActiveOrAwaitingPayment() {
-			return ctx.Redirect("/cart")
+			return ctx.Redirect("/orders/myorders")
 		}
 
 		if err := ctx.BodyParser(order); err != nil {
