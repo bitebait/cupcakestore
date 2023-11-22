@@ -58,7 +58,7 @@
                                     <td>
                                         <span class="badge {{if eq .Type "entrada" }}badge-primary{{else}}badge-danger{{end}}">{{.Type}}</span>
                                     </td>
-                                    <td><a href="/users/{{.Profile.UserID}}">{{.Profile.User.Email}}</a></td>
+                                    <td><a href="/users/user/{{.Profile.UserID}}">{{.Profile.User.Email}}</a></td>
                                     <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
                                 </tr>
                             {{end}}
