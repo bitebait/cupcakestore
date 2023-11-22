@@ -53,7 +53,7 @@
             <!-- Sidebar user (optional) -->
             <div class="user-panel mt-2 text-center">
                 <div class="info">
-                    <a href="/users/{{.Profile.UserID}}" class="d-block">{{.Profile.User.Email}}</a>
+                    <a href="/users/user/{{.Profile.UserID}}" class="d-block">{{.Profile.User.Email}}</a>
                 </div>
             </div>
             <!-- Sidebar Menu -->
@@ -65,6 +65,13 @@
                         <a href="/store" class="nav-link">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p> Acessar Loja </p>
+                        </a>
+                    </li>
+                    <!-- Order Menu -->
+                    <li class="nav-item">
+                        <a href="/orders/admin" class="nav-link">
+                            <i class="nav-icon fas fa-money-bill"></i>
+                            <p> Pedidos </p>
                         </a>
                     </li>
                     <!-- User Menu -->
