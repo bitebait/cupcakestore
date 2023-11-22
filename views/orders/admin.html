@@ -1,0 +1,62 @@
+<div class="content-header">
+    <div class="container">
+        <h1 class="m-0 text-dark">Lista de Pedidos</h1>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mx-auto">
+                {{template "snippets/message" .}}
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Lista de Pedidos</h3>
+                    </div>
+
+                    <div class="card-body table-responsive p-0">
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Status do Pedido</th>
+                                    <th>Metodo de Pagamento</th>
+                                    <th>Tipo de Entrega</th>
+                                    <th>Total</th>
+                                    <th>Data do Pedido</th>
+                                    <th>Cliente</th>
+                                    <th>Opçoes</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{range .Object.Orders}}
+                                    <tr>
+                                        <td><strong>{{.ID}}</strong></td>
+                                        <td>
+                                            <strong {{if eq .Status "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
+                                        </td>
+                                        <td>{{.PaymentMethod}}</td>
+                                        <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
+                                        <td>R$ {{ printf "%.2f" .ShoppingCart.Total}}</td>
+                                        <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
+                                        <td>{{.Profile.FullName}}</td>
+                                        <td><a href="/orders/myorders/{{.ID}}" class="mr-2"><u>Visualizar Items</u></a>
+                                            {{if ne .Status "Cancelado"}}<a href="/orders/cancel/{{.ID}}"
+                                                                            class="text-danger"><u>Cancelar</u></a>{{end}}
+                                        </td>
+
+                                    </tr>
+                                {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                        {{template "snippets/pagination" .Object.Filter.Pagination}}
+                        <!-- /.card-body -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

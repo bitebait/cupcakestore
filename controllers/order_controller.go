@@ -13,7 +13,8 @@ import (
 
 type OrderController interface {
 	RenderOrder(ctx *fiber.Ctx) error
-	RenderOrders(ctx *fiber.Ctx) error
+	RenderUserOrders(ctx *fiber.Ctx) error
+	RenderAdminOrders(ctx *fiber.Ctx) error
 	Checkout(ctx *fiber.Ctx) error
 	Payment(ctx *fiber.Ctx) error
 	RenderCancel(ctx *fiber.Ctx) error
@@ -97,22 +98,22 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 		if order.PaymentMethod == models.PixPaymentMethod {
 			return ctx.Redirect("https://pix.ae" + order.PixURL)
 		}
-		return ctx.Redirect("/orders")
+		return ctx.Redirect("/orders/myorders")
 	case fiber.MethodGet:
 		if order.Status == models.AwaitingPaymentStatus && order.PaymentMethod == models.PixPaymentMethod {
 			return ctx.Redirect("https://pix.ae" + order.PixURL)
 		}
 	default:
-		return ctx.Redirect("/orders")
+		return ctx.Redirect("/orders/myorders")
 	}
 
-	return ctx.Redirect("/orders")
+	return ctx.Redirect("/orders/myorders")
 }
 
 func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 	orderID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return ctx.Redirect("/orders")
+		return ctx.Redirect("/orders/myorders")
 	}
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
@@ -132,25 +133,36 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 	return views.Render(ctx, "orders/order", data, "", storeLayout)
 }
 
-func (c *orderController) RenderOrders(ctx *fiber.Ctx) error {
+func (c *orderController) RenderUserOrders(ctx *fiber.Ctx) error {
+	profileID := c.getUserID(ctx)
+	page := ctx.QueryInt("page")
+	limit := ctx.QueryInt("limit")
+	filter := models.NewOrderFilter(profileID, page, limit)
+	orders := c.orderService.FindAllByUser(filter)
+
+	return views.Render(ctx, "orders/orders", fiber.Map{"Orders": orders, "Filter": filter}, "", storeLayout)
+}
+
+func (c *orderController) RenderAdminOrders(ctx *fiber.Ctx) error {
 	profileID := c.getUserID(ctx)
 	page := ctx.QueryInt("page")
 	limit := ctx.QueryInt("limit")
 	filter := models.NewOrderFilter(profileID, page, limit)
 	orders := c.orderService.FindAll(filter)
 
-	return views.Render(ctx, "orders/orders", fiber.Map{"Orders": orders, "Filter": filter}, "", storeLayout)
+	return views.Render(ctx, "orders/admin", fiber.Map{"Orders": orders, "Filter": filter}, "", baseLayout)
+
 }
 
 func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return ctx.Redirect("/orders")
+		return ctx.Redirect("/orders/myorders")
 	}
 
 	user, err := c.orderService.FindById(id)
 	if err != nil {
-		return ctx.Redirect("/orders")
+		return ctx.Redirect("/orders/myorders")
 	}
 
 	return views.Render(ctx, "orders/cancel", user, "", storeLayout)
@@ -159,15 +171,15 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 	id, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return ctx.Redirect("/orders")
+		return ctx.Redirect("/orders/myorders")
 	}
 
 	err = c.orderService.Cancel(id)
 	if err != nil {
-		return ctx.Redirect("/orders")
+		return ctx.Redirect("/orders/myorders")
 	}
 
-	return ctx.Redirect("/orders")
+	return ctx.Redirect("/orders/myorders")
 }
 
 func (c *orderController) getUserID(ctx *fiber.Ctx) uint {

@@ -11,6 +11,7 @@ type OrderRepository interface {
 	FindByCartId(cartID uint) (*models.Order, error)
 	FindOrCreate(profileID, cartID uint) (*models.Order, error)
 	FindAll(filter *models.OrderFilter) []models.Order
+	FindAllByUser(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
 	Cancel(id uint) error
 }
@@ -78,6 +79,26 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 }
 
 func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
+	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
+
+	query := r.db.Model(&models.Order{}).
+		Preload("Profile").
+		Preload("ShoppingCart.Items.Product")
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil
+	}
+	filter.Pagination.Total = total
+
+	var orders []models.Order
+	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc,updated_at desc").Find(&orders).Error; err != nil {
+		return nil
+	}
+	return orders
+}
+
+func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Order {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 
 	query := r.db.Model(&models.Order{}).
