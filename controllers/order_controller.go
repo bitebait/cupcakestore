@@ -16,6 +16,8 @@ type OrderController interface {
 	RenderOrders(ctx *fiber.Ctx) error
 	Checkout(ctx *fiber.Ctx) error
 	Payment(ctx *fiber.Ctx) error
+	RenderCancel(ctx *fiber.Ctx) error
+	Cancel(ctx *fiber.Ctx) error
 }
 
 type orderController struct {
@@ -138,6 +140,34 @@ func (c *orderController) RenderOrders(ctx *fiber.Ctx) error {
 	orders := c.orderService.FindAll(filter)
 
 	return views.Render(ctx, "orders/orders", fiber.Map{"Orders": orders, "Filter": filter}, "", storeLayout)
+}
+
+func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
+	id, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
+
+	user, err := c.orderService.FindById(id)
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
+
+	return views.Render(ctx, "orders/cancel", user, "", storeLayout)
+}
+
+func (c *orderController) Cancel(ctx *fiber.Ctx) error {
+	id, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
+
+	err = c.orderService.Cancel(id)
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
+
+	return ctx.Redirect("/orders")
 }
 
 func (c *orderController) getUserID(ctx *fiber.Ctx) uint {

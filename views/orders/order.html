@@ -14,7 +14,9 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h4>
-                                    <span>Status: <strong>{{.Object.Order.Status}}</strong></span>
+                                    <span>Status:
+                                        <strong {{if eq .Object.Order.Status "Cancelado"}}class="text-danger"{{end}}>{{.Object.Order.Status}}</strong>
+                                    </span>
                                 </h4>
                             </div>
                             <!-- /.col -->
@@ -135,7 +137,7 @@
                         <div class="row no-print">
                             <div class="col-12">
                                 <a href="javascript:history.back()" class="btn btn-default">
-                                    <i class="fas fa-undo-alt"></i> Cancelar
+                                    <i class="fas fa-undo-alt"></i> Voltar
                                 </a>
                             </div>
                         </div>

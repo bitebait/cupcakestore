@@ -4,15 +4,15 @@ import (
 	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
-	"log"
 )
 
 type OrderRepository interface {
+	FindById(id uint) (models.Order, error)
 	FindByCartId(cartID uint) (*models.Order, error)
 	FindOrCreate(profileID, cartID uint) (*models.Order, error)
 	FindAll(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
-	FindById(id uint) (models.Order, error)
+	Cancel(id uint) error
 }
 
 type orderRepository struct {
@@ -74,7 +74,6 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 		return nil, err
 	}
 
-	log.Println(foundOrder)
 	return foundOrder, nil
 }
 
@@ -93,7 +92,7 @@ func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 	filter.Pagination.Total = total
 
 	var orders []models.Order
-	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Find(&orders).Error; err != nil {
+	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc,updated_at desc").Find(&orders).Error; err != nil {
 		return nil
 	}
 	return orders
@@ -101,4 +100,15 @@ func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 
 func (r *orderRepository) Update(order *models.Order) error {
 	return r.db.Save(order).Error
+}
+
+func (r *orderRepository) Cancel(id uint) error {
+	foundOrder, err := r.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	foundOrder.Status = models.CancelledStatus
+
+	return r.db.Save(&foundOrder).Error
 }

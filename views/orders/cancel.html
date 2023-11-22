@@ -1,0 +1,36 @@
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container">
+            <h1 class="m-0 text-dark">Cancelar Pedido</h1>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto">
+                    <div class="card card-danger card-outline">
+                        <div class="card-body">
+                            <h3>
+                                <i class="fas fa-exclamation-triangle text-danger"></i> Você realmente deseja cancelar o pedido
+                                <strong>#{{.Object.ID}} - R$ {{ printf "%.2f" .Object.ShoppingCart.Total}}</strong>?
+                            </h3>
+                            <p> Essa operação é irreversível e não pode ser desfeita.
+                                Caso
+                                não queira continuar, clique <a href="/orders">aqui</a> para retornar à sua lista de pedidos.</p>
+                            <form method="POST" action="/orders/cancel/{{.Object.ID}}">
+                                <a href="/orders" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
+                                <div class="float-right">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fa fa-trash"></i> Confirmar e Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

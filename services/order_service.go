@@ -13,6 +13,7 @@ type OrderService interface {
 	FindAll(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
 	Payment(order *models.Order) error
+	Cancel(id uint) error
 }
 
 type orderService struct {
@@ -90,4 +91,8 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 	order.PixURL = payment.PixURL
 
 	return nil
+}
+
+func (s *orderService) Cancel(id uint) error {
+	return s.orderRepository.Cancel(id)
 }
