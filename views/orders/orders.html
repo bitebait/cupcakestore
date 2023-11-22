@@ -22,8 +22,8 @@
                                         <th>#</th>
                                         <th>Status do Pedido</th>
                                         <th>Metodo de Pagamento</th>
-                                        <th>Tipo de Entrega</th>
                                         <th>Total</th>
+                                        <th>Tipo de Entrega</th>
                                         <th>Data do Pedido</th>
                                         <th>Opçoes</th>
                                     </tr>
@@ -36,8 +36,8 @@
                                                 <strong {{if eq .Status "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
                                             </td>
                                             <td>{{.PaymentMethod}}</td>
-                                            <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
                                             <td>R$ {{ printf "%.2f" .ShoppingCart.Total}}</td>
+                                            <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
                                             <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
                                             <td>
                                                 {{if eq .Status "Em Aberto"}}
