@@ -60,7 +60,7 @@
                                 <tr>
                                     <td>{{.ID}}</td>
                                     <td>
-                                        <a href="/users/{{.ID}}">{{.Email}}
+                                        <a href="/users/user/{{.ID}}">{{.Email}}
                                             <br/>
                                         </a>
                                     </td>
@@ -76,7 +76,7 @@
                                             <span class="badge badge-danger">Inativo</span>{{end}}
                                     </td>
                                     <td>
-                                        <a href="/users/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
+                                        <a href="/users/user/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
                                             <i class="fas fa-pen"></i>
                                         </a>
                                         <a href="/users/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
