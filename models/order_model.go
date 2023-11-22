@@ -51,6 +51,7 @@ type Order struct {
 	PixURL           string             `gorm:"default:''"`
 	IsDelivery       bool               `gorm:"not null;default:true"`
 	DeliveryPrice    float64            `gorm:"default:0"`
+	Total            float64            `gorm:"default:0;trigger:false"`
 }
 
 func (o *Order) BeforeSave(tx *gorm.DB) (err error) {
@@ -60,6 +61,7 @@ func (o *Order) BeforeSave(tx *gorm.DB) (err error) {
 			o.DeliveryPrice = storeConfig.DeliveryPrice
 		}
 	}
+	o.Total = o.ShoppingCart.Total + o.DeliveryPrice
 	return err
 }
 

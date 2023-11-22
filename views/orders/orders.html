@@ -40,8 +40,9 @@
                                             <td>R$ {{ printf "%.2f" .ShoppingCart.Total}}</td>
                                             <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
                                             <td><a href="/orders/myorders/{{.ID}}" class="mr-2"><u>Visualizar Items</u></a>
-                                                {{if ne .Status "Cancelado"}}<a href="/orders/cancel/{{.ID}}"
-                                                                                class="text-danger"><u>Cancelar</u></a>{{end}}
+                                                {{if ne .Status "Cancelado"}}
+                                                    <a href="/orders/cancel/{{.ID}}" class="text-danger"><u>Cancelar</u></a>
+                                                {{end}}
                                             </td>
 
                                         </tr>

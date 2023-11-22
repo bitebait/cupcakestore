@@ -79,8 +79,8 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 	pixData := &models.PixPaymentData{
 		Tipo:  string(storeConfig.PixKeyType),
 		Chave: storeConfig.PixKey,
-		Valor: fmt.Sprintf("%.2f", order.ShoppingCart.Total),
-		Info:  fmt.Sprintf("CupCake Store R$ %v - ID#%v", order.ShoppingCart.Total, order.ID),
+		Valor: fmt.Sprintf("%.2f", order.Total),
+		Info:  fmt.Sprintf("CupCake Store R$ %v - ID#%v", order.Total, order.ID),
 		Nome:  "Cupcake Store",
 	}
 

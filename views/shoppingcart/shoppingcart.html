@@ -32,7 +32,7 @@
                                         <td><strong>{{.Product.Name}}</strong></td>
                                         <td>R$ {{.ItemPrice}}</td>
                                         <td><small>x</small>{{.Quantity}}</td>
-                                        <td>R$ {{mul .Quantity .ItemPrice}}</td>
+                                        <td>R$ {{mulf .Quantity .ItemPrice}}</td>
                                         <td><a href="/cart/remove/{{.Product.ID}}"><u
                                                         class="text-danger">Remover</u></a></td>
                                     </tr>

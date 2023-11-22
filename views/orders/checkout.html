@@ -73,7 +73,7 @@
                                             <td>{{.Quantity}}</td>
                                             <td>{{.Product.Name}}</td>
                                             <td>{{abbrev 60 .Product.Description}}</td>
-                                            <td>R$ {{mul .Quantity .ItemPrice}}</td>
+                                            <td>R$ {{mulf .Quantity .ItemPrice}}</td>
                                         </tr>
                                     {{end}}
                                     </tbody>
