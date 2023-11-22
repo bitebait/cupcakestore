@@ -25,6 +25,8 @@ func NewUserRouter() *UserRouter {
 
 func (r *UserRouter) InstallRouters(app *fiber.App) {
 	userGroup := app.Group("/users")
+	userGroup.Get("/:id", r.userController.RenderUser)
+	userGroup.Post("/update/:id", r.userController.Update)
 
 	adminGroup := app.Group("/users", middlewares.LoginAndStaffRequired())
 	adminGroup.Get("/create", r.userController.RenderCreate)
@@ -33,6 +35,4 @@ func (r *UserRouter) InstallRouters(app *fiber.App) {
 	adminGroup.Get("/delete/:id", r.userController.RenderDelete)
 	adminGroup.Post("/delete/:id", r.userController.Delete)
 
-	userGroup.Get("/:id", r.userController.RenderUser)
-	userGroup.Post("/update/:id", r.userController.Update)
 }
