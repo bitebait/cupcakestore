@@ -26,6 +26,7 @@
                                         <th>Tipo de Entrega</th>
                                         <th>Total</th>
                                         <th>Data do Pedido</th>
+                                        <th>Items</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -37,6 +38,8 @@
                                             <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
                                             <td>R$ {{ printf "%.2f" .ShoppingCart.Total}}</td>
                                             <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
+                                            <td><a href="/orders/{{.ID}}"><u>Visualizar Items</u></a></td>
+
                                         </tr>
                                     {{end}}
                                     </tbody>

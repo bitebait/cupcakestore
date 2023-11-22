@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/utils"
 	"log"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 )
 
 type OrderController interface {
+	RenderOrder(ctx *fiber.Ctx) error
 	RenderOrders(ctx *fiber.Ctx) error
 	Checkout(ctx *fiber.Ctx) error
 	Payment(ctx *fiber.Ctx) error
@@ -103,6 +105,29 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/orders")
+}
+
+func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
+	orderID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
+
+	storeConfig, err := c.storeConfigService.GetStoreConfig()
+	if err != nil {
+		return c.renderError(ctx, "Erro interno no servidor.")
+	}
+
+	order, err := c.orderService.FindById(orderID)
+	if err != nil {
+		return c.renderError(ctx, "Erro ao obter detalhes do pedido.")
+	}
+
+	data := fiber.Map{
+		"Order":       order,
+		"StoreConfig": storeConfig,
+	}
+	return views.Render(ctx, "orders/order", data, "", storeLayout)
 }
 
 func (c *orderController) RenderOrders(ctx *fiber.Ctx) error {

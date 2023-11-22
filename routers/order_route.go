@@ -26,8 +26,9 @@ func NewOrderRouter() *OrderRouter {
 
 func (r *OrderRouter) InstallRouters(app *fiber.App) {
 	order := app.Group("/orders")
-	order.Get("/", r.orderController.RenderOrders)
 	order.Get("/checkout/:id", r.orderController.Checkout)
 	order.Post("/payment/:id", r.orderController.Payment)
 	order.Get("/payment/:id", r.orderController.Payment)
+	order.Get("/", r.orderController.RenderOrders)
+	order.Get("/:id", r.orderController.RenderOrder)
 }

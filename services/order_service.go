@@ -7,6 +7,7 @@ import (
 )
 
 type OrderService interface {
+	FindById(cartID uint) (models.Order, error)
 	FindByCartId(cartID uint) (*models.Order, error)
 	FindOrCreate(profileID, cartID uint) (*models.Order, error)
 	FindAll(filter *models.OrderFilter) []models.Order
@@ -24,6 +25,10 @@ func NewOrderService(orderRepository repositories.OrderRepository, storeConfigSe
 		orderRepository:    orderRepository,
 		storeConfigService: storeConfigService,
 	}
+}
+
+func (s *orderService) FindById(id uint) (models.Order, error) {
+	return s.orderRepository.FindById(id)
 }
 
 func (s *orderService) FindByCartId(cartID uint) (*models.Order, error) {

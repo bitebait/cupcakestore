@@ -12,6 +12,7 @@ type OrderRepository interface {
 	FindOrCreate(profileID, cartID uint) (*models.Order, error)
 	FindAll(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
+	FindById(id uint) (models.Order, error)
 }
 
 type orderRepository struct {
@@ -22,6 +23,15 @@ func NewOrderRepository(database *gorm.DB) OrderRepository {
 	return &orderRepository{
 		db: database,
 	}
+}
+
+func (r *orderRepository) FindById(id uint) (models.Order, error) {
+	var order models.Order
+	err := r.db.
+		Preload("Profile.User").
+		Preload("ShoppingCart.Items.Product").
+		First(&order, id).Error
+	return order, err
 }
 
 func (r *orderRepository) FindByCartId(cartID uint) (*models.Order, error) {
