@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
+	"math"
 )
 
 type ShoppingCartItemService interface {
@@ -25,7 +26,7 @@ func (s shoppingCartItemService) Create(cartID uint, productID uint, quantity in
 	item := &models.ShoppingCartItem{
 		ShoppingCartID: cartID,
 		ProductID:      productID,
-		Quantity:       quantity,
+		Quantity:       int(math.Abs(float64(quantity))),
 	}
 
 	return s.shoppingCartRepository.Create(item)

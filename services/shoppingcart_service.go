@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
+	"math"
 )
 
 type ShoppingCartService interface {
@@ -40,12 +41,12 @@ func (s *shoppingCartService) AddItemToCart(userID, productID uint, quantity int
 
 	for _, item := range cart.Items {
 		if item.ProductID == productID {
-			item.Quantity += quantity
+			item.Quantity += int(math.Abs(float64(quantity)))
 			return s.shoppingCartItemService.Update(&item)
 		}
 	}
 
-	return s.shoppingCartItemService.Create(cart.ID, productID, quantity)
+	return s.shoppingCartItemService.Create(cart.ID, productID, int(math.Abs(float64(quantity))))
 }
 
 func (s *shoppingCartService) RemoveFromCart(userID, productID uint) error {
