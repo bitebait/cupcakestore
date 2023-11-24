@@ -13,12 +13,47 @@
                     <div class="invoice p-3 mb-3">
                         <div class="row mb-4">
                             <div class="col-12">
-                                <h4>
-                                    <span>Status:
-                                        <strong {{if eq .Object.Order.Status "Cancelado"}}class="text-danger"{{end}}>{{.Object.Order.Status}}</strong>
-                                    </span>
+                                <h4><span>Status:  <strong
+                                                {{if eq .Object.Order.Status "Cancelado"}}class="text-danger"{{end}}>{{.Object.Order.Status}}</strong></span>
                                 </h4>
                             </div>
+                            {{if .Profile.User.IsStaff}}
+                                <form method="Post" action="/orders/{{.Object.Order.ID}}">
+                                    <div class="form-row mt-3">
+                                        <div class="col-7">
+                                            <select class="form-control" id="paymentMethod" name="paymentMethod">
+                                                <option {{if eq .Object.Order.Status "Em Aberto"}}selected{{end}}
+                                                        value="Em Aberto">Em Aberto
+                                                </option>
+                                                <option {{if eq .Object.Order.Status "Processando Pagamento"}}selected{{end}}
+                                                        value="Processando Pagamento">Processando Pagamento
+                                                </option>
+                                                <option {{if eq .Object.Order.Status "Pagamento Aprovado"}}selected{{end}}
+                                                        value="Pagamento Aprovado">Pagamento Aprovado
+                                                </option>
+                                                <option {{if eq .Object.Order.Status "Preparando Pedido"}}selected{{end}}
+                                                        value="Preparando Pedido">Preparando Pedido
+                                                </option>
+                                                <option {{if eq .Object.Order.Status "Aguardando Envio"}}selected{{end}}
+                                                        value="Aguardando Envio">Aguardando Envio
+                                                </option>
+                                                <option {{if eq .Object.Order.Status "Enviado"}}selected{{end}}
+                                                        value="Enviado">Enviado
+                                                </option>
+                                                <option {{if eq .Object.Order.Status "Entregue"}}selected{{end}}
+                                                        value="Entregue">Entregue
+                                                </option>
+                                                <option {{if eq .Object.Order.Status "Cancelado"}}selected{{end}}
+                                                        value="Cancelado">Cancelado
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-5">
+                                            <button type="submit" class="btn btn-primary">Atualizar Status</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            {{end}}
                             <!-- /.col -->
                         </div>
                         <div class="row invoice-info">
@@ -124,7 +159,8 @@
                                         {{end}}
                                         <tr id="totalRow">
                                             <th>Total:</th>
-                                            <td id="total"> R$ {{ printf "%.2f" (addf .Object.Order.ShoppingCart.Total .Object.Order.DeliveryPrice)}}</td>
+                                            <td id="total">
+                                                R$ {{ printf "%.2f" (addf .Object.Order.ShoppingCart.Total .Object.Order.DeliveryPrice)}}</td>
                                         </tr>
                                     </table>
                                 </div>
