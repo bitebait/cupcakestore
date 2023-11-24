@@ -25,9 +25,17 @@ func NewStoreConfigRouter() *StoreConfigRouter {
 
 func (r *StoreConfigRouter) InstallRouters(app *fiber.App) {
 	storeConfig := app.Group("/config").Use(middlewares.LoginAndStaffRequired())
-	storeConfig.Get("/address", r.storeConfigController.RenderStoreConfigAddress)
-	storeConfig.Get("/delivery", r.storeConfigController.RenderStoreConfigDelivery)
-	storeConfig.Get("/payment", r.storeConfigController.RenderStoreConfigPayment)
-	storeConfig.Get("/pix", r.storeConfigController.RenderStoreConfigPix)
+	storeConfig.Get("/address", func(ctx *fiber.Ctx) error {
+		return r.storeConfigController.RenderStoreConfig(ctx, "address")
+	})
+	storeConfig.Get("/delivery", func(ctx *fiber.Ctx) error {
+		return r.storeConfigController.RenderStoreConfig(ctx, "delivery")
+	})
+	storeConfig.Get("/payment", func(ctx *fiber.Ctx) error {
+		return r.storeConfigController.RenderStoreConfig(ctx, "payment")
+	})
+	storeConfig.Get("/pix", func(ctx *fiber.Ctx) error {
+		return r.storeConfigController.RenderStoreConfig(ctx, "pix")
+	})
 	storeConfig.Post("/", r.storeConfigController.Update)
 }

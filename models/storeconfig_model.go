@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"gorm.io/gorm"
 )
 
@@ -28,4 +29,17 @@ type StoreConfig struct {
 	PaymentPixIsActive       bool    `gorm:"not null;default:true"`
 	PixKey                   string  `gorm:"default:''"`
 	PixKeyType               pixType
+}
+
+func (s *StoreConfig) BeforeSave(tx *gorm.DB) error {
+	return s.validatePixType()
+}
+
+func (s *StoreConfig) validatePixType() error {
+	switch s.PixKeyType {
+	case PixTypeEmail, PixTypePhone, PixTypeRandomKey, PixTypeCPF, PixTypeCNPJ:
+		return nil
+	default:
+		return errors.New("invalid PixKeyType")
+	}
 }

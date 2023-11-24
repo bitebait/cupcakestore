@@ -8,10 +8,7 @@ import (
 
 type StoreConfigController interface {
 	Update(ctx *fiber.Ctx) error
-	RenderStoreConfigAddress(ctx *fiber.Ctx) error
-	RenderStoreConfigPayment(ctx *fiber.Ctx) error
-	RenderStoreConfigPix(ctx *fiber.Ctx) error
-	RenderStoreConfigDelivery(ctx *fiber.Ctx) error
+	RenderStoreConfig(ctx *fiber.Ctx, configType string) error
 }
 
 type storeConfigController struct {
@@ -27,54 +24,26 @@ func NewStoreConfigController(s services.StoreConfigService) StoreConfigControll
 func (c *storeConfigController) Update(ctx *fiber.Ctx) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return err
+		return renderErrorMessage(ctx, err, "enviar formulário.")
 	}
 
-	err = ctx.BodyParser(storeConfig)
-	if err != nil {
-		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
+	if err = ctx.BodyParser(storeConfig); err != nil {
+		return renderErrorMessage(ctx, err, "enviar formulário.")
 	}
 
-	err = c.storeConfigService.Update(storeConfig)
-	if err != nil {
-		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
+	if err = c.storeConfigService.Update(storeConfig); err != nil {
+		return renderErrorMessage(ctx, err, "atualizar configurações da loja.")
 	}
 
 	return ctx.Redirect("/dashboard")
 }
 
-func (c *storeConfigController) RenderStoreConfigAddress(ctx *fiber.Ctx) error {
+func (c *storeConfigController) RenderStoreConfig(ctx *fiber.Ctx, configType string) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return ctx.Redirect("/dashboard")
+		return renderErrorMessage(ctx, err, "carregar configurações da loja.")
 	}
 
-	return views.Render(ctx, "config/address", storeConfig, "", baseLayout)
-}
-
-func (c *storeConfigController) RenderStoreConfigPayment(ctx *fiber.Ctx) error {
-	storeConfig, err := c.storeConfigService.GetStoreConfig()
-	if err != nil {
-		return ctx.Redirect("/dashboard")
-	}
-
-	return views.Render(ctx, "config/payment", storeConfig, "", baseLayout)
-}
-
-func (c *storeConfigController) RenderStoreConfigPix(ctx *fiber.Ctx) error {
-	storeConfig, err := c.storeConfigService.GetStoreConfig()
-	if err != nil {
-		return ctx.Redirect("/dashboard")
-	}
-
-	return views.Render(ctx, "config/pix", storeConfig, "", baseLayout)
-}
-
-func (c *storeConfigController) RenderStoreConfigDelivery(ctx *fiber.Ctx) error {
-	storeConfig, err := c.storeConfigService.GetStoreConfig()
-	if err != nil {
-		return ctx.Redirect("/dashboard")
-	}
-
-	return views.Render(ctx, "config/delivery", storeConfig, "", baseLayout)
+	viewPath := "config/" + configType
+	return views.Render(ctx, viewPath, storeConfig, "", baseLayout)
 }
