@@ -26,14 +26,17 @@ func NewProductRouter() *ProductRouter {
 }
 
 func (r *ProductRouter) InstallRouters(app *fiber.App) {
-	product := app.Group("/products").Use(middlewares.LoginAndStaffRequired())
+	product := app.Group("/products")
+	product.Get("/details/:id", r.productController.RenderDetails)
 
-	product.Get("/create", r.productController.RenderCreate)
-	product.Post("/create", r.productController.Create)
-	product.Get("/json", r.productController.JSONProducts)
-	product.Post("/update/:id", r.productController.Update)
-	product.Get("/delete/:id", r.productController.RenderDelete)
-	product.Post("/delete/:id", r.productController.Delete)
-	product.Get("/", r.productController.RenderProducts)
-	product.Get("/:id", r.productController.RenderProduct)
+	productAdmin := app.Group("/products").Use(middlewares.LoginAndStaffRequired())
+
+	productAdmin.Get("/create", r.productController.RenderCreate)
+	productAdmin.Post("/create", r.productController.Create)
+	productAdmin.Get("/json", r.productController.JSONProducts)
+	productAdmin.Post("/update/:id", r.productController.Update)
+	productAdmin.Get("/delete/:id", r.productController.RenderDelete)
+	productAdmin.Post("/delete/:id", r.productController.Delete)
+	productAdmin.Get("/", r.productController.RenderProducts)
+	productAdmin.Get("/:id", r.productController.RenderProduct)
 }

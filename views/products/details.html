@@ -1,0 +1,126 @@
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container">
+            <h1 class="m-0 text-dark">Detalhes do Produto</h1>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container">
+
+            <!-- Default box -->
+            <div class="card card-solid">
+                <div class="card-body">
+                    <div class="row row-eq-height">
+                        <div class="col-12 col-sm-6">
+                            <img src="{{.Object.Image}}" style="max-height: 400px; max-width: 400px; display: block; margin-left: auto; margin-right: auto;"
+                                 class="product-image img-fluid" alt="Product Image">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <h3 class="my-3">Informações do Produto</h3>
+                            <p style="font-size: 20px"><strong>Nome: </strong>{{.Object.Name}}</p>
+                            <p style="font-size: 20px"><strong>Descrição: </strong>{{.Object.Description}}</p>
+                            <p style="font-size: 20px"><strong>Ingredientes: </strong>{{.Object.Ingredients}}</p>
+                            <hr>
+                            <h4><strong>Preço:</strong> R$ {{ printf "%.2f" .Object.Price}}</h4>
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="input-group mb-3">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                                id="{{.Object.ID}}-decrement"
+                                                onclick="decrementQuantity('{{.Object.ID}}')">-
+                                        </button>
+                                        <input type="text" id="{{.Object.ID}}-quantity" class="form-control text-center"
+                                               value="1" aria-label="Example text with button addon"
+                                               aria-describedby="{{.Object.ID}}-decrement {{.Object.ID}}-increment">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                                id="{{.Object.ID}}-increment"
+                                                onclick="incrementQuantity('{{.Object.ID}}')">+
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <a href="#" class="adicionar-ao-carrinho btn btn-primary" data-id="{{.Object.ID}}">Adicionar
+                                        ao Carrinho</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+    </section>
+
+    <!-- /.content -->
+</div>
+
+
+<script>
+    // Função para adicionar um item ao carrinho
+    function adicionarAoCarrinho(item) {
+        // Obter o ID do produto selecionado
+        var id = item.dataset.id;
+
+        // Obter a quantidade do produto selecionado
+        var quantityInput = document.getElementById(id + '-quantity');
+        var quantity = quantityInput.value;
+
+        // Criar um formulário dinamicamente
+        var form = document.createElement('form');
+        form.action = '/cart';
+        form.method = 'post';
+
+        // Criar um campo oculto para o ID do produto
+        var inputId = document.createElement('input');
+        inputId.type = 'hidden';
+        inputId.name = 'id';
+        inputId.value = id;
+
+        // Criar um campo oculto para a quantidade do produto
+        var inputQuantity = document.createElement('input');
+        inputQuantity.type = 'hidden';
+        inputQuantity.name = 'quantity';
+        inputQuantity.value = quantity;
+
+        // Adicionar os campos ocultos ao formulário
+        form.appendChild(inputId);
+        form.appendChild(inputQuantity);
+
+        // Adicionar o formulário ao corpo da página
+        document.body.appendChild(form);
+
+        // Enviar o formulário
+        form.submit();
+    }
+
+    // Adicionar um evento de clique para cada link "Adicionar ao Carrinho"
+    var links = document.querySelectorAll('.adicionar-ao-carrinho');
+    links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            adicionarAoCarrinho(link);
+        });
+    });
+
+    // Função para incrementar a quantidade
+    function incrementQuantity(id) {
+        var quantityInput = document.getElementById(id + '-quantity');
+        var value = parseInt(quantityInput.value, 10);
+
+        if (!isNaN(value)) {
+            quantityInput.value = value + 1;
+        }
+    }
+
+    // Função para decrementar a quantidade
+    function decrementQuantity(id) {
+        var quantityInput = document.getElementById(id + '-quantity');
+        var value = parseInt(quantityInput.value, 10);
+
+        if (!isNaN(value) && value > 1) {
+            quantityInput.value = value - 1;
+        }
+    }
+</script>

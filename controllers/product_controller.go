@@ -15,6 +15,7 @@ type ProductController interface {
 	RenderCreate(ctx *fiber.Ctx) error
 	RenderProducts(ctx *fiber.Ctx) error
 	RenderProduct(ctx *fiber.Ctx) error
+	RenderDetails(ctx *fiber.Ctx) error
 	RenderDelete(ctx *fiber.Ctx) error
 	JSONProducts(ctx *fiber.Ctx) error
 }
@@ -50,6 +51,20 @@ func (c *productController) Create(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/products")
+}
+
+func (c *productController) RenderDetails(ctx *fiber.Ctx) error {
+	productID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/store")
+	}
+
+	product, err := c.productService.FindById(productID)
+	if err != nil {
+		return ctx.Redirect("/store")
+	}
+
+	return views.Render(ctx, "products/details", product, "", storeLayout)
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
