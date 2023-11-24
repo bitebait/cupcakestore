@@ -43,7 +43,8 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 		return renderErrorMessage(ctx, err, "obter o carrinho de compras")
 	}
 
-	if !order.IsCurrentUserOrder(profileID) {
+	currentUser := ctx.Locals("profile").(*models.Profile)
+	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)) {
 		return ctx.Redirect("/orders")
 	}
 

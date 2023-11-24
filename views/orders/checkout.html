@@ -88,14 +88,15 @@
                             <div class="col-md-6">
                                 <form method="Post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}" id="payment" class="form-row">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-12">
                                             <p class="lead">Formas de Pagamento:</p>
                                             <select class="form-control" id="paymentMethod" name="paymentMethod">
-                                                <option value="Pix">Pix</option>
-                                                <option value="Dinheiro">Dinheiro</option>
+                                                {{if .Object.StoreConfig.PaymentPixIsActive}}<option value="Pix">Pix</option>{{end}}
+                                                {{if .Object.StoreConfig.PaymentCashIsActive}} <option value="Dinheiro">Dinheiro</option>{{end}}
                                             </select>
                                         </div>
-                                        <div class="col-6">
+                                        {{if .Object.StoreConfig.DeliveryIsActive}}
+                                        <div class="col-12 mt-2">
                                             <p class="lead">Receber Produto Por:</p>
                                             <select class="form-control" id="isDelivery" name="isDelivery">
                                                 {{if .Object.StoreConfig.DeliveryIsActive}}
@@ -103,6 +104,7 @@
                                                 <option value="0">Retirada na Loja</option>
                                             </select>
                                         </div>
+                                        {{end}}
                                     </div>
                                 </form>
                             </div>
@@ -133,7 +135,7 @@
                         </div>
                         <!-- /.row -->
 
-                        <div class="row no-print">
+                        <div class="row no-print mt-4">
                             <div class="col-12">
                                 <a href="javascript:history.back()" class="btn btn-default">
                                     <i class="fas fa-undo-alt"></i> Cancelar
