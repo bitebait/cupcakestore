@@ -35,15 +35,19 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 	profileID := getUserID(ctx)
 	cartID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return renderErrorMessage(ctx, err, "processar o ID do carrinho.")
+		return renderErrorMessage(ctx, err, "processar o ID do carrinho")
 	}
 
 	order, err := c.orderService.FindOrCreate(profileID, cartID)
 	if err != nil {
-		return renderErrorMessage(ctx, err, "obter o carrinho de compras.")
+		return renderErrorMessage(ctx, err, "obter o carrinho de compras")
 	}
 
-	if order.ShoppingCart.Total <= 0 || !order.IsActiveOrAwaitingPayment() {
+	if !order.IsCurrentUserOrder(profileID) {
+		return ctx.Redirect("/orders")
+	}
+
+	if !order.CanProceedToCheckout() {
 		return ctx.Redirect("/orders")
 	}
 
@@ -53,7 +57,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 	}
 
 	data := fiber.Map{
-		"Orders":      order,
+		"Order":       order,
 		"StoreConfig": storeConfig,
 	}
 	return views.Render(ctx, "orders/checkout", data, "", storeLayout)
@@ -70,13 +74,18 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 		return renderErrorMessage(ctx, err, "processar o checkout do carrinho")
 	}
 
-	if order.ShoppingCart.Total <= 0 {
+	currentUser := ctx.Locals("profile").(*models.Profile)
+	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID)) {
+		return ctx.Redirect("/orders")
+	}
+
+	if !order.CanProceedToPayment() {
 		return ctx.Redirect("/orders")
 	}
 
 	switch ctx.Method() {
 	case fiber.MethodPost:
-		if !order.IsActiveOrAwaitingPayment() {
+		if !order.CanProceedToPayment() {
 			return ctx.Redirect("/orders")
 		}
 
@@ -98,7 +107,7 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 		}
 		return ctx.Redirect("/orders")
 	case fiber.MethodGet:
-		if order.Status == models.AwaitingPaymentStatus && order.PaymentMethod == models.PixPaymentMethod {
+		if order.CanRedirectToPixPayment() {
 			return ctx.Redirect("https://pix.ae" + order.PixURL)
 		}
 	default:
@@ -114,19 +123,19 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/orders")
 	}
 
-	storeConfig, err := c.storeConfigService.GetStoreConfig()
-	if err != nil {
-		return renderErrorMessage(ctx, err, "carregar configs da loja")
-	}
-
 	order, err := c.orderService.FindById(orderID)
 	if err != nil {
-		return renderErrorMessage(ctx, err, "obter detalhes do pedido.")
+		return ctx.Redirect("/orders")
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-	if !(currentUser.User.IsStaff || order.Profile.UserID == currentUser.UserID) {
-		return renderErrorMessage(ctx, err, "obter detalhes do pedido.")
+	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID)) {
+		return ctx.Redirect("/orders")
+	}
+
+	storeConfig, err := c.storeConfigService.GetStoreConfig()
+	if err != nil {
+		return renderErrorMessage(ctx, err, "carregar configs da loja")
 	}
 
 	data := fiber.Map{
@@ -169,7 +178,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-	if currentUser.User.IsStaff || order.Profile.UserID == currentUser.UserID {
+	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID) {
 		return views.Render(ctx, "orders/cancel", order, "", storeLayout)
 	}
 	return ctx.Redirect("/orders")
@@ -187,7 +196,7 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-	if currentUser.User.IsStaff || order.Profile.UserID == currentUser.UserID {
+	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID) {
 		err = c.orderService.Cancel(order.ID)
 		if err != nil {
 			return ctx.Redirect("/orders")
@@ -211,8 +220,7 @@ func (c *orderController) Update(ctx *fiber.Ctx) error {
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
 	if currentUser.User.IsStaff {
-		err = c.orderService.Update(&order)
-		if err != nil {
+		if err = c.orderService.Update(&order); err != nil {
 			return ctx.Redirect("/orders")
 		}
 	}

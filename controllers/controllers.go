@@ -13,13 +13,14 @@ const (
 )
 
 func selectLayout(isStaff, isUserProfile bool) string {
-	if isStaff {
+	switch {
+	case isStaff:
+		return baseLayout
+	case isUserProfile:
+		return storeLayout
+	default:
 		return baseLayout
 	}
-	if isUserProfile {
-		return storeLayout
-	}
-	return baseLayout // Default layout if none is applicable
 }
 
 func selectRedirectPath(isStaff bool) string {
@@ -30,7 +31,11 @@ func selectRedirectPath(isStaff bool) string {
 }
 
 func getUserID(ctx *fiber.Ctx) uint {
-	return ctx.Locals("profile").(*models.Profile).ID
+	profile, ok := ctx.Locals("profile").(*models.Profile)
+	if !ok {
+		return 0
+	}
+	return profile.ID
 }
 
 func renderErrorMessage(ctx *fiber.Ctx, err error, action string) error {

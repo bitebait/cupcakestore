@@ -55,10 +55,16 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 			return nil, err
 		}
 
+		if cart.ProfileID != profileID {
+			return nil, errors.New("Perfil e carrinho não correspondem")
+		}
+
 		order := models.Order{
 			ProfileID:      profileID,
 			ShoppingCart:   cart,
 			ShoppingCartID: cart.ID,
+			Status:         models.ActiveStatus,
+			PaymentMethod:  models.PixPaymentMethod,
 		}
 
 		if err := r.db.Create(&order).Error; err != nil {

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"gorm.io/gorm"
 )
 
@@ -54,6 +55,22 @@ type Order struct {
 	Total            float64            `gorm:"default:0;trigger:false"`
 }
 
+func (o *Order) IsCurrentUserOrder(profileID uint) bool {
+	return o.ProfileID == profileID
+}
+
+func (o *Order) CanRedirectToPixPayment() bool {
+	return o.Status == AwaitingPaymentStatus && o.PaymentMethod == PixPaymentMethod
+}
+
+func (o *Order) CanProceedToPayment() bool {
+	return o.ShoppingCart.Total > 0 && o.IsActiveOrAwaitingPayment()
+}
+
+func (o *Order) CanProceedToCheckout() bool {
+	return o.ShoppingCart.Total > 0 && o.IsActiveOrAwaitingPayment()
+}
+
 func (o *Order) BeforeSave(tx *gorm.DB) (err error) {
 	if o.IsDelivery {
 		var storeConfig StoreConfig
@@ -68,6 +85,36 @@ func (o *Order) BeforeSave(tx *gorm.DB) (err error) {
 	return err
 }
 
+func (o *Order) BeforeCreate(tx *gorm.DB) (err error) {
+	if err = o.validateStatus(); err != nil {
+		return err
+	}
+
+	if err = o.validatePaymentMethod(); err != nil {
+		return err
+	}
+
+	return o.BeforeSave(tx)
+}
+
 func (o *Order) IsActiveOrAwaitingPayment() bool {
 	return o.Status == ActiveStatus || o.Status == AwaitingPaymentStatus
+}
+
+func (o *Order) validateStatus() error {
+	switch o.Status {
+	case ActiveStatus, AwaitingPaymentStatus, PaymentApprovedStatus, ProcessingStatus, DeliveredStatusAwaiting, DeliveredStatusSent, DeliveredStatusDelivered, CancelledStatus:
+		return nil
+	default:
+		return errors.New("invalid shopping cart status")
+	}
+}
+
+func (o *Order) validatePaymentMethod() error {
+	switch o.PaymentMethod {
+	case CashPaymentMethod, PixPaymentMethod:
+		return nil
+	default:
+		return errors.New("invalid payment method")
+	}
 }

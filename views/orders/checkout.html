@@ -37,9 +37,9 @@
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                <b>Carrinho #{{.Object.Orders.ShoppingCart.ID}}</b><br>
+                                <b>Carrinho #{{.Object.Order.ShoppingCart.ID}}</b><br>
                                 <br>
-                                <b>Data do Pedido:</b> {{.Object.Orders.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
+                                <b>Data do Pedido:</b> {{.Object.Order.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
                                 <b>Cliente:</b> {{.Profile.FullName}}
                             </div>
                             <!-- /.col -->
@@ -60,7 +60,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {{range .Object.Orders.ShoppingCart.Items}}
+                                    {{range .Object.Order.ShoppingCart.Items}}
                                         <tr>
                                             <td>
                                                 <div style="display: flex; justify-content: center; align-items: center;">
@@ -86,7 +86,7 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-md-6">
-                                <form method="Post" action="/orders/payment/{{.Object.Orders.ShoppingCartID}}" id="payment" class="form-row">
+                                <form method="Post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}" id="payment" class="form-row">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <p class="lead">Formas de Pagamento:</p>
@@ -113,7 +113,7 @@
                                     <table class="table">
                                         <tr>
                                             <th style="width:50%">Subtotal:</th>
-                                            <td>R$ {{ printf "%.2f" .Object.Orders.ShoppingCart.Total}}</td>
+                                            <td>R$ {{ printf "%.2f" .Object.Order.ShoppingCart.Total}}</td>
                                         </tr>
                                         {{if .Object.StoreConfig.DeliveryIsActive}}
                                             <tr id="deliveryRow">
@@ -123,7 +123,7 @@
                                         {{end}}
                                         <tr id="totalRow">
                                             <th>Total:</th>
-                                            <td id="total"> R$ {{ printf "%.2f" .Object.Orders.ShoppingCart.Total}}</td>
+                                            <td id="total"> R$ {{ printf "%.2f" .Object.Order.ShoppingCart.Total}}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -160,14 +160,14 @@
             if (isDelivery === '1') {
                 const deliveryPrice = parseFloat('{{.Object.StoreConfig.DeliveryPrice}}');
 
-                subtotal = parseFloat('{{.Object.Orders.ShoppingCart.Total}}');
+                subtotal = parseFloat('{{.Object.Order.ShoppingCart.Total}}');
                 const total = subtotal + deliveryPrice;
 
                 $('#total').text('R$ ' + total.toFixed(2));
                 $('#deliveryRow').show();
                 $('#addressToDelivery').show();
             } else {
-                subtotal = parseFloat('{{.Object.Orders.ShoppingCart.Total}}');
+                subtotal = parseFloat('{{.Object.Order.ShoppingCart.Total}}');
 
                 $('#total').text('R$ ' + subtotal.toFixed(2));
                 $('#deliveryRow').hide();
