@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,7 +19,7 @@ func selectLayout(isStaff, isUserProfile bool) string {
 	if isUserProfile {
 		return storeLayout
 	}
-	return ""
+	return baseLayout // Default layout if none is applicable
 }
 
 func selectRedirectPath(isStaff bool) string {
@@ -34,7 +33,10 @@ func getUserID(ctx *fiber.Ctx) uint {
 	return ctx.Locals("profile").(*models.Profile).ID
 }
 
-func renderErrorMessage(ctx *fiber.Ctx, err error, action, templateName string) error {
-	errorMessage := "Houve um erro ao " + action + ": " + err.Error()
-	return views.Render(ctx, templateName, fiber.Map{}, errorMessage, selectLayout(false, true))
+func renderErrorMessage(ctx *fiber.Ctx, err error, action string) error {
+	errorMessage := "Houve um erro ao " + action
+	if err != nil {
+		errorMessage += ": " + err.Error()
+	}
+	return ctx.Status(fiber.StatusInternalServerError).SendString(errorMessage)
 }
