@@ -28,10 +28,9 @@ func NewAuthController(authService services.AuthService) AuthController {
 }
 
 func (c *authController) Register(ctx *fiber.Ctx) error {
-	user := &models.User{}
+	user := new(models.User)
 	if err := ctx.BodyParser(user); err != nil {
-		return views.Render(ctx, "auth/register", nil,
-			"Dados da conta inválidos: "+err.Error(), "")
+		return views.Render(ctx, "auth/register", nil, "Dados da conta inválidos: "+err.Error())
 	}
 
 	profile := &models.Profile{
@@ -41,8 +40,7 @@ func (c *authController) Register(ctx *fiber.Ctx) error {
 	}
 
 	if err := c.authService.Register(profile); err != nil {
-		return views.Render(ctx, "auth/register", nil,
-			"Falha ao criar usuário: "+err.Error(), "")
+		return views.Render(ctx, "auth/register", nil, "Falha ao criar usuário: "+err.Error())
 	}
 
 	return ctx.Redirect("/auth/login")
@@ -52,8 +50,7 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 	email := ctx.FormValue("email")
 	password := ctx.FormValue("password")
 
-	err := c.authService.Authenticate(ctx, email, password)
-	if err != nil {
+	if err := c.authService.Authenticate(ctx, email, password); err != nil {
 		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas")
 	}
 
@@ -66,8 +63,7 @@ func (c *authController) Logout(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	err = sess.Destroy()
-	if err != nil {
+	if err = sess.Destroy(); err != nil {
 		return err
 	}
 
