@@ -40,13 +40,13 @@ func (c *storeConfigController) Update(ctx *fiber.Ctx) error {
 		return views.Render(ctx, "config/config", storeConfig, err.Error(), baseLayout)
 	}
 
-	return ctx.Redirect("/users")
+	return ctx.Redirect("/dashboard")
 }
 
 func (c *storeConfigController) RenderStoreConfigAddress(ctx *fiber.Ctx) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return ctx.Redirect("/users")
+		return ctx.Redirect("/dashboard")
 	}
 
 	return views.Render(ctx, "config/address", storeConfig, "", baseLayout)
@@ -55,7 +55,7 @@ func (c *storeConfigController) RenderStoreConfigAddress(ctx *fiber.Ctx) error {
 func (c *storeConfigController) RenderStoreConfigPayment(ctx *fiber.Ctx) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return ctx.Redirect("/users")
+		return ctx.Redirect("/dashboard")
 	}
 
 	return views.Render(ctx, "config/payment", storeConfig, "", baseLayout)
@@ -64,7 +64,7 @@ func (c *storeConfigController) RenderStoreConfigPayment(ctx *fiber.Ctx) error {
 func (c *storeConfigController) RenderStoreConfigPix(ctx *fiber.Ctx) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return ctx.Redirect("/users")
+		return ctx.Redirect("/dashboard")
 	}
 
 	return views.Render(ctx, "config/pix", storeConfig, "", baseLayout)
@@ -73,7 +73,7 @@ func (c *storeConfigController) RenderStoreConfigPix(ctx *fiber.Ctx) error {
 func (c *storeConfigController) RenderStoreConfigDelivery(ctx *fiber.Ctx) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return ctx.Redirect("/users")
+		return ctx.Redirect("/dashboard")
 	}
 
 	return views.Render(ctx, "config/delivery", storeConfig, "", baseLayout)

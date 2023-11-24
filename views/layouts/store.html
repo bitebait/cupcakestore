@@ -34,25 +34,6 @@
             font-weight: 700;
             src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdr.ttf) format('truetype');
         }
-
-        .card-produto {
-            margin-bottom: 20px;
-        }
-
-        .card-body {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-img-top {
-            width: 100%;
-            object-fit: cover;
-        }
-
-        .fontsize-20 {
-            font-size: 20px;
-        }
-
     </style>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
@@ -60,7 +41,7 @@
     <link rel="stylesheet" href="/dist/css/adminlte.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
-<body class="hold-transition layout-top-nav"  style="background-color: #f4f6f9 !important;">
+<body class="hold-transition layout-top-nav" style="background-color: #f4f6f9 !important;">
 <div class="wrapper">
 
     <!-- Navbar -->
@@ -97,13 +78,17 @@
                             Meus Pedidos
                         </a>
                         <a href="/profile/{{.Profile.User.ID}}" class="nav-link">{{.Profile.User.Email}}</a>
-                        <a href="/auth/logout" class="btn btn-danger">
+                        {{if .Profile.User.IsStaff}}
+                            <a href="/dashboard" class="btn btn-sm btn-primary mr-2">Painel Admin</a>
+                        {{end}}
+                        <a href="/auth/logout" class="btn btn-sm btn-danger">
                             <i class="fas fa-sign-out-alt"></i> Sair
                         </a>
                     </li>
                 {{else}}
                     <li class="nav-item d-flex align-items-center">
-                        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="/auth/login" role="button">
+                        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="/auth/login"
+                           role="button">
                             <i class="fas fa-user"></i> Fazer Login/Cadastro
                         </a>
                     </li>
