@@ -41,7 +41,12 @@
                                         <td>{{.PaymentMethod}}</td>
                                         <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
                                         <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
-                                        <td><a href="/orders/order/{{.ID}}" class="mr-2"><u>Visualizar</u></a></td>
+                                        <td>
+                                            <a href="/orders/order/{{.ID}}" class="mr-2"><u>Visualizar</u></a>
+                                            {{if eq .Status "Em Aberto"}}
+                                                <a href="/orders/checkout/{{.ShoppingCartID}}" class="text-info"><u>Ir Para Checkout</u></a>
+                                            {{end}}
+                                        </td>
 
                                     </tr>
                                 {{end}}

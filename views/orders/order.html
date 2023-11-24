@@ -18,10 +18,10 @@
                                 </h4>
                             </div>
                             {{if .Profile.User.IsStaff}}
-                                <form method="Post" action="/orders/{{.Object.Order.ID}}">
+                                <form method="Post" action="/orders/order/{{.Object.Order.ID}}">
                                     <div class="form-row mt-3">
-                                        <div class="col-7">
-                                            <select class="form-control" id="paymentMethod" name="paymentMethod">
+                                        <div class="col-9">
+                                            <select class="form-control" id="status" name="status">
                                                 <option {{if eq .Object.Order.Status "Em Aberto"}}selected{{end}}
                                                         value="Em Aberto">Em Aberto
                                                 </option>
@@ -48,8 +48,8 @@
                                                 </option>
                                             </select>
                                         </div>
-                                        <div class="col-5">
-                                            <button type="submit" class="btn btn-primary">Atualizar Status</button>
+                                        <div class="col-3">
+                                            <button type="submit" class="btn btn-primary">Atualizar</button>
                                         </div>
                                     </div>
                                 </form>

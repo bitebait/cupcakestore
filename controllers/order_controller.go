@@ -158,13 +158,12 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/orders")
 	}
 
-	currentUser := ctx.Locals("profile").(*models.Profile)
-
 	order, err := c.orderService.FindById(orderID)
 	if err != nil {
 		return ctx.Redirect("/orders")
 	}
 
+	currentUser := ctx.Locals("profile").(*models.Profile)
 	if currentUser.User.IsStaff || order.Profile.UserID == currentUser.UserID {
 		return views.Render(ctx, "orders/cancel", order, "", storeLayout)
 	} else {
@@ -173,18 +172,17 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Cancel(ctx *fiber.Ctx) error {
-	cartID, err := utils.StringToId(ctx.Params("id"))
+	orderID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
+
+	order, err := c.orderService.FindById(orderID)
 	if err != nil {
 		return ctx.Redirect("/orders")
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-
-	order, err := c.orderService.FindById(cartID)
-	if err != nil {
-		return ctx.Redirect("/orders")
-	}
-
 	if currentUser.User.IsStaff || order.Profile.UserID == currentUser.UserID {
 		err = c.orderService.Cancel(order.ID)
 		if err != nil {
@@ -197,17 +195,26 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Update(ctx *fiber.Ctx) error {
-	//orderID, err := utils.StringToId(ctx.Params("id"))
-	//if err != nil {
-	//	return ctx.Redirect("/orders/all")
-	//}
-	////
-	////order, err := c.orderService.FindById(orderID)
-	////if err != nil {
-	////	return ctx.Redirect("/orders/all")
-	////}
+	orderID, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
 
-	return ctx.Redirect("/orders/all")
+	order, err := c.orderService.FindById(orderID)
+	if err != nil {
+		return ctx.Redirect("/orders")
+	}
+
+	order.Status = models.ShoppingCartStatus(ctx.FormValue("status"))
+
+	currentUser := ctx.Locals("profile").(*models.Profile)
+	if currentUser.User.IsStaff {
+		err = c.orderService.Update(&order)
+		if err != nil {
+			return ctx.Redirect("/orders")
+		}
+	}
+	return ctx.Redirect("/orders")
 }
 
 func (c *orderController) getUserID(ctx *fiber.Ctx) uint {

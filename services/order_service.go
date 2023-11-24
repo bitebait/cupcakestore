@@ -7,7 +7,7 @@ import (
 )
 
 type OrderService interface {
-	FindById(cartID uint) (models.Order, error)
+	FindById(id uint) (models.Order, error)
 	FindByCartId(cartID uint) (*models.Order, error)
 	FindOrCreate(profileID, cartID uint) (*models.Order, error)
 	FindAllByUser(filter *models.OrderFilter) []models.Order
