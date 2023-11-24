@@ -1,22 +1,40 @@
 package controllers
 
-const baseLayout = "layouts/base"
-const storeLayout = "layouts/store"
+import (
+	"github.com/bitebait/cupcakestore/models"
+	"github.com/bitebait/cupcakestore/views"
+	"github.com/gofiber/fiber/v2"
+)
 
-func selectLayout(isStaff bool, isUserProfile bool) string {
-	switch {
-	case isStaff:
+const (
+	baseLayout  = "layouts/base"
+	storeLayout = "layouts/store"
+	userPath    = "/users"
+	rootPath    = "/"
+)
+
+func selectLayout(isStaff, isUserProfile bool) string {
+	if isStaff {
 		return baseLayout
-	case isUserProfile:
-		return storeLayout
-	default:
-		return ""
 	}
+	if isUserProfile {
+		return storeLayout
+	}
+	return ""
 }
 
 func selectRedirectPath(isStaff bool) string {
 	if isStaff {
-		return "/users"
+		return userPath
 	}
-	return "/"
+	return rootPath
+}
+
+func getUserID(ctx *fiber.Ctx) uint {
+	return ctx.Locals("profile").(*models.Profile).ID
+}
+
+func renderErrorMessage(ctx *fiber.Ctx, err error, action, templateName string) error {
+	errorMessage := "Houve um erro ao " + action + ": " + err.Error()
+	return views.Render(ctx, templateName, fiber.Map{}, errorMessage, selectLayout(false, true))
 }

@@ -1,14 +1,12 @@
 package controllers
 
 import (
-	"github.com/bitebait/cupcakestore/utils"
-	"log"
-	"strconv"
-
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+	"log"
 )
 
 type OrderController interface {
@@ -34,15 +32,15 @@ func NewOrderController(orderService services.OrderService, storeConfigService s
 }
 
 func (c *orderController) Checkout(ctx *fiber.Ctx) error {
-	profileID := c.getUserID(ctx)
-	cartID, err := strconv.Atoi(ctx.Params("id"))
+	profileID := getUserID(ctx)
+	cartID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return c.renderError(ctx, "Erro ao processar o ID do carrinho.")
+		return renderErrorMessage(ctx, err, "processar o ID do carrinho.", "orders/order")
 	}
 
-	order, err := c.orderService.FindOrCreate(profileID, uint(cartID))
+	order, err := c.orderService.FindOrCreate(profileID, cartID)
 	if err != nil {
-		return c.renderError(ctx, "Erro ao obter o carrinho de compras.")
+		return renderErrorMessage(ctx, err, "obter o carrinho de compras.", "orders/order")
 	}
 
 	if order.ShoppingCart.Total <= 0 || !order.IsActiveOrAwaitingPayment() {
@@ -51,7 +49,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return c.renderError(ctx, "Erro interno no servidor.")
+		return renderErrorMessage(ctx, err, "carregar as configs da loja", "orders/order")
 	}
 
 	data := fiber.Map{
@@ -62,14 +60,14 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Payment(ctx *fiber.Ctx) error {
-	cartID, err := strconv.Atoi(ctx.Params("id"))
+	cartID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return c.renderErrorMessage(ctx, err, "processar o checkout do carrinho")
+		return renderErrorMessage(ctx, err, "processar o checkout do carrinho", "orders/order")
 	}
 
-	order, err := c.orderService.FindByCartId(uint(cartID))
+	order, err := c.orderService.FindByCartId(cartID)
 	if err != nil {
-		return c.renderErrorMessage(ctx, err, "processar o checkout do carrinho")
+		return renderErrorMessage(ctx, err, "processar o checkout do carrinho", "orders/order")
 	}
 
 	if order.ShoppingCart.Total <= 0 {
@@ -84,15 +82,15 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 
 		if err := ctx.BodyParser(order); err != nil {
 			log.Println(err)
-			return c.renderErrorMessage(ctx, err, "processar os dados de pagamento")
+			return renderErrorMessage(ctx, err, "processar os dados de pagamento", "orders/order")
 		}
 
 		if err := c.orderService.Update(order); err != nil {
-			return c.renderErrorMessage(ctx, err, "atualizar o carrinho para pagamento")
+			return renderErrorMessage(ctx, err, "atualizar o carrinho para pagamento", "orders/order")
 		}
 
 		if err := c.orderService.Payment(order); err != nil {
-			return c.renderErrorMessage(ctx, err, "realizar o pagamento do carrinho")
+			return renderErrorMessage(ctx, err, "realizar o pagamento do carrinho", "orders/order")
 		}
 
 		if order.PaymentMethod == models.PixPaymentMethod {
@@ -118,12 +116,12 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return c.renderError(ctx, "Erro interno no servidor.")
+		return renderErrorMessage(ctx, err, "carregar configs da loja", "orders/order")
 	}
 
 	order, err := c.orderService.FindById(orderID)
 	if err != nil {
-		return c.renderError(ctx, "Erro ao obter detalhes do pedido.")
+		return renderErrorMessage(ctx, err, "obter detalhes do pedido.", "orders/order")
 	}
 
 	data := fiber.Map{
@@ -134,22 +132,24 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) RenderAllOrders(ctx *fiber.Ctx) error {
-	profileID := c.getUserID(ctx)
-	page := ctx.QueryInt("page")
-	limit := ctx.QueryInt("limit")
-	filter := models.NewOrderFilter(profileID, page, limit)
-	orders := c.orderService.FindAllByUser(filter)
-
 	currentUser := ctx.Locals("profile").(*models.Profile)
+	filter := models.NewOrderFilter(currentUser.ID, ctx.QueryInt("page"), ctx.QueryInt("limit"))
+
+	var orders []models.Order
 	if currentUser.User.IsStaff {
 		orders = c.orderService.FindAll(filter)
-		return views.Render(ctx, "orders/admin", fiber.Map{"Orders": orders, "Filter": filter}, "", baseLayout)
-
-	} else if profileID == currentUser.ID {
-		return views.Render(ctx, "orders/orders", fiber.Map{"Orders": orders, "Filter": filter}, "", storeLayout)
+	} else {
+		orders = c.orderService.FindAllByUser(filter)
 	}
 
-	return ctx.Redirect("/store")
+	templateName := "orders/orders"
+	layout := storeLayout
+	if currentUser.User.IsStaff {
+		templateName = "orders/admin"
+		layout = baseLayout
+	}
+
+	return views.Render(ctx, templateName, fiber.Map{"Orders": orders, "Filter": filter}, "", layout)
 }
 
 func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
@@ -166,9 +166,8 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 	currentUser := ctx.Locals("profile").(*models.Profile)
 	if currentUser.User.IsStaff || order.Profile.UserID == currentUser.UserID {
 		return views.Render(ctx, "orders/cancel", order, "", storeLayout)
-	} else {
-		return ctx.Redirect("/orders")
 	}
+	return ctx.Redirect("/orders")
 }
 
 func (c *orderController) Cancel(ctx *fiber.Ctx) error {
@@ -188,10 +187,8 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 		if err != nil {
 			return ctx.Redirect("/orders")
 		}
-		return ctx.Redirect("/orders")
-	} else {
-		return ctx.Redirect("/orders")
 	}
+	return ctx.Redirect("/orders")
 }
 
 func (c *orderController) Update(ctx *fiber.Ctx) error {
@@ -215,17 +212,4 @@ func (c *orderController) Update(ctx *fiber.Ctx) error {
 		}
 	}
 	return ctx.Redirect("/orders")
-}
-
-func (c *orderController) getUserID(ctx *fiber.Ctx) uint {
-	return ctx.Locals("profile").(*models.Profile).ID
-}
-
-func (c *orderController) renderErrorMessage(ctx *fiber.Ctx, err error, action string) error {
-	errorMessage := "Houve um erro ao " + action + ": " + err.Error()
-	return c.renderError(ctx, errorMessage)
-}
-
-func (c *orderController) renderError(ctx *fiber.Ctx, errorMessage string) error {
-	return views.Render(ctx, "orders/order", nil, errorMessage, storeLayout)
 }
