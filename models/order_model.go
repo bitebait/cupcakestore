@@ -60,7 +60,10 @@ func (o *Order) BeforeSave(tx *gorm.DB) (err error) {
 		if err = tx.First(&storeConfig).Error; err == nil {
 			o.DeliveryPrice = storeConfig.DeliveryPrice
 		}
+	} else {
+		o.DeliveryPrice = 0
 	}
+
 	o.Total = o.ShoppingCart.Total + o.DeliveryPrice
 	return err
 }
