@@ -36,12 +36,12 @@
                                                 <strong {{if eq .Status "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
                                             </td>
                                             <td>{{.PaymentMethod}}</td>
-                                            <td>R$ {{ printf "%.2f" .ShoppingCart.Total}}</td>
+                                            <td>R$ {{ printf "%.2f" .Total}}</td>
                                             <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
                                             <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
                                             <td>
                                                 {{if eq .Status "Em Aberto"}}
-                                                    <a href="/orders/checkout/{{.ID}}" class="text-info"><u>Ir Para Checkout</u></a>
+                                                    <a href="/orders/checkout/{{.ShoppingCartID}}" class="text-info"><u>Ir Para Checkout</u></a>
                                                 {{else}}
                                                 <a href="/orders/myorders/{{.ID}}" class="mr-2"><u>Visualizar Items</u></a>
                                                 {{if ne .Status "Cancelado"}}
