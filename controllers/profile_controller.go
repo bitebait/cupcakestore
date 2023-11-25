@@ -13,12 +13,12 @@ type ProfileController interface {
 	RenderProfile(ctx *fiber.Ctx) error
 }
 
-func NewProfileController(profileService services.ProfileService) ProfileController {
-	return &profileController{profileService: profileService}
-}
-
 type profileController struct {
 	profileService services.ProfileService
+}
+
+func NewProfileController(profileService services.ProfileService) ProfileController {
+	return &profileController{profileService: profileService}
 }
 
 func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
@@ -65,6 +65,10 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 	}
 
 	redirectPath := selectRedirectPath(userSess.User.IsStaff)
+	err = updateUserSession(ctx, &profile)
+	if err != nil {
+		return err
+	}
 	return ctx.Redirect(redirectPath)
 }
 

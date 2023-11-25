@@ -40,19 +40,21 @@ const (
 
 type Order struct {
 	gorm.Model
-	ProfileID        uint               `gorm:"not null" validate:"required"`
-	Profile          Profile            `validate:"-"`
-	ShoppingCart     ShoppingCart       `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
-	ShoppingCartID   uint               `gorm:"not null" validate:"required"`
-	Status           ShoppingCartStatus `gorm:"default:'Em Aberto'"`
-	PaymentMethod    PaymentMethod      `gorm:"default:'Pix'"`
-	PixQR            string             `gorm:"default:''"`
-	PixString        string             `gorm:"default:''"`
-	PixTransactionID string             `gorm:"default:''"`
-	PixURL           string             `gorm:"default:''"`
-	IsDelivery       bool               `gorm:"not null;default:true"`
-	DeliveryPrice    float64            `gorm:"default:0"`
-	Total            float64            `gorm:"default:0;trigger:false"`
+	ProfileID        uint                `gorm:"not null" validate:"required"`
+	Profile          Profile             `validate:"-"`
+	ShoppingCartID   uint                `gorm:"not null" validate:"required"`
+	ShoppingCart     ShoppingCart        `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
+	Status           ShoppingCartStatus  `gorm:"default:'Em Aberto'"`
+	PaymentMethod    PaymentMethod       `gorm:"default:'Pix'"`
+	PixQR            string              `gorm:"default:''"`
+	PixString        string              `gorm:"default:''"`
+	PixTransactionID string              `gorm:"default:''"`
+	PixURL           string              `gorm:"default:''"`
+	IsDelivery       bool                `gorm:"not null;default:true"`
+	DeliveryPrice    float64             `gorm:"default:0"`
+	DeliveryDetailD  uint                `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
+	DeliveryDetail   OrderDeliveryDetail `validate:"-"`
+	Total            float64             `gorm:"default:0"`
 }
 
 func (o *Order) IsCurrentUserOrder(profileID uint) bool {
@@ -71,10 +73,46 @@ func (o *Order) CanProceedToCheckout() bool {
 	return o.ShoppingCart.Total > 0 && o.IsActiveOrAwaitingPayment()
 }
 
+func (o *Order) AfterSave(tx *gorm.DB) (err error) {
+	storeConfig := &StoreConfig{}
+	if err = tx.First(storeConfig).Error; err != nil {
+		return err
+	}
+
+	if o.Status == ActiveStatus && o.ShoppingCartID > 0 {
+		orderDeliveryDetail := &OrderDeliveryDetail{}
+
+		if err = tx.Where("order_id", o.ID).FirstOrInit(&orderDeliveryDetail).Error; err == nil || errors.Is(err, gorm.ErrRecordNotFound) {
+			if err = tx.Preload("Profile.User").First(&o).Error; err != nil {
+				return err
+			}
+			orderDeliveryDetail.OrderID = o.ID
+			orderDeliveryDetail.UserFirstName = o.Profile.FirstName
+			orderDeliveryDetail.UserLastName = o.Profile.LastName
+			orderDeliveryDetail.UserEmail = o.Profile.User.Email
+			orderDeliveryDetail.UserAddress = o.Profile.Address
+			orderDeliveryDetail.UserCity = o.Profile.City
+			orderDeliveryDetail.UserState = o.Profile.State
+			orderDeliveryDetail.UserPostalCode = o.Profile.PostalCode
+			orderDeliveryDetail.UserPhoneNumber = o.Profile.PhoneNumber
+			orderDeliveryDetail.StoreEmail = storeConfig.PhysicalStoreEmail
+			orderDeliveryDetail.StoreAddress = storeConfig.PhysicalStoreAddress
+			orderDeliveryDetail.StoreCity = storeConfig.PhysicalStoreCity
+			orderDeliveryDetail.StoreState = storeConfig.PhysicalStoreState
+			orderDeliveryDetail.StorePostalCode = storeConfig.PhysicalStorePostalCode
+			orderDeliveryDetail.StorePhoneNumber = storeConfig.PhysicalStorePhoneNumber
+			tx.Save(orderDeliveryDetail)
+			o.DeliveryDetailD = orderDeliveryDetail.ID
+		}
+	}
+	return err
+}
+
 func (o *Order) BeforeSave(tx *gorm.DB) (err error) {
+	storeConfig := &StoreConfig{}
+
 	if o.IsDelivery {
-		var storeConfig StoreConfig
-		if err = tx.First(&storeConfig).Error; err == nil {
+		if err = tx.First(storeConfig).Error; err == nil {
 			o.DeliveryPrice = storeConfig.DeliveryPrice
 		}
 	} else {
@@ -93,8 +131,7 @@ func (o *Order) BeforeCreate(tx *gorm.DB) (err error) {
 	if err = o.validatePaymentMethod(); err != nil {
 		return err
 	}
-
-	return o.BeforeSave(tx)
+	return nil
 }
 
 func (o *Order) IsActiveOrAwaitingPayment() bool {

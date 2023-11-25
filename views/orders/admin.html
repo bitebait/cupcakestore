@@ -36,7 +36,7 @@
                                         <td>
                                             <strong {{if eq .Status "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
                                         </td>
-                                        <td>{{.Profile.FullName}}</td>
+                                        <td>{{.DeliveryDetail.UserFirstName}} {{.DeliveryDetail.UserLastName}}</td>
                                         <td>R$ {{ printf "%.2f" .Total}}</td>
                                         <td>{{.PaymentMethod}}</td>
                                         <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>

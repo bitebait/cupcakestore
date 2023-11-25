@@ -61,23 +61,23 @@
                                 De
                                 <address>
                                     <strong>Cupcake Store</strong><br>
-                                    {{.Object.StoreConfig.PhysicalStoreAddress}}<br>
-                                    {{.Object.StoreConfig.PhysicalStoreCity}}
-                                    , {{.Object.StoreConfig.PhysicalStoreState}}
-                                    {{.Object.StoreConfig.PhysicalStorePostalCode}}<br>
-                                    Telefone: {{.Object.StoreConfig.PhysicalStorePhoneNumber}}<br>
-                                    Email: {{.Object.StoreConfig.PhysicalStoreEmail}}
+                                    {{.Object.Order.DeliveryDetail.StoreAddress}}<br>
+                                    {{.Object.Order.DeliveryDetail.StoreCity}}
+                                    , {{.Object.Order.DeliveryDetail.StoreState}}
+                                    {{.Object.Order.DeliveryDetail.StorePostalCode}}<br>
+                                    Telefone: {{.Object.Order.DeliveryDetail.StorePhoneNumber}}<br>
+                                    Email: {{.Object.Order.DeliveryDetail.StoreEmail}}
                                 </address>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col" id="addressToDelivery">
                                 Para
                                 <address>
-                                    <strong>{{.Object.Order.Profile.FirstName}} {{.Object.Order.Profile.LastName}}</strong><br>
-                                    {{.Object.Order.Profile.Address}}<br>
-                                    {{.Object.Order.Profile.City}}<br>
-                                    Telefone: {{.Object.Order.Profile.PhoneNumber}}<br>
-                                    Email: {{.Object.Order.Profile.User.Email}}
+                                    <strong>{{.Object.Order.DeliveryDetail.UserFirstName}} {{.Object.Order.DeliveryDetail.UserLastName}}</strong><br>
+                                    {{.Object.Order.DeliveryDetail.UserAddress}}<br>
+                                    {{.Object.Order.DeliveryDetail.UserCity}}<br>
+                                    Telefone: {{.Object.Order.DeliveryDetail.UserPhoneNumber}}<br>
+                                    Email: {{.Object.Order.DeliveryDetail.UserEmail}}
                                 </address>
                             </div>
                             <!-- /.col -->
@@ -86,7 +86,7 @@
                                 <br>
                                 <b>Data do
                                     Pedido:</b> {{.Object.Order.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
-                                <b>Cliente:</b> {{.Object.Order.Profile.FirstName}} {{.Object.Order.Profile.LastName}}
+                                <b>Cliente:</b> {{.Object.Order.DeliveryDetail.UserFirstName}} {{.Object.Order.DeliveryDetail.UserLastName}}
                             </div>
                             <!-- /.col -->
                         </div>
@@ -154,7 +154,7 @@
                                         {{if .Object.Order.IsDelivery}}
                                             <tr id="deliveryRow">
                                                 <th>Entrega:</th>
-                                                <td>R$ {{ printf "%.2f" .Object.StoreConfig.DeliveryPrice}}</td>
+                                                <td>R$ {{ printf "%.2f" .Object.Order.DeliveryPrice}}</td>
                                             </tr>
                                         {{end}}
                                         <tr id="totalRow">

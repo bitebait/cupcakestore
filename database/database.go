@@ -19,6 +19,7 @@ func SetupDatabase() {
 
 	migrateModels(DB)
 	seedStoreConfig(DB)
+	//DB.Logger = logger.Default.LogMode(logger.Silent)
 }
 
 func migrateModels(db *gorm.DB) {
@@ -29,6 +30,7 @@ func migrateModels(db *gorm.DB) {
 		&models.Stock{},
 		&models.StoreConfig{},
 		&models.Order{},
+		&models.OrderDeliveryDetail{},
 		&models.ShoppingCart{},
 		&models.ShoppingCartItem{},
 	)

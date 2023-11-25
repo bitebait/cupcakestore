@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
 )
@@ -30,6 +31,7 @@ func (r *orderRepository) FindById(id uint) (models.Order, error) {
 	var order models.Order
 	err := r.db.
 		Preload("Profile.User").
+		Preload("DeliveryDetail").
 		Preload("ShoppingCart.Items.Product").
 		First(&order, id).Error
 	return order, err
@@ -37,9 +39,11 @@ func (r *orderRepository) FindById(id uint) (models.Order, error) {
 
 func (r *orderRepository) FindByCartId(cartID uint) (*models.Order, error) {
 	var order models.Order
-	err := r.db.Where("shopping_cart_id = ?", cartID).
+	err := r.db.
 		Preload("Profile").
+		Preload("DeliveryDetail").
 		Preload("ShoppingCart.Items.Product").
+		Where("shopping_cart_id = ?", cartID).
 		First(&order).Error
 	if err != nil {
 		return nil, err
@@ -51,12 +55,12 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 	foundOrder, err := r.FindByCartId(cartID)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		var cart models.ShoppingCart
-		if err := r.db.Where("id = ?", cartID).First(&cart).Error; err != nil {
+		if err = r.db.First(&cart, cartID).Error; err != nil {
 			return nil, err
 		}
 
 		if cart.ProfileID != profileID {
-			return nil, errors.New("Perfil e carrinho não correspondem")
+			return nil, errors.New("perfil e carrinho não correspondem")
 		}
 
 		order := models.Order{
@@ -67,12 +71,17 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 			PaymentMethod:  models.PixPaymentMethod,
 		}
 
-		if err := r.db.Create(&order).Error; err != nil {
+		if err = r.db.Create(&order).Error; err != nil {
 			return nil, err
 		}
 
 		cart.OrderID = order.ID
-		if err := r.db.Save(&cart).Error; err != nil {
+		if err = r.db.Save(&cart).Error; err != nil {
+			return nil, err
+		}
+
+		order, err = r.FindById(order.ID)
+		if err != nil {
 			return nil, err
 		}
 
@@ -87,8 +96,10 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 
-	query := r.db.Model(&models.Order{}).
+	query := r.db.
+		Model(&models.Order{}).
 		Preload("Profile").
+		Preload("DeliveryDetail").
 		Preload("ShoppingCart.Items.Product")
 
 	var total int64
@@ -98,7 +109,11 @@ func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 	filter.Pagination.Total = total
 
 	var orders []models.Order
-	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc,updated_at desc").Find(&orders).Error; err != nil {
+	if err := query.
+		Offset(offset).
+		Limit(filter.Pagination.Limit).
+		Order("created_at desc,updated_at desc").
+		Find(&orders).Error; err != nil {
 		return nil
 	}
 	return orders
@@ -107,10 +122,12 @@ func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Order {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 
-	query := r.db.Model(&models.Order{}).
-		Where("profile_id = ?", filter.Order.ProfileID).
+	query := r.db.
+		Model(&models.Order{}).
 		Preload("Profile").
-		Preload("ShoppingCart.Items.Product")
+		Preload("DeliveryDetail").
+		Preload("ShoppingCart.Items.Product").
+		Where("profile_id = ?", filter.Order.ProfileID)
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
@@ -119,7 +136,11 @@ func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Ord
 	filter.Pagination.Total = total
 
 	var orders []models.Order
-	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc,updated_at desc").Find(&orders).Error; err != nil {
+	if err := query.
+		Offset(offset).
+		Limit(filter.Pagination.Limit).
+		Order("created_at desc,updated_at desc").
+		Find(&orders).Error; err != nil {
 		return nil
 	}
 	return orders
