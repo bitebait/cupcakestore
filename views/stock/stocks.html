@@ -88,14 +88,15 @@
 <script>
     $(document).ready(function () {
         const $quantity = $('#quantity').prop('disabled', true);
-        const $productName = $('#productName'),
-            $name = $('#name'),
-            $description = $('#description'),
-            $ingredients = $('#ingredients'),
-            $previewImage = $('#previewImage'),
-            $price = $('#price'),
-            $currentStock = $('#stock'),
-            $productID = $('#productID');
+        const $productName = $('#productName');
+        const $name = $('#name');
+        const $description = $('#description');
+        const $ingredients = $('#ingredients');
+        const $previewImage = $('#previewImage');
+        const $price = $('#price');
+        const $currentStock = $('#stock');
+        const $productID = $('#productID');
+
         const clearFields = () => {
             $name.text('Sem informações');
             $description.text('Sem informações');
@@ -103,11 +104,12 @@
             $previewImage.attr('src', '/images/placeholder.jpg');
             $price.text('Sem informações');
             $currentStock.text('Sem informações');
-            $productID.attr('href', 'javascript:function() { return false; }');
+            $productID.removeAttr('href');
             $productID.prop('disabled', true);
         };
+
         const setFields = (item) => {
-            if (item.name) {
+            if (item && item.name) {
                 $name.text(item.name);
                 $description.text(item.description);
                 $ingredients.text(item.ingredients);
@@ -120,13 +122,14 @@
                 clearFields();
             }
         };
+
         const fetchData = (request, response) => {
             $.getJSON('/products/json', {
                 q: request.term,
                 limit: 5
             }, data => {
                 if (data.Products.length !== 0) {
-                    response($.map(data.Products, item => ({
+                    response(data.Products.map(item => ({
                         label: item.Name,
                         value: item.Name,
                         id: item.ID,
@@ -142,6 +145,7 @@
                 }
             });
         };
+
         $productName.autocomplete({
             source: fetchData,
             minLength: 2,

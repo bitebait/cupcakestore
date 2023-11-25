@@ -107,14 +107,15 @@
 <script>
     $(document).ready(function () {
         const $quantity = $('#quantity').prop('disabled', true);
-        const $productName = $('#productName'),
-            $name = $('#name'),
-            $price = $('#price'),
-            $currentStock = $('#stock'),
-            $description = $('#description'),
-            $ingredients = $('#ingredients'),
-            $previewImage = $('#previewImage'),
-            $productID = $('#productID');
+        const $productName = $('#productName');
+        const $name = $('#name');
+        const $price = $('#price');
+        const $currentStock = $('#stock');
+        const $description = $('#description');
+        const $ingredients = $('#ingredients');
+        const $previewImage = $('#previewImage');
+        const $productID = $('#productID');
+
         const clearFields = () => {
             $name.text('Sem informações');
             $price.text('Sem informações');
@@ -125,8 +126,9 @@
             $quantity.prop('disabled', true);
             $productID.val('');
         };
+
         const setFields = (item) => {
-            if (item.name) {
+            if (item && item.name) {
                 $name.text(item.name);
                 $price.text("R$ " + item.price);
                 $currentStock.text(item.currentStock);
@@ -139,13 +141,14 @@
                 clearFields();
             }
         };
+
         const fetchData = (request, response) => {
             $.getJSON('/products/json', {
                 q: request.term,
                 limit: 5
             }, data => {
                 if (data.Products.length !== 0) {
-                    response($.map(data.Products, item => ({
+                    response(data.Products.map(item => ({
                         label: item.Name,
                         value: item.Name,
                         id: item.ID,
@@ -161,6 +164,7 @@
                 }
             });
         };
+
         $productName.autocomplete({
             source: fetchData,
             minLength: 2,

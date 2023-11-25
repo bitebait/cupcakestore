@@ -4,7 +4,6 @@
             <h1 class="m-0 text-dark">Checkout - Carrinho de Compras</h1>
         </div>
     </div>
-
     <section class="content">
         <div class="container">
             <div class="row">
@@ -45,7 +44,6 @@
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-
                         <!-- Table row -->
                         <div class="row">
                             <div class="col-12 table-responsive">
@@ -53,9 +51,9 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Qtde</th>
+                                        <th>Quantidade</th>
                                         <th>Produto</th>
-                                        <th>Description</th>
+                                        <th>Descrição</th>
                                         <th>Subtotal</th>
                                     </tr>
                                     </thead>
@@ -82,7 +80,6 @@
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-md-6">
@@ -91,26 +88,30 @@
                                         <div class="col-12">
                                             <p class="lead">Formas de Pagamento:</p>
                                             <select class="form-control" id="paymentMethod" name="paymentMethod">
-                                                {{if .Object.StoreConfig.PaymentPixIsActive}}<option value="Pix">Pix</option>{{end}}
-                                                {{if .Object.StoreConfig.PaymentCashIsActive}} <option value="Dinheiro">Dinheiro</option>{{end}}
+                                                {{if .Object.StoreConfig.PaymentPixIsActive}}
+                                                    <option value="Pix">Pix</option>
+                                                {{end}}
+                                                {{if .Object.StoreConfig.PaymentCashIsActive}}
+                                                    <option value="Dinheiro">Dinheiro</option>
+                                                {{end}}
                                             </select>
                                         </div>
                                         {{if .Object.StoreConfig.DeliveryIsActive}}
-                                        <div class="col-12 mt-2">
-                                            <p class="lead">Receber Produto Por:</p>
-                                            <select class="form-control" id="isDelivery" name="isDelivery">
-                                                {{if .Object.StoreConfig.DeliveryIsActive}}
-                                                    <option value="1">Entregar no Endereço</option>{{end}}
-                                                <option value="0">Retirada na Loja</option>
-                                            </select>
-                                        </div>
+                                            <div class="col-12 mt-2">
+                                                <p class="lead">Receber Produto Por:</p>
+                                                <select class="form-control" id="isDelivery" name="isDelivery">
+                                                    {{if .Object.StoreConfig.DeliveryIsActive}}
+                                                        <option value="1">Entregar no Endereço</option>
+                                                    {{end}}
+                                                    <option value="0">Retirada na Loja</option>
+                                                </select>
+                                            </div>
                                         {{end}}
                                     </div>
                                 </form>
                             </div>
                             <div class="col-md-6">
                                 <p class="lead">Valor da Compra</p>
-
                                 <div class="table-responsive">
                                     <table class="table">
                                         <tr>
@@ -130,11 +131,9 @@
                                     </table>
                                 </div>
                             </div>
-
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-
                         <div class="row no-print mt-4">
                             <div class="col-12">
                                 <a href="javascript:history.back()" class="btn btn-default">
@@ -152,28 +151,21 @@
         </div>
     </section>
 </div>
-
 <script>
     $(document).ready(function () {
         function updateDeliveryInfo() {
-            let subtotal;
             const isDelivery = $('#isDelivery').val();
+            const subtotal = parseFloat('{{.Object.Order.ShoppingCart.Total}}');
 
             if (isDelivery === '1') {
                 const deliveryPrice = parseFloat('{{.Object.StoreConfig.DeliveryPrice}}');
-
-                subtotal = parseFloat('{{.Object.Order.ShoppingCart.Total}}');
                 const total = subtotal + deliveryPrice;
 
                 $('#total').text('R$ ' + total.toFixed(2));
-                $('#deliveryRow').show();
-                $('#addressToDelivery').show();
+                $('#deliveryRow, #addressToDelivery').show();
             } else {
-                subtotal = parseFloat('{{.Object.Order.ShoppingCart.Total}}');
-
                 $('#total').text('R$ ' + subtotal.toFixed(2));
-                $('#deliveryRow').hide();
-                $('#addressToDelivery').hide();
+                $('#deliveryRow, #addressToDelivery').hide();
             }
         }
 

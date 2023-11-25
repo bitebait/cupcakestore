@@ -4,7 +4,6 @@
             <h1 class="m-0 text-dark">Detalhes do Pedido</h1>
         </div>
     </div>
-
     <section class="content">
         <div class="container">
             <div class="row">
@@ -84,14 +83,12 @@
                             <div class="col-sm-4 invoice-col">
                                 <b>Carrinho #{{.Object.Order.ShoppingCart.ID}}</b><br>
                                 <br>
-                                <b>Data do
-                                    Pedido:</b> {{.Object.Order.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
+                                <b>Data do Pedido:</b> {{.Object.Order.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
                                 <b>Cliente:</b> {{.Object.Order.DeliveryDetail.UserFirstName}} {{.Object.Order.DeliveryDetail.UserLastName}}
                             </div>
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-
                         <!-- Table row -->
                         <div class="row">
                             <div class="col-12 table-responsive">
@@ -128,7 +125,6 @@
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-md-6">
@@ -160,16 +156,15 @@
                                         <tr id="totalRow">
                                             <th>Total:</th>
                                             <td id="total">
-                                                R$ {{ printf "%.2f" (addf .Object.Order.ShoppingCart.Total .Object.Order.DeliveryPrice)}}</td>
+                                                R$ {{ printf "%.2f" (addf .Object.Order.ShoppingCart.Total .Object.Order.DeliveryPrice)}}
+                                            </td>
                                         </tr>
                                     </table>
                                 </div>
                             </div>
-
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->
-
                         <div class="row no-print">
                             <div class="col-12">
                                 <a href="javascript:history.back()" class="btn btn-default">

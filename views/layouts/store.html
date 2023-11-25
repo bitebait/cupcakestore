@@ -1,60 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Loja | CupCape Store</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CupCape Store | Loja</title>
 
     <!-- Google Font: Source Sans Pro -->
     <style>
         @font-face {
-            font-family: 'Source Sans Pro';
+            font-family: "Source Sans Pro";
             font-style: italic;
             font-weight: 400;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPZ7nsDc.ttf) format('truetype');
+            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPZ7nsDc.ttf) format("truetype");
         }
 
         @font-face {
-            font-family: 'Source Sans Pro';
+            font-family: "Source Sans Pro";
             font-style: normal;
             font-weight: 300;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format('truetype');
+            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format("truetype");
         }
 
         @font-face {
-            font-family: 'Source Sans Pro';
+            font-family: "Source Sans Pro";
             font-style: normal;
             font-weight: 400;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7g.ttf) format('truetype');
+            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7g.ttf) format("truetype");
         }
 
         @font-face {
-            font-family: 'Source Sans Pro';
+            font-family: "Source Sans Pro";
             font-style: normal;
             font-weight: 700;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdr.ttf) format('truetype');
+            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdr.ttf) format("truetype");
         }
     </style>
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css" />
     <!-- Theme style -->
-    <link rel="stylesheet" href="/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="/dist/css/adminlte.min.css" />
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body class="hold-transition layout-top-nav" style="background-color: #f4f6f9 !important;">
 <div class="wrapper">
-
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
         <div class="container">
             <a href="/" class="navbar-brand">
-                <img src="/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
-                     style="opacity: .8">
+                <img src="/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: 0.8;" />
                 <span class="brand-text font-weight-light">CupcakeStore</span>
             </a>
 
-            <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -81,16 +78,11 @@
                         {{if .Profile.User.IsStaff}}
                             <a href="/dashboard" class="btn btn-sm btn-primary mr-2">Painel Admin</a>
                         {{end}}
-                        <a href="/auth/logout" class="btn btn-sm btn-danger">
-                            <i class="fas fa-sign-out-alt"></i> Sair
-                        </a>
+                        <a href="/auth/logout" class="btn btn-sm btn-danger"> <i class="fas fa-sign-out-alt"></i> Sair </a>
                     </li>
                 {{else}}
                     <li class="nav-item d-flex align-items-center">
-                        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="/auth/login"
-                           role="button">
-                            <i class="fas fa-user"></i> Fazer Login/Cadastro
-                        </a>
+                        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="/auth/login" role="button"> <i class="fas fa-user"></i> Fazer Login/Cadastro </a>
                     </li>
                 {{end}}
             </ul>
@@ -125,6 +117,5 @@
 <script src="/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

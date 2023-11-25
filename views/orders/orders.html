@@ -1,66 +1,62 @@
-    <div class="content-header">
-        <div class="container">
-            <h1 class="m-0 text-dark">Meus Pedidos</h1>
-        </div>
+<div class="content-header">
+    <div class="container">
+        <h1 class="m-0 text-dark">Meus Pedidos</h1>
     </div>
-
-    <section class="content">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 mx-auto">
-                    {{template "snippets/message" .}}
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Meus Pedidos</h3>
-                        </div>
-
+</div>
+<section class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mx-auto">
+                {{template "snippets/message" .}}
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Meus Pedidos</h3>
+                    </div>
+                    <div class="card-body table-responsive p-0">
                         <div class="card-body table-responsive p-0">
-                            <div class="card-body table-responsive p-0">
-                                <table class="table table-hover text-nowrap">
-                                    <thead>
+                            <table class="table table-hover text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Status do Pedido</th>
+                                    <th>Metodo de Pagamento</th>
+                                    <th>Total</th>
+                                    <th>Tipo de Entrega</th>
+                                    <th>Data do Pedido</th>
+                                    <th>Opções</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{range .Object.Orders}}
                                     <tr>
-                                        <th>#</th>
-                                        <th>Status do Pedido</th>
-                                        <th>Metodo de Pagamento</th>
-                                        <th>Total</th>
-                                        <th>Tipo de Entrega</th>
-                                        <th>Data do Pedido</th>
-                                        <th>Opções</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {{range .Object.Orders}}
-                                        <tr>
-                                            <td><strong>{{.ID}}</strong></td>
-                                            <td>
-                                                <strong {{if eq .Status "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
-                                            </td>
-                                            <td>{{.PaymentMethod}}</td>
-                                            <td>R$ {{ printf "%.2f" .Total}}</td>
-                                            <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
-                                            <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
-                                            <td>
-                                                {{if eq .Status "Em Aberto"}}
-                                                    <a href="/orders/checkout/{{.ShoppingCartID}}" class="text-info"><u>Ir Para Checkout</u></a>
-                                                {{else}}
+                                        <td><strong>{{.ID}}</strong></td>
+                                        <td>
+                                            <strong {{if eq .Status "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
+                                        </td>
+                                        <td>{{.PaymentMethod}}</td>
+                                        <td>R$ {{ printf "%.2f" .Total}}</td>
+                                        <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
+                                        <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
+                                        <td>
+                                            {{if eq .Status "Em Aberto"}}
+                                                <a href="/orders/checkout/{{.ShoppingCartID}}" class="text-info"><u>Ir Para Checkout</u></a>
+                                            {{else}}
                                                 <a href="/orders/order/{{.ID}}" class="mr-2"><u>Visualizar</u></a>
                                                 {{if ne .Status "Cancelado"}}
                                                     <a href="/orders/cancel/{{.ID}}" class="text-danger"><u>Cancelar</u></a>
                                                 {{end}}
-                                                {{end}}
-                                            </td>
-
-                                        </tr>
-                                    {{end}}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {{template "snippets/pagination" .Object.Filter.Pagination}}
-                            <!-- /.card-body -->
-
+                                            {{end}}
+                                        </td>
+                                    </tr>
+                                {{end}}
+                                </tbody>
+                            </table>
                         </div>
+                        {{template "snippets/pagination" .Object.Filter.Pagination}}
+                        <!-- /.card-body -->
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>

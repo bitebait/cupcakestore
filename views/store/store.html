@@ -28,7 +28,8 @@
                         <div class="card card-produto  text-center">
                             <img src="{{.Image}}" class="card-img-top" alt="{{.Name}}">
                             <div class="card-body d-flex flex-column">
-                                <a class="card-title font-weight-bold text-dark" href="/products/details/{{.ID}}"><h5 >{{.Name}}</h5></a>
+                                <a class="card-title font-weight-bold text-dark" href="/products/details/{{.ID}}">
+                                    <h5>{{.Name}}</h5></a>
                                 <p class="card-text text-muted"><small>{{abbrev 70 .Description}}</small></p>
                                 <div class="mt-auto">
                                     <p class="card-text font-weight-bold fontsize-20">R$ {{ printf "%.2f" .Price}}<small
@@ -66,30 +67,29 @@
     </div><!-- /.container-fluid -->
 </div>
 <!-- /.content -->
-
 <script>
     // Função para adicionar um item ao carrinho
     function adicionarAoCarrinho(item) {
         // Obter o ID do produto selecionado
-        var id = item.dataset.id;
+        const id = item.dataset.id;
 
         // Obter a quantidade do produto selecionado
-        var quantityInput = document.getElementById(id + '-quantity');
-        var quantity = quantityInput.value;
+        const quantityInput = document.getElementById(id + '-quantity');
+        const quantity = quantityInput.value;
 
         // Criar um formulário dinamicamente
-        var form = document.createElement('form');
+        const form = document.createElement('form');
         form.action = '/cart';
         form.method = 'post';
 
         // Criar um campo oculto para o ID do produto
-        var inputId = document.createElement('input');
+        const inputId = document.createElement('input');
         inputId.type = 'hidden';
         inputId.name = 'id';
         inputId.value = id;
 
         // Criar um campo oculto para a quantidade do produto
-        var inputQuantity = document.createElement('input');
+        const inputQuantity = document.createElement('input');
         inputQuantity.type = 'hidden';
         inputQuantity.name = 'quantity';
         inputQuantity.value = quantity;
@@ -106,7 +106,7 @@
     }
 
     // Adicionar um evento de clique para cada link "Adicionar ao Carrinho"
-    var links = document.querySelectorAll('.adicionar-ao-carrinho');
+    const links = document.querySelectorAll('.adicionar-ao-carrinho');
     links.forEach(function (link) {
         link.addEventListener('click', function (event) {
             event.preventDefault();
@@ -116,8 +116,8 @@
 
     // Função para incrementar a quantidade
     function incrementQuantity(id) {
-        var quantityInput = document.getElementById(id + '-quantity');
-        var value = parseInt(quantityInput.value, 10);
+        const quantityInput = document.getElementById(id + '-quantity');
+        const value = parseInt(quantityInput.value, 10);
 
         if (!isNaN(value)) {
             quantityInput.value = value + 1;
@@ -126,8 +126,8 @@
 
     // Função para decrementar a quantidade
     function decrementQuantity(id) {
-        var quantityInput = document.getElementById(id + '-quantity');
-        var value = parseInt(quantityInput.value, 10);
+        const quantityInput = document.getElementById(id + '-quantity');
+        const value = parseInt(quantityInput.value, 10);
 
         if (!isNaN(value) && value > 1) {
             quantityInput.value = value - 1;
