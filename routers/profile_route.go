@@ -13,8 +13,13 @@ type ProfileRouter struct {
 }
 
 func NewProfileRouter() *ProfileRouter {
+	// Initialize repositories
 	profileRepository := repositories.NewProfileRepository(database.DB)
+
+	// Initialize services with repositories
 	profileService := services.NewProfileService(profileRepository)
+
+	// Initialize controllers with services
 	profileController := controllers.NewProfileController(profileService)
 
 	return &ProfileRouter{

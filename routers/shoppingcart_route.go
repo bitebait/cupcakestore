@@ -13,12 +13,17 @@ type ShoppingCartRouter struct {
 }
 
 func NewShoppingCartRouter() *ShoppingCartRouter {
+	// Initialize repositories
 	shoppingCartRepository := repositories.NewShoppingCartRepository(database.DB)
 	shoppingCartItemRepository := repositories.NewShoppingCartItemRepository(database.DB)
+
+	// Initialize services with repositories
 	shoppingCartItemService := services.NewShoppingCartItemService(shoppingCartItemRepository)
 	shoppingCartService := services.NewShoppingCartService(shoppingCartRepository, shoppingCartItemService)
 
+	// Initialize controllers with services
 	shoppingCartController := controllers.NewShoppingCartController(shoppingCartService)
+
 	return &ShoppingCartRouter{
 		shoppingCartController: shoppingCartController,
 	}

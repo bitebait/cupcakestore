@@ -14,8 +14,13 @@ type DashboardRouter struct {
 }
 
 func NewDashboardRouter() *DashboardRouter {
+	// Initialize repositories
 	dashboardRepository := repositories.NewDashboardRepository(database.DB)
+
+	// Initialize services with repositories
 	dashboardService := services.NewDashboardService(dashboardRepository)
+
+	// Initialize controllers with services
 	dashboardController := controllers.NewDashboardController(dashboardService)
 
 	return &DashboardRouter{

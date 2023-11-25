@@ -35,7 +35,7 @@ func (item *ShoppingCartItem) updateShoppingCartTotal(tx *gorm.DB) error {
 		if len(shoppingCart.Items) <= 0 {
 			shoppingCart.Total = 0.0
 		}
-		if err := tx.Model(shoppingCart).Update("total", shoppingCart.Total).Error; err != nil {
+		if err := tx.Model(shoppingCart).Select("Total").Updates(shoppingCart).Error; err != nil {
 			return err
 		}
 	}

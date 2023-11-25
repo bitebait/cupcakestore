@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"errors"
-
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
 )

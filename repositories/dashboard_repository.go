@@ -21,7 +21,7 @@ func NewDashboardRepository(database *gorm.DB) DashboardRepository {
 }
 
 func (r dashboardRepository) GetInfo(lastNDays int) *models.Dashboard {
-	var newOrders, sales, users, products int64
+	var dashboard models.Dashboard
 
 	newOrdersStatuses := []models.ShoppingCartStatus{
 		models.ActiveStatus,
@@ -37,17 +37,10 @@ func (r dashboardRepository) GetInfo(lastNDays int) *models.Dashboard {
 
 	lastDays := time.Now().AddDate(0, 0, -lastNDays)
 
-	r.db.Model(&models.Order{}).Where("status IN (?) AND created_at >= ?", newOrdersStatuses, lastDays).Count(&newOrders)
-	r.db.Model(&models.Order{}).Where("status IN (?) AND created_at >= ?", salesStatuses, lastDays).Count(&sales)
-	r.db.Model(&models.User{}).Where("is_staff = ? AND created_at >= ?", false, lastDays).Count(&users)
-	r.db.Model(&models.Product{}).Where("is_active = ? AND created_at >= ?", true, lastDays).Count(&products)
+	r.db.Model(&models.Order{}).Where("status IN ?", newOrdersStatuses).Where("created_at >= ?", lastDays).Count(&dashboard.NewOrders)
+	r.db.Model(&models.Order{}).Where("status IN ?", salesStatuses).Where("created_at >= ?", lastDays).Count(&dashboard.Sales)
+	r.db.Model(&models.User{}).Where("is_staff = ?", false).Where("created_at >= ?", lastDays).Count(&dashboard.Users)
+	r.db.Model(&models.Product{}).Where("is_active = ?", true).Where("created_at >= ?", lastDays).Count(&dashboard.Products)
 
-	dashboard := &models.Dashboard{
-		NewOrders: newOrders,
-		Sales:     sales,
-		Users:     users,
-		Products:  products,
-	}
-
-	return dashboard
+	return &dashboard
 }

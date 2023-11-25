@@ -1,11 +1,13 @@
 package database
 
 import (
+	"log"
+
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"log"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -19,7 +21,7 @@ func SetupDatabase() {
 
 	migrateModels(DB)
 	seedStoreConfig(DB)
-	//DB.Logger = logger.Default.LogMode(logger.Silent)
+	DB.Logger = logger.Default.LogMode(logger.Silent)
 }
 
 func migrateModels(db *gorm.DB) {
@@ -44,12 +46,10 @@ func seedStoreConfig(db *gorm.DB) {
 
 	db.Model(&models.StoreConfig{}).Count(&count)
 	if count == 0 {
-		// Criar uma nova StoreConfig
 		storeConfig := models.StoreConfig{}
 
 		if err := db.Create(&storeConfig).Error; err != nil {
 			log.Fatalf("Falha ao criar StoreConfig: %v", err)
 		}
-
 	}
 }

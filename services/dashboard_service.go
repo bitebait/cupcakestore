@@ -19,6 +19,6 @@ func NewDashboardService(dashboardRepository repositories.DashboardRepository) D
 	}
 }
 
-func (s dashboardService) GetInfo(lastNDays int) *models.Dashboard {
+func (s *dashboardService) GetInfo(lastNDays int) *models.Dashboard {
 	return s.dashboardRepository.GetInfo(lastNDays)
 }

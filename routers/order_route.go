@@ -13,10 +13,15 @@ type OrderRouter struct {
 }
 
 func NewOrderRouter() *OrderRouter {
+	// Initialize repositories
 	orderRepository := repositories.NewOrderRepository(database.DB)
 	storeConfigRepository := repositories.NewStoreConfigRepository(database.DB)
+
+	// Initialize services with repositories
 	storeConfigService := services.NewStoreConfigService(storeConfigRepository)
 	orderService := services.NewOrderService(orderRepository, storeConfigService)
+
+	// Initialize controllers with services
 	orderController := controllers.NewOrderController(orderService, storeConfigService)
 
 	return &OrderRouter{

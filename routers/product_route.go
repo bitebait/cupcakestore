@@ -14,10 +14,13 @@ type ProductRouter struct {
 }
 
 func NewProductRouter() *ProductRouter {
+	// Initialize repositories
 	productRepository := repositories.NewProductRepository(database.DB)
 
+	// Initialize services with repositories
 	productService := services.NewProductService(productRepository)
 
+	// Initialize controllers with services
 	productController := controllers.NewProductController(productService)
 
 	return &ProductRouter{

@@ -14,8 +14,13 @@ type StockRouter struct {
 }
 
 func NewStockRouter() *StockRouter {
+	// Initialize repositories
 	stockRepository := repositories.NewStockRepository(database.DB)
+
+	// Initialize services with repositories
 	stockService := services.NewStockService(stockRepository)
+
+	// Initialize controllers with services
 	stockController := controllers.NewStockController(stockService)
 
 	return &StockRouter{

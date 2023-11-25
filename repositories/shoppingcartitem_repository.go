@@ -38,7 +38,9 @@ func (r *shoppingCartItemRepository) FindById(id uint) (models.ShoppingCartItem,
 
 func (r *shoppingCartItemRepository) Delete(cartID, productID uint) error {
 	item := &models.ShoppingCartItem{}
-	err := r.db.Where("shopping_cart_id = ? AND product_id = ?", cartID, productID).First(item).Error
+	err := r.db.
+		Where("shopping_cart_id = ? AND product_id = ?", cartID, productID).
+		First(item).Error
 	if err != nil {
 		return err
 	}

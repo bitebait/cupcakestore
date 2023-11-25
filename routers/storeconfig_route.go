@@ -14,8 +14,13 @@ type StoreConfigRouter struct {
 }
 
 func NewStoreConfigRouter() *StoreConfigRouter {
+	// Initialize repositories
 	storeConfigRepository := repositories.NewStoreConfigRepository(database.DB)
+
+	// Initialize services with repositories
 	storeConfigService := services.NewStoreConfigService(storeConfigRepository)
+
+	// Initialize controllers with services
 	storeConfigController := controllers.NewStoreConfigController(storeConfigService)
 
 	return &StoreConfigRouter{

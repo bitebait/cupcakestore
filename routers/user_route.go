@@ -14,8 +14,13 @@ type UserRouter struct {
 }
 
 func NewUserRouter() *UserRouter {
+	// Initialize repositories
 	userRepository := repositories.NewUserRepository(database.DB)
+
+	// Initialize services with repositories
 	userService := services.NewUserService(userRepository)
+
+	// Initialize controllers with services
 	userController := controllers.NewUserController(userService)
 
 	return &UserRouter{

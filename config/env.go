@@ -9,12 +9,10 @@ import (
 var Env map[string]string
 
 func GetEnv(key, def string) string {
-	if Env == nil {
-		return def
-	}
-
-	if val, ok := Env[key]; ok {
-		return val
+	if Env != nil {
+		if val, ok := Env[key]; ok {
+			return val
+		}
 	}
 
 	return def

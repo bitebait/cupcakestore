@@ -12,13 +12,9 @@ type StockFilter struct {
 }
 
 func NewStockFilter(productID uint, page, limit int) *StockFilter {
-	stock := &Stock{
-		ProductID: productID,
-	}
-	pagination := NewPagination(page, limit)
 	return &StockFilter{
-		Stock:      stock,
-		Pagination: pagination,
+		Stock:      &Stock{ProductID: productID},
+		Pagination: NewPagination(page, limit),
 	}
 }
 

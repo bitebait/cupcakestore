@@ -16,14 +16,9 @@ type UserFilter struct {
 }
 
 func NewUserFilter(query string, page, limit int) *UserFilter {
-	user := &User{
-		Email: query,
-	}
-	pagination := NewPagination(page, limit)
-
 	return &UserFilter{
-		User:       user,
-		Pagination: pagination,
+		User:       &User{Email: query},
+		Pagination: NewPagination(page, limit),
 	}
 }
 
@@ -42,7 +37,7 @@ func (u *User) Validate() error {
 	return v.Struct(u)
 }
 
-func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if err := u.Validate(); err != nil {
 		return err
 	}
@@ -51,10 +46,10 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 		return err
 	}
 
-	return
+	return nil
 }
 
-func (u *User) AfterCreate(tx *gorm.DB) (err error) {
+func (u *User) AfterCreate(tx *gorm.DB) error {
 	var existingProfile Profile
 	result := tx.Where("user_id = ?", u.ID).First(&existingProfile)
 	if result.Error != nil {
@@ -69,8 +64,8 @@ func (u *User) AfterCreate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func (u *User) AfterDelete(tx *gorm.DB) (err error) {
-	if err = tx.Where("user_id = ?", u.ID).Delete(&Profile{}).Error; err != nil {
+func (u *User) AfterDelete(tx *gorm.DB) error {
+	if err := tx.Where("user_id = ?", u.ID).Delete(&Profile{}).Error; err != nil {
 		return err
 	}
 	return nil

@@ -10,8 +10,8 @@ type OrderService interface {
 	FindById(id uint) (models.Order, error)
 	FindByCartId(cartID uint) (*models.Order, error)
 	FindOrCreate(profileID, cartID uint) (*models.Order, error)
-	FindAllByUser(filter *models.OrderFilter) []models.Order
 	FindAll(filter *models.OrderFilter) []models.Order
+	FindAllByUser(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
 	Payment(order *models.Order) error
 	Cancel(id uint) error
@@ -44,6 +44,7 @@ func (s *orderService) FindOrCreate(profileID, cartID uint) (*models.Order, erro
 func (s *orderService) FindAll(filter *models.OrderFilter) []models.Order {
 	return s.orderRepository.FindAll(filter)
 }
+
 func (s *orderService) FindAllByUser(filter *models.OrderFilter) []models.Order {
 	return s.orderRepository.FindAllByUser(filter)
 }
