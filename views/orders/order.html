@@ -17,7 +17,7 @@
                                                 {{if eq .Object.Order.Status "Cancelado"}}class="text-danger"{{end}}>{{.Object.Order.Status}}</strong></span>
                                 </h4>
                             </div>
-                            {{if .Profile.User.IsStaff}}
+                            {{if and .Profile.User.IsStaff (ne .Object.Order.Status "Cancelado")}}
                                 <form method="Post" action="/orders/order/{{.Object.Order.ID}}">
                                     <div class="form-row mt-3">
                                         <div class="col-9">

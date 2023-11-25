@@ -73,6 +73,44 @@ func (o *Order) CanProceedToCheckout() bool {
 	return o.ShoppingCart.Total > 0 && o.IsActiveOrAwaitingPayment()
 }
 
+func (o *Order) AfterCreate(tx *gorm.DB) (err error) {
+	if err = tx.Preload("Profile.User").Preload("ShoppingCart.Items").First(&o).Error; err != nil {
+		return err
+	}
+	for _, item := range o.ShoppingCart.Items {
+		stock := &Stock{
+			ProfileID: o.ProfileID,
+			ProductID: item.ProductID,
+			Quantity:  item.Quantity,
+			Type:      StockSaida,
+		}
+		if err = tx.Model(&Stock{}).Create(stock).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (o *Order) AfterUpdate(tx *gorm.DB) (err error) {
+	if err = tx.Preload("Profile.User").Preload("ShoppingCart.Items").First(&o).Error; err != nil {
+		return err
+	}
+	if o.Status == CancelledStatus {
+		for _, item := range o.ShoppingCart.Items {
+			stock := &Stock{
+				ProfileID: o.ProfileID,
+				ProductID: item.ProductID,
+				Quantity:  item.Quantity,
+				Type:      StockEntrada,
+			}
+			if err = tx.Model(&Stock{}).Create(stock).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (o *Order) AfterSave(tx *gorm.DB) (err error) {
 	storeConfig := &StoreConfig{}
 	if err = tx.First(storeConfig).Error; err != nil {
@@ -81,9 +119,8 @@ func (o *Order) AfterSave(tx *gorm.DB) (err error) {
 
 	if o.Status == ActiveStatus && o.ShoppingCartID > 0 {
 		orderDeliveryDetail := &OrderDeliveryDetail{}
-
 		if err = tx.Where("order_id", o.ID).FirstOrInit(&orderDeliveryDetail).Error; err == nil || errors.Is(err, gorm.ErrRecordNotFound) {
-			if err = tx.Preload("Profile.User").First(&o).Error; err != nil {
+			if err = tx.Preload("Profile.User").Preload("ShoppingCart.Items").First(&o).Error; err != nil {
 				return err
 			}
 			orderDeliveryDetail.OrderID = o.ID

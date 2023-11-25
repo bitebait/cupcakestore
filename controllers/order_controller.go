@@ -223,6 +223,10 @@ func (c *orderController) Update(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/orders")
 	}
 
+	if order.Status == models.CancelledStatus {
+		return ctx.Redirect("/orders")
+	}
+
 	order.Status = models.ShoppingCartStatus(ctx.FormValue("status"))
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
