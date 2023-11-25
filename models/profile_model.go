@@ -26,3 +26,13 @@ func (p *Profile) Validate() error {
 	v := validator.New()
 	return v.Struct(p)
 }
+
+func (p *Profile) IsProfileComplete() bool {
+	return p.FirstName != "" &&
+		p.LastName != "" &&
+		p.Address != "" &&
+		p.City != "" &&
+		p.State != "" &&
+		p.PostalCode != "" &&
+		p.PhoneNumber != ""
+}

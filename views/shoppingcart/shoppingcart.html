@@ -42,16 +42,18 @@
                         </div>
 
                         <div class="card-footer">
-                            <strong >Total: R$ {{ printf "%.2f" .Object.Total}}</strong>
-                            {{if gt .Object.Total  0.0}}
+                            <strong>Total: R$ {{ printf "%.2f" .Object.Total }}</strong>
+                            {{ if not .Profile.IsProfileComplete }}
+                                <strong class="float-right">
+                                    <a href="/profile/{{.Profile.User.ID}}"><u>Complete o seu perfil</u></a> para prosseguir para o checkout.
+                                </strong>
+                            {{ else if gt .Object.Total 0.0 }}
                                 <a class="btn btn-success float-right" href="/orders/checkout/{{.Object.ID}}">Finalizar Compra</a>
-                            {{else}}
+                            {{ else }}
                                 <a class="btn btn-info float-right" href="/">Adicionar Items</a>
-                            {{end}}
+                            {{ end }}
                         </div>
-
                     </div>
-
                 </div>
             </div>
         </div>

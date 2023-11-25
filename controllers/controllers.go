@@ -44,7 +44,7 @@ func renderErrorMessage(ctx *fiber.Ctx, err error, action string) error {
 	if err != nil {
 		errorMessage += ": " + err.Error()
 	}
-	return ctx.Status(fiber.StatusInternalServerError).SendString(errorMessage)
+	return fiber.NewError(fiber.StatusBadRequest, errorMessage)
 }
 
 func updateUserSession(ctx *fiber.Ctx, profile *models.Profile) error {

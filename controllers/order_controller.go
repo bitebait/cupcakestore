@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
@@ -33,6 +34,12 @@ func NewOrderController(orderService services.OrderService, storeConfigService s
 
 func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 	profileID := getUserID(ctx)
+	currentUser := ctx.Locals("profile").(*models.Profile)
+
+	if !currentUser.IsProfileComplete() {
+		return renderErrorMessage(ctx, errors.New("Perfil incompleto. Por favor, complete as informações do perfil."), "obter o carrinho de compras")
+	}
+
 	cartID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return renderErrorMessage(ctx, err, "processar o ID do carrinho")
@@ -43,7 +50,6 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 		return renderErrorMessage(ctx, err, "obter o carrinho de compras")
 	}
 
-	currentUser := ctx.Locals("profile").(*models.Profile)
 	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)) {
 		return ctx.Redirect("/orders")
 	}
