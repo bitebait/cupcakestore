@@ -43,12 +43,6 @@ func NewApplication() *fiber.App {
 	}))
 	app.Static("/", "./web")
 	app.Use(middlewares.Auth())
-	app.Use(func(c *fiber.Ctx) error {
-		if c.Protocol() == "http" {
-			return c.Redirect("https://"+c.Hostname()+c.OriginalURL(), fiber.StatusMovedPermanently)
-		}
-		return c.Next()
-	})
 
 	// Routes
 	routers.InstallRouters(app)
