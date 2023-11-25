@@ -10,5 +10,13 @@ import (
 
 func main() {
 	app := bootstrap.NewApplication()
-	log.Fatal(app.Listen(fmt.Sprintf("%s:%s", config.GetEnv("APP_HOST", "localhost"), config.GetEnv("APP_PORT", "4000"))))
+
+	certFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/fullchain.pem"
+	keyFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/privkey.pem"
+
+	log.Fatal(app.ListenTLS(
+		fmt.Sprintf("%s:%s", config.GetEnv("APP_HOST", "localhost"), config.GetEnv("APP_PORT", "4000")),
+		certFile,
+		keyFile,
+	))
 }
