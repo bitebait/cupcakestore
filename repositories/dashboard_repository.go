@@ -39,7 +39,7 @@ func (r dashboardRepository) GetInfo(lastNDays int) *models.Dashboard {
 
 	r.db.Model(&models.Order{}).Where("status IN ?", newOrdersStatuses).Where("created_at >= ?", lastDays).Count(&dashboard.NewOrders)
 	r.db.Model(&models.Order{}).Where("status IN ?", salesStatuses).Where("created_at >= ?", lastDays).Count(&dashboard.Sales)
-	r.db.Model(&models.User{}).Where("is_staff = ?", false).Where("created_at >= ?", lastDays).Count(&dashboard.Users)
+	r.db.Model(&models.User{}).Where("created_at >= ?", lastDays).Count(&dashboard.Users)
 	r.db.Model(&models.Product{}).Where("is_active = ?", true).Where("created_at >= ?", lastDays).Count(&dashboard.Products)
 
 	return &dashboard
