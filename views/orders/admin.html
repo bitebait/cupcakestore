@@ -42,6 +42,9 @@
                                         <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
                                         <td>
                                             <a href="/orders/order/{{.ID}}" class="mr-2"><u>Visualizar</u></a>
+                                            {{if and (eq .Status "Em Aberto") (eq .ProfileID $.Profile.ID)}}
+                                                <a href="/orders/checkout/{{.ShoppingCartID}}" class="text-info"><u>Ir Para Checkout</u></a>
+                                            {{end}}
                                         </td>
                                     </tr>
                                 {{end}}
