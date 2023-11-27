@@ -15,6 +15,9 @@ func Auth() fiber.Handler {
 
 		if profile := sess.Get("profile"); profile != nil {
 			c.Locals("profile", profile.(*models.Profile))
+			if !profile.(*models.Profile).User.IsActive {
+				return c.Redirect("/auth/logout")
+			}
 			return c.Next()
 		}
 

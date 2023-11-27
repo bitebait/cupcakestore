@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
@@ -44,6 +45,10 @@ func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error
 	user, err := s.userService.FindByEmail(email)
 	if err != nil {
 		return err
+	}
+
+	if !user.IsActive {
+		return errors.New("usuário inativo")
 	}
 
 	if err = user.CheckPassword(password); err != nil {
