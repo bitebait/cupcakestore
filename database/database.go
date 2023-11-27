@@ -20,7 +20,7 @@ func SetupDatabase() {
 	}
 
 	migrateModels(DB)
-	seedStoreConfig(DB)
+	seedDatabase(DB)
 	DB.Logger = logger.Default.LogMode(logger.Silent)
 }
 
@@ -38,18 +38,5 @@ func migrateModels(db *gorm.DB) {
 	)
 	if err != nil {
 		log.Panic("erro ao migrar os modelos")
-	}
-}
-
-func seedStoreConfig(db *gorm.DB) {
-	var count int64
-
-	db.Model(&models.StoreConfig{}).Count(&count)
-	if count == 0 {
-		storeConfig := models.StoreConfig{}
-
-		if err := db.Create(&storeConfig).Error; err != nil {
-			log.Fatalf("Falha ao criar StoreConfig: %v", err)
-		}
 	}
 }

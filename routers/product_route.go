@@ -33,7 +33,6 @@ func (r *ProductRouter) InstallRouters(app *fiber.App) {
 	product.Get("/details/:id", r.productController.RenderDetails)
 
 	productAdmin := app.Group("/products").Use(middlewares.LoginAndStaffRequired())
-
 	productAdmin.Get("/create", r.productController.RenderCreate)
 	productAdmin.Post("/create", r.productController.Create)
 	productAdmin.Get("/json", r.productController.JSONProducts)
