@@ -71,6 +71,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Payment(ctx *fiber.Ctx) error {
+	profileID := getUserID(ctx)
 	cartID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
 		return renderErrorMessage(ctx, err, "processar o checkout do carrinho")
@@ -82,7 +83,7 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID)) {
+	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)) {
 		return ctx.Redirect("/orders")
 	}
 
