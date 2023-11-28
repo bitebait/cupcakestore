@@ -65,9 +65,11 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 	}
 
 	redirectPath := selectRedirectPath(userSess.User.IsStaff)
-	err = updateUserSession(ctx, &profile)
-	if err != nil {
-		return err
+	if profile.UserID == userSess.UserID {
+		err = updateUserSession(ctx, &profile)
+		if err != nil {
+			return err
+		}
 	}
 	return ctx.Redirect(redirectPath)
 }
