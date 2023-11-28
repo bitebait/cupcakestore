@@ -25,7 +25,7 @@
 <body class="hold-transition register-page">
 <div class="register-box">
     <div class="register-logo">
-        <a href="../../index2.html"><b>Cupcake</b>Store</a>
+        <a href="/auth/register"><b>Cupcake</b>Store</a>
     </div>
     <!-- /.login-logo -->
     <div class="row">
@@ -57,15 +57,16 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <input type="password" class="form-control" name="password" id="password" placeholder="Senha">
+                    <input type="password" class="form-control password-field" id="password" name="password"
+                           placeholder="Senha do usuário" minlength="8" required="required"/>
                     <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
+                        <button id="show-password-button" class="input-group-text show-password-button" type="button">
+                            <span id="show-password-icon" class="fas fa-eye"></span>
+                        </button>
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <input type="password" class="form-control" id="password2" placeholder="Digite a senha novamente">
+                    <input type="password" class="form-control password-field" id="password2" placeholder="Digite a senha novamente">
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-lock"></span>
@@ -95,6 +96,7 @@
 <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="/dist/js/adminlte.min.js"></script>
+{{template "auth/scripts/password"}}
 <script>
     $(document).ready(function () {
         $('#registrationForm').submit(function (e) {
