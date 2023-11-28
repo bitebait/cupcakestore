@@ -55,22 +55,21 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	if userSess.User.IsStaff || profile.UserID == userSess.UserID {
-		if err = c.profileService.Update(&profile); err != nil {
-			return views.Render(ctx, "profile/user-profile", profile,
-				"Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID))
-		}
-	} else {
+	if !userSess.User.IsStaff && profile.UserID != userSess.UserID {
 		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	redirectPath := selectRedirectPath(userSess.User.IsStaff)
-	if profile.UserID == userSess.UserID {
-		err = updateUserSession(ctx, &profile)
-		if err != nil {
-			return err
-		}
+	if err = c.profileService.Update(&profile); err != nil {
+		return views.Render(ctx, "profile/user-profile", profile,
+			"Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID))
 	}
+
+	err = updateUserSession(ctx, &profile)
+	if err != nil {
+		return err
+	}
+
+	redirectPath := selectRedirectPath(userSess.User.IsStaff)
 	return ctx.Redirect(redirectPath)
 }
 
