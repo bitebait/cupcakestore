@@ -13,6 +13,16 @@
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">Seu Carrinho</h3>
+                            <div class="card-tools">
+                                <div class="row">
+                                    <div class="col-12 mb-2">
+                                        <a href="/store" class="mr-2 btn btn-sm btn-light text-dark">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Adicionar Produtos
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="card-body table-responsive p-0">
@@ -44,16 +54,14 @@
                         <div class="card-footer"
                              style="display: flex; justify-content: space-between; align-items: center;">
                             <strong style="margin-right: auto;">Total: R$ {{ printf "%.2f" .Object.Total }}</strong>
-                            {{ if not .Profile.IsProfileComplete }}
-                                <strong>
+                            <div class="float-right">
+                                {{ if not .Profile.IsProfileComplete }}
                                     <a href="/profile/{{.Profile.User.ID}}"><u>Complete o seu perfil</u></a> para
                                     prosseguir para o checkout.
-                                </strong>
-                            {{ end }}
-                            <div class="float-right">
-                                <a href="/store" class="mr-2"><u>Adicionar Produtos</u></a>
-                                {{  if gt .Object.Total 0.0 }}
-                                    <a class="btn btn-success" href="/orders/checkout/{{.Object.ID}}">Finalizar</a>
+                                {{ else }}
+                                    {{  if gt .Object.Total 0.0 }}
+                                        <a class="btn btn-success" href="/orders/checkout/{{.Object.ID}}">Finalizar</a>
+                                    {{ end }}
                                 {{ end }}
                             </div>
                         </div>
