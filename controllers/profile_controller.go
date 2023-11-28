@@ -64,11 +64,6 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 			"Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID))
 	}
 
-	err = updateUserSession(ctx, &profile)
-	if err != nil {
-		return err
-	}
-
 	redirectPath := selectRedirectPath(userSess.User.IsStaff)
 	return ctx.Redirect(redirectPath)
 }
