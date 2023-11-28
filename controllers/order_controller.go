@@ -137,7 +137,7 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID)) {
+	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID)) {
 		return ctx.Redirect("/orders")
 	}
 
@@ -186,7 +186,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID) {
+	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID) {
 		return views.Render(ctx, "orders/cancel", order, "", storeLayout)
 	}
 	return ctx.Redirect("/orders")
@@ -204,7 +204,7 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("profile").(*models.Profile)
-	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.UserID) {
+	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID) {
 		err = c.orderService.Cancel(order.ID)
 		if err != nil {
 			return ctx.Redirect("/orders")
