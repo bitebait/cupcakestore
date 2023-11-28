@@ -102,6 +102,15 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 			return renderErrorMessage(ctx, err, "processar os dados de pagamento")
 		}
 
+		storeConfig, err := c.storeConfigService.GetStoreConfig()
+		if err != nil {
+			return renderErrorMessage(ctx, err, "carregar as configs da loja")
+		}
+
+		if !storeConfig.DeliveryIsActive {
+			order.IsDelivery = false
+		}
+
 		if err := c.orderService.Update(order); err != nil {
 			return renderErrorMessage(ctx, err, "atualizar o carrinho para pagamento")
 		}
