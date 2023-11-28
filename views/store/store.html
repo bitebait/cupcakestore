@@ -38,8 +38,8 @@
                                         <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-decrement"
                                                 onclick="decrementQuantity('{{.ID}}')">-
                                         </button>
-                                        <input type="text" id="{{.ID}}-quantity" class="form-control text-center"
-                                               value="1" aria-label="Example text with button addon"
+                                        <input type="number" id="{{.ID}}-quantity" class="form-control text-center"
+                                               pattern="[0-9]*" inputmode="numeric" min="1" value="1" aria-label="Example text with button addon"
                                                aria-describedby="{{.ID}}-decrement {{.ID}}-increment">
                                         <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-increment"
                                                 onclick="incrementQuantity('{{.ID}}')">+
