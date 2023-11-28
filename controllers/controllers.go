@@ -53,9 +53,13 @@ func updateUserSession(ctx *fiber.Ctx, profile *models.Profile) error {
 		return err
 	}
 
-	sess.Set("profile", profile)
-	if err = sess.Save(); err != nil {
-		return err
+	sessUser := ctx.Locals("profile").(*models.Profile)
+
+	if profile.UserID == sessUser.UserID {
+		sess.Set("profile", profile)
+		if err = sess.Save(); err != nil {
+			return err
+		}
 	}
 
 	return nil
