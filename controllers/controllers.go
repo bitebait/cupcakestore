@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -45,22 +44,4 @@ func renderErrorMessage(ctx *fiber.Ctx, err error, action string) error {
 		errorMessage += ": " + err.Error()
 	}
 	return fiber.NewError(fiber.StatusBadRequest, errorMessage)
-}
-
-func updateUserSession(ctx *fiber.Ctx, profile *models.Profile) error {
-	sess, err := session.Store.Get(ctx)
-	if err != nil {
-		return err
-	}
-
-	sessUser := ctx.Locals("profile").(*models.Profile)
-
-	if profile.UserID == sessUser.UserID {
-		sess.Set("profile", profile)
-		if err = sess.Save(); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
