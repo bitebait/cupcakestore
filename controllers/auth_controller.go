@@ -51,7 +51,7 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 	password := ctx.FormValue("password")
 
 	if err := c.authService.Authenticate(ctx, email, password); err != nil {
-		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas")
+		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas ou usuário inativo.")
 	}
 
 	return ctx.Redirect(config.GetEnv("REDIRECT_AFTER_LOGIN", "/"))
