@@ -1,32 +1,51 @@
 package middlewares
 
 import (
+	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
+	"github.com/bitebait/cupcakestore/repositories"
+	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
 )
 
 func Auth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		profileRespository := repositories.NewProfileRepository(database.DB)
+		profileService := services.NewProfileService(profileRespository)
 		sess, err := session.Store.Get(c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("Internal server error")
 		}
 
+		// Check if user is authenticated
 		if profile := sess.Get("profile"); profile != nil {
-			c.Locals("profile", profile.(*models.Profile))
-			if !profile.(*models.Profile).User.IsActive {
-				return c.Redirect("/auth/logout")
+			p, err := profileService.FindByUserId(profile.(*models.Profile).UserID)
+			if err != nil {
+				return err
 			}
+
+			// Check if user is active
+			if !p.User.IsActive {
+				if err = sess.Destroy(); err != nil {
+					return err
+				}
+			}
+
+			c.Locals("profile", &p)
 			return c.Next()
 		}
 
-		switch c.Path() {
-		case "/auth/login", "/store", "/auth/register":
-			return c.Next()
-		default:
-			return c.Redirect("/auth/login")
+		// Check allowed paths for unauthenticated users
+		allowedPaths := []string{"/auth/login", "/store", "/auth/register"}
+		for _, path := range allowedPaths {
+			if c.Path() == path {
+				return c.Next()
+			}
 		}
+
+		// Redirect to login page for other paths
+		return c.Redirect("/auth/login")
 	}
 }
 
