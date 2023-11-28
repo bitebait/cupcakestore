@@ -67,7 +67,7 @@ func (c *authController) Logout(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Redirect("/auth/login")
+	return ctx.Redirect(config.GetEnv("REDIRECT_AFTER_LOGOUT", "/"))
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
