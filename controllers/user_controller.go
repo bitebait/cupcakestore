@@ -120,8 +120,9 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 		err = c.updateUserPassword(ctx, &user)
 		if err != nil {
 			return views.Render(ctx, "users/user", user,
-				"Falha ao atualizar usuário.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
+				"Falha ao atualizar a senha. Certifique-se de tê-la digitado corretamente.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
 		}
+
 		if err = c.userService.Update(&user); err != nil {
 			return views.Render(ctx, "users/user", user,
 				"Falha ao atualizar usuário.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
