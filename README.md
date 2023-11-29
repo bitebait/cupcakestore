@@ -3,7 +3,6 @@
 ## Informações do Projeto
 
 - **Nome:** William Schwaab
-- **RGM:** 25353284
 
 ## Documentação
 
