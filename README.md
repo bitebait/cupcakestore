@@ -8,6 +8,7 @@
 ## Documentação
 
 - **Link do Repositório:** [Repositório no GitHub](https://github.com/bitebait/cupcakestore)
+- **Documentação:** [Documentação](https://github.com/bitebait/cupcakestore/tree/main/docs)
 
 ## Codificação
 
