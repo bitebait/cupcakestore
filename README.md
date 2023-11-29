@@ -16,9 +16,17 @@
 - **Hospedagem:** Linode (VPS) + Cloudflare
 - **Plataforma:** Web (responsivo para tablet, smartphone e web)
 - **Modo de Codificação:**
-    - (X) Tradicional
-    - ( ) Low-code
-    - ( ) No-code
+  - (X) Tradicional
+  - ( ) Low-code
+  - ( ) No-code
 - **Link do Repositório no GitHub com os Códigos Abertos:** [Repositório no GitHub](https://github.com/bitebait/cupcakestore)
 - **Link da Solução em Funcionamento:** [Cupcake Store](https://cupcakestore.schwaab.me:2053/store)
 - **Link do Vídeo Narrado (mínimo 5 min):** [Vídeo no Mega.nz](https://mega.nz/file/Zfs1TT7a#twn6vE_bZvC_bfEHH_d7VCoM71omazL9ocMh6dmFvyw)
+
+## Imagens
+
+- **Loja:**
+  ![Loja](https://github.com/bitebait/cupcakestore/blob/main/docs/store.png)
+
+- **Painel de Admin:**
+  ![Painel de Admin](https://github.com/bitebait/cupcakestore/blob/main/docs/dashboard.png)
