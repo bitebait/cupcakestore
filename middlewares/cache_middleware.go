@@ -6,7 +6,7 @@ import (
 
 func CacheControl() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		c.Set("Cache-Control", "public, max-age=120")
+		c.Set("Cache-Control", "no-store, max-age=0	")
 		return c.Next()
 	}
 }
