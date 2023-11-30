@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/redirect"
 	"github.com/gofiber/template/html/v2"
 )
 
@@ -42,6 +43,13 @@ func NewApplication() *fiber.App {
 		AllowOrigins: "*",
 	}))
 	app.Static("/", "./web")
+	if config.GetEnv("DEV_MODE", "true") == "true" {
+		app.Use(redirect.New(redirect.Config{
+			Rules: map[string]string{
+				"^(.*)$": "https://$1",
+			},
+		}))
+	}
 	app.Use(middlewares.Auth())
 
 	// Routes

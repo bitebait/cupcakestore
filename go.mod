@@ -27,11 +27,9 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.0 // indirect
-	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
-	github.com/tinylib/msgp v1.1.8 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
