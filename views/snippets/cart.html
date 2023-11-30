@@ -1,0 +1,68 @@
+<!-- /.content -->
+<script>
+    // Função para adicionar um item ao carrinho
+    function adicionarAoCarrinho(item) {
+        // Obter o ID do produto selecionado
+        const id = item.dataset.id;
+
+        // Obter a quantidade do produto selecionado
+        const quantityInput = document.getElementById(id + '-quantity');
+        const quantity = quantityInput.value;
+
+        // Criar um formulário dinamicamente
+        const form = document.createElement('form');
+        form.action = '/cart';
+        form.method = 'post';
+
+        // Criar um campo oculto para o ID do produto
+        const inputId = document.createElement('input');
+        inputId.type = 'hidden';
+        inputId.name = 'id';
+        inputId.value = id;
+
+        // Criar um campo oculto para a quantidade do produto
+        const inputQuantity = document.createElement('input');
+        inputQuantity.type = 'hidden';
+        inputQuantity.name = 'quantity';
+        inputQuantity.value = quantity;
+
+        // Adicionar os campos ocultos ao formulário
+        form.appendChild(inputId);
+        form.appendChild(inputQuantity);
+
+        // Adicionar o formulário ao corpo da página
+        document.body.appendChild(form);
+
+        // Enviar o formulário
+        form.submit();
+    }
+
+    // Adicionar um evento de clique para cada link "Adicionar ao Carrinho"
+    const links = document.querySelectorAll('.adicionar-ao-carrinho');
+    links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            adicionarAoCarrinho(link);
+        });
+    });
+
+    // Função para incrementar a quantidade
+    function incrementQuantity(id) {
+        const quantityInput = document.getElementById(id + '-quantity');
+        const value = parseInt(quantityInput.value, 10);
+
+        if (!isNaN(value)) {
+            quantityInput.value = value + 1;
+        }
+    }
+
+    // Função para decrementar a quantidade
+    function decrementQuantity(id) {
+        const quantityInput = document.getElementById(id + '-quantity');
+        const value = parseInt(quantityInput.value, 10);
+
+        if (!isNaN(value) && value > 1) {
+            quantityInput.value = value - 1;
+        }
+    }
+</script>
