@@ -6,8 +6,8 @@
 
 ## Documentação
 
-- **Link do Repositório:** [Repositório no GitHub](https://github.com/bitebait/cupcakestore)
-- **Documentação:** [Documentação](https://github.com/bitebait/cupcakestore/tree/main/docs)
+- **Link do Repositório:** [Repositório no GitHub](https://github.com/bitebait/cupcakestore/tree/main/docs)
+- **Documentação:** [Documentação](https://github.com/bitebait/cupcakestore/blob/main/docs/Documentacao%20-%20PIT%20-%20William%20Schwaab.pdf)
 
 ## Codificação
 
@@ -19,9 +19,7 @@
   - (X) Tradicional
   - ( ) Low-code
   - ( ) No-code
-- **Link do Repositório no GitHub com os Códigos Abertos:** [Repositório no GitHub](https://github.com/bitebait/cupcakestore)
 - **Link da Solução em Funcionamento:** [Cupcake Store](https://cupcakestore.schwaab.me:2053/store)
-- **Link do Vídeo Narrado (mínimo 5 min):** [Vídeo no Mega.nz](https://mega.nz/file/xXMmwTgI#twn6vE_bZvC_bfEHH_d7VCoM71omazL9ocMh6dmFvyw)
 
 ## Imagens
 
