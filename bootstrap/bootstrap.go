@@ -41,7 +41,11 @@ func NewApplication() *fiber.App {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 	}))
+
+	// Static files
 	app.Static("/", "./web")
+
+	// Redirect to HTTPS if not in DEV_MODE
 	if config.GetEnv("DEV_MODE", "true") == "false" {
 		app.Use(func(c *fiber.Ctx) error {
 			if c.Protocol() == "http" {
@@ -49,11 +53,12 @@ func NewApplication() *fiber.App {
 			}
 			return c.Next()
 		})
-
 	}
+
+	// Auth middleware
 	app.Use(middlewares.Auth())
 
-	// Routes
+	// Install routers
 	routers.InstallRouters(app)
 
 	return app
