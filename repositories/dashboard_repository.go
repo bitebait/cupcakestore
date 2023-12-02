@@ -20,7 +20,7 @@ func NewDashboardRepository(database *gorm.DB) DashboardRepository {
 	}
 }
 
-func (r dashboardRepository) GetInfo(lastNDays int) *models.Dashboard {
+func (r *dashboardRepository) GetInfo(lastNDays int) *models.Dashboard {
 	var dashboard models.Dashboard
 
 	lastDays := time.Now().AddDate(0, 0, -lastNDays).Format("2006-01-02")
