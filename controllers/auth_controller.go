@@ -39,7 +39,8 @@ func (c *authController) Register(ctx *fiber.Ctx) error {
 		User:      *user,
 	}
 
-	if err := c.authService.Register(profile); err != nil {
+	err := c.authService.Register(profile)
+	if err != nil {
 		return views.Render(ctx, "auth/register", nil, "Falha ao criar usuário: "+err.Error())
 	}
 
@@ -50,7 +51,8 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 	email := ctx.FormValue("email")
 	password := ctx.FormValue("password")
 
-	if err := c.authService.Authenticate(ctx, email, password); err != nil {
+	err := c.authService.Authenticate(ctx, email, password)
+	if err != nil {
 		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas ou usuário inativo.")
 	}
 
@@ -63,7 +65,8 @@ func (c *authController) Logout(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	if err = sess.Destroy(); err != nil {
+	err = sess.Destroy()
+	if err != nil {
 		return err
 	}
 
