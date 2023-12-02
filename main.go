@@ -10,16 +10,14 @@ import (
 
 func main() {
 	app := bootstrap.NewApplication()
-
-	host := config.GetEnv("APP_HOST", "localhost")
-	port := config.GetEnv("APP_PORT", "4000")
+	addr := fmt.Sprintf("%s:%s", config.GetEnv("APP_HOST", "localhost"), config.GetEnv("APP_PORT", "4000"))
 
 	if config.GetEnv("DEV_MODE", "true") == "true" {
-		log.Fatal(app.Listen(fmt.Sprintf("%s:%s", host, port)))
-	} else {
-		certFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/fullchain.pem"
-		keyFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/privkey.pem"
-
-		log.Fatal(app.ListenTLS(fmt.Sprintf("%s:%s", host, port), certFile, keyFile))
+		log.Fatal(app.Listen(addr))
+		return
 	}
+
+	certFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/fullchain.pem"
+	keyFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/privkey.pem"
+	log.Fatal(app.ListenTLS(addr, certFile, keyFile))
 }
