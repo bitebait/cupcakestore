@@ -66,5 +66,9 @@ func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
 	limit := ctx.QueryInt("limit")
 	filter := models.NewStockFilter(productID, page, limit)
 	stocks := c.stockService.FindByProductId(filter)
-	return views.Render(ctx, "stock/stock", fiber.Map{"Stocks": stocks, "Filter": filter}, "", baseLayout)
+	data := fiber.Map{
+		"Stocks": stocks,
+		"Filter": filter,
+	}
+	return views.Render(ctx, "stock/stock", data, "", baseLayout)
 }
