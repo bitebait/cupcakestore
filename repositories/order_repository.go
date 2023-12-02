@@ -7,7 +7,7 @@ import (
 )
 
 type OrderRepository interface {
-	FindById(id uint) (*models.Order, error)
+	FindById(id uint) (models.Order, error)
 	FindByCartId(cartID uint) (*models.Order, error)
 	FindOrCreate(profileID, cartID uint) (*models.Order, error)
 	FindAll(filter *models.OrderFilter) []models.Order
@@ -26,17 +26,14 @@ func NewOrderRepository(database *gorm.DB) OrderRepository {
 	}
 }
 
-func (r *orderRepository) FindById(id uint) (*models.Order, error) {
+func (r *orderRepository) FindById(id uint) (models.Order, error) {
 	var order models.Order
 	err := r.db.
 		Preload("Profile.User").
 		Preload("DeliveryDetail").
 		Preload("ShoppingCart.Items.Product").
 		First(&order, id).Error
-	if err != nil {
-		return nil, err
-	}
-	return &order, nil
+	return order, err
 }
 
 func (r *orderRepository) FindByCartId(cartID uint) (*models.Order, error) {
@@ -65,7 +62,7 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 			return nil, errors.New("perfil e carrinho não correspondem")
 		}
 
-		order := &models.Order{
+		order := models.Order{
 			ProfileID:      profileID,
 			ShoppingCart:   cart,
 			ShoppingCartID: cart.ID,
@@ -87,7 +84,7 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 			return nil, err
 		}
 
-		return order, nil
+		return &order, nil
 	} else if err != nil {
 		return nil, err
 	}
@@ -160,5 +157,5 @@ func (r *orderRepository) Cancel(id uint) error {
 
 	foundOrder.Status = models.CancelledStatus
 
-	return r.db.Save(foundOrder).Error
+	return r.db.Save(&foundOrder).Error
 }
