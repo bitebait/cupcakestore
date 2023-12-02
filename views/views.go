@@ -26,7 +26,7 @@ func createResponse(message string, obj *interface{}, profile *models.Profile) *
 	return &models.Response{
 		Error:   message != "",
 		Message: message,
-		Object:  obj,
+		Object:  *obj,
 		Profile: profile,
 	}
 }
