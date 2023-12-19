@@ -52,6 +52,8 @@
                                 <th>Criado Em</th>
                                 <th>Tipo</th>
                                 <th>Status</th>
+                                <th>Primeiro Login</th>
+                                <th>Último Login</th>
                                 <th>Opções</th>
                             </tr>
                             </thead>
@@ -75,6 +77,8 @@
                                         {{else}}
                                             <span class="badge badge-danger">Inativo</span>{{end}}
                                     </td>
+                                    <td>{{if .FirstLogin.IsZero }} N/A {{else}} {{.FirstLogin|date "02/01/2006 15:04h"}} {{end}}</td>
+                                    <td>{{if .LastLogin.IsZero }} N/A {{else}} {{.LastLogin|date "02/01/2006 15:04h"}} {{end}}</td>
                                     <td>
                                         <a href="/users/user/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
                                             <i class="fas fa-pen"></i>

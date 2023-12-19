@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"time"
+
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
@@ -60,7 +62,21 @@ func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error
 		return err
 	}
 
-	return setUserSession(ctx, &profile)
+	err = setUserSession(ctx, &profile)
+	if err != nil {
+		return err
+	}
+
+	return s.registerUserLoginDate(&user)
+}
+
+func (s *authService) registerUserLoginDate(user *models.User) error {
+	if user.FirstLogin.IsZero() {
+		user.FirstLogin = time.Now()
+	}
+
+	user.LastLogin = time.Now()
+	return s.userService.Update(user)
 }
 
 func setUserSession(ctx *fiber.Ctx, profile *models.Profile) error {

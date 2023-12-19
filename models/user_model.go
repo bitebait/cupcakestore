@@ -2,10 +2,10 @@ package models
 
 import (
 	"errors"
-	"github.com/go-playground/validator/v10"
 	"time"
 
 	"github.com/bitebait/cupcakestore/utils"
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -52,16 +52,13 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 func (u *User) AfterCreate(tx *gorm.DB) error {
 	var existingProfile Profile
 	result := tx.Where("user_id = ?", u.ID).First(&existingProfile)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			profile := &Profile{
-				UserID: u.ID,
-			}
-			return tx.Create(profile).Error
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		profile := &Profile{
+			UserID: u.ID,
 		}
-		return result.Error
+		return tx.Create(profile).Error
 	}
-	return nil
+	return result.Error
 }
 
 func (u *User) AfterDelete(tx *gorm.DB) error {
