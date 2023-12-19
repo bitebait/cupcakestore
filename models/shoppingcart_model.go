@@ -37,3 +37,12 @@ func (c *ShoppingCart) updateTotal() {
 
 	c.Total = subtotal
 }
+
+func (c *ShoppingCart) CountItems() int64 {
+	var count int64
+	for _, item := range c.Items {
+		count += int64(item.Quantity)
+	}
+
+	return count
+}

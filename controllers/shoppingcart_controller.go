@@ -12,6 +12,7 @@ type ShoppingCartController interface {
 	RenderShoppingCart(ctx *fiber.Ctx) error
 	AddShoppingCartItem(ctx *fiber.Ctx) error
 	RemoveFromCart(ctx *fiber.Ctx) error
+	CountShoppingCart(ctx *fiber.Ctx) error
 }
 
 type shoppingCartController struct {
@@ -65,4 +66,15 @@ func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Redirect("/cart")
+}
+
+func (c *shoppingCartController) CountShoppingCart(ctx *fiber.Ctx) error {
+	userID := getUserID(ctx)
+	cart, err := c.shoppingCartService.FindByUserId(userID)
+	if err != nil {
+		return err
+	}
+
+	itemCount := cart.CountItems()
+	return ctx.JSON(fiber.Map{"itemCount": itemCount})
 }
