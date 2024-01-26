@@ -37,7 +37,7 @@ func Auth() fiber.Handler {
 		}
 
 		// Check allowed paths for unauthenticated users
-		allowedPaths := []string{"/auth/login", "/store", "/auth/register"}
+		allowedPaths := []string{"/auth/login", "/store", "/auth/register", "/"}
 		for _, path := range allowedPaths {
 			if c.Path() == path {
 				return c.Next()
