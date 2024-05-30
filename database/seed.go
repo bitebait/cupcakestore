@@ -23,9 +23,9 @@ func seedProfileAdmin(db *gorm.DB) {
 		time.Now(),
 		time.Now(),
 		nil,
-		"William",
-		"Schwaab",
-		"Rua Marechal Deodoro Da Fonseca 840",
+		"Administrador",
+		"Demo",
+		"Rua M D 840",
 		"Foz Do Iguacu",
 		"Paraná",
 		"22222-222",
@@ -53,8 +53,8 @@ func seedUserAdmin(db *gorm.DB) {
 		time.Now(),
 		time.Now(),
 		nil,
-		"william@schwaab.me",
-		"$2a$10$0.7NK60o45Qw1T4yw9oJSub9WUxsGkdyMf7HLWnGEsSrBkoJthY9W",
+		"admin@admin.com", // user account
+		"$2a$10$DcchYSRWj4ikydnA5XNTv.5o4jmmM.pltIlSI8foKiL321w5t66Wi", // user passsword: admin@admin.com
 		1,
 		1,
 		time.Time{},
