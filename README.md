@@ -2,7 +2,9 @@
 
 ## Informações do Projeto
 
-- **Nome:** William Schwaab
+- **Link da Solução em Funcionamento:** [Cupcake Store](https://cupcakestore.schwaab.me:2053/store)
+- **DEMO USER ADMIN**: admin@admin.com/admin@admin.com (user/password)
+- **Autor:** William Schwaab
 
 ## Documentação
 
@@ -19,7 +21,6 @@
   - (X) Tradicional
   - ( ) Low-code
   - ( ) No-code
-- **Link da Solução em Funcionamento:** [Cupcake Store](https://cupcakestore.schwaab.me:2053/store)
 
 ## Imagens
 
