@@ -7,8 +7,5 @@ import (
 func Render(ctx *fiber.Ctx, templateName string, data interface{}, message string, baseLayout ...string) error {
 	ctx.Locals("Error", message != "")
 	ctx.Locals("Message", message)
-
-	renderData := fiber.Map{"Object": data}
-
-	return ctx.Render(templateName, renderData, baseLayout...)
+	return ctx.Render(templateName, fiber.Map{"Object": data}, baseLayout...)
 }

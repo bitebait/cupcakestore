@@ -15,46 +15,24 @@ import (
 	"github.com/gofiber/template/html/v2"
 )
 
-// NewApplication creates a new instance of the Fiber application.
 func NewApplication() *fiber.App {
-	// Config
-	config.SetupEnvFile()
+	// Setup configurations and dependencies
+	setupConfigurations()
+	setupDatabase()
+	setupSession()
 
-	// Database
-	database.SetupDatabase()
+	// Create Fiber application with HTML template engine
+	app := createFiberApp()
 
-	// Session
-	session.SetupSession()
+	// Middlewares
+	registerMiddlewares(app)
 
-	// Fiber
-	engine := html.New("./views", ".html")
-	engine.AddFuncMap(sprig.FuncMap())
-	engine.Reload(true)
-
-	app := fiber.New(fiber.Config{
-		Views:             engine,
-		PassLocalsToViews: true,
-	})
-	app.Use(recover.New())
-	app.Use(logger.New())
-	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestCompression,
-	}))
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-	}))
-
-	// Static files
+	// Serve static files
 	app.Static("/", "./web")
 
 	// Redirect to HTTPS if not in DEV_MODE
-	if config.GetEnv("DEV_MODE", "true") == "false" {
-		app.Use(func(c *fiber.Ctx) error {
-			if c.Protocol() == "http" {
-				return c.Redirect("https://"+c.Hostname()+c.OriginalURL(), fiber.StatusMovedPermanently)
-			}
-			return c.Next()
-		})
+	if !isDevMode() {
+		app.Use(redirectToHTTPS)
 	}
 
 	// Auth middleware
@@ -64,4 +42,49 @@ func NewApplication() *fiber.App {
 	routers.InstallRouters(app)
 
 	return app
+}
+
+func setupConfigurations() {
+	config.SetupEnvFile()
+}
+
+func setupDatabase() {
+	database.SetupDatabase()
+}
+
+func setupSession() {
+	session.SetupSession()
+}
+
+func createFiberApp() *fiber.App {
+	engine := html.New("./views", ".html")
+	engine.AddFuncMap(sprig.FuncMap())
+	engine.Reload(true)
+
+	return fiber.New(fiber.Config{
+		Views:             engine,
+		PassLocalsToViews: true,
+	})
+}
+
+func registerMiddlewares(app *fiber.App) {
+	app.Use(recover.New())
+	app.Use(logger.New())
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestCompression,
+	}))
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
+}
+
+func isDevMode() bool {
+	return config.GetEnv("DEV_MODE", "true") == "true"
+}
+
+func redirectToHTTPS(c *fiber.Ctx) error {
+	if c.Protocol() == "http" {
+		return c.Redirect("https://"+c.Hostname()+c.OriginalURL(), fiber.StatusMovedPermanently)
+	}
+	return c.Next()
 }
