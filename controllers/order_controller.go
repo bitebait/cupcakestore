@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"errors"
+	"log"
+
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
-	"log"
 )
 
 type OrderController interface {
@@ -50,11 +51,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 		return renderErrorMessage(ctx, err, "obter o carrinho de compras")
 	}
 
-	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)) {
-		return ctx.Redirect("/orders")
-	}
-
-	if !order.CanProceedToCheckout() {
+	if !c.isAuthorizedUser(currentUser, order, profileID) || !order.CanProceedToCheckout() {
 		return ctx.Redirect("/orders")
 	}
 
@@ -83,54 +80,58 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("Profile").(*models.Profile)
-	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)) {
-		return ctx.Redirect("/orders")
-	}
-
-	if !order.CanProceedToPayment() {
+	if !c.isAuthorizedUser(currentUser, order, profileID) || !order.CanProceedToPayment() {
 		return ctx.Redirect("/orders")
 	}
 
 	switch ctx.Method() {
 	case fiber.MethodPost:
-		if !order.CanProceedToPayment() {
-			return ctx.Redirect("/orders")
-		}
-
-		if err := ctx.BodyParser(order); err != nil {
-			log.Println(err)
-			return renderErrorMessage(ctx, err, "processar os dados de pagamento")
-		}
-
-		storeConfig, err := c.storeConfigService.GetStoreConfig()
-		if err != nil {
-			return renderErrorMessage(ctx, err, "carregar as configs da loja")
-		}
-
-		if !storeConfig.DeliveryIsActive {
-			order.IsDelivery = false
-		}
-
-		if err := c.orderService.Update(order); err != nil {
-			return renderErrorMessage(ctx, err, "atualizar o carrinho para pagamento")
-		}
-
-		if err := c.orderService.Payment(order); err != nil {
-			return renderErrorMessage(ctx, err, "realizar o pagamento do carrinho")
-		}
-
-		if order.PaymentMethod == models.PixPaymentMethod {
-			return ctx.Redirect("https://pix.ae" + order.PixURL)
-		}
-		return ctx.Redirect("/orders")
+		return c.handlePaymentPostRequest(ctx, order)
 	case fiber.MethodGet:
-		if order.CanRedirectToPixPayment() {
-			return ctx.Redirect("https://pix.ae" + order.PixURL)
-		}
+		return c.handlePaymentGetRequest(ctx, order)
 	default:
 		return ctx.Redirect("/orders")
 	}
+}
 
+func (c *orderController) isAuthorizedUser(currentUser *models.Profile, order *models.Order, profileID uint) bool {
+	return currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)
+}
+
+func (c *orderController) handlePaymentPostRequest(ctx *fiber.Ctx, order *models.Order) error {
+	if err := ctx.BodyParser(order); err != nil {
+		log.Println(err)
+		return renderErrorMessage(ctx, err, "processar os dados de pagamento")
+	}
+
+	storeConfig, err := c.storeConfigService.GetStoreConfig()
+	if err != nil {
+		return renderErrorMessage(ctx, err, "carregar as configs da loja")
+	}
+
+	if !storeConfig.DeliveryIsActive {
+		order.IsDelivery = false
+	}
+
+	if err := c.orderService.Update(order); err != nil {
+		return renderErrorMessage(ctx, err, "atualizar o carrinho para pagamento")
+	}
+
+	if err := c.orderService.Payment(order); err != nil {
+		return renderErrorMessage(ctx, err, "realizar o pagamento do carrinho")
+	}
+
+	if order.PaymentMethod == models.PixPaymentMethod {
+		return ctx.Redirect("https://pix.ae" + order.PixURL)
+	}
+
+	return ctx.Redirect("/orders")
+}
+
+func (c *orderController) handlePaymentGetRequest(ctx *fiber.Ctx, order *models.Order) error {
+	if order.CanRedirectToPixPayment() {
+		return ctx.Redirect("https://pix.ae" + order.PixURL)
+	}
 	return ctx.Redirect("/orders")
 }
 
@@ -146,7 +147,7 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("Profile").(*models.Profile)
-	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID)) {
+	if !c.isAuthorizedUser(currentUser, &order, currentUser.ID) {
 		return ctx.Redirect("/orders")
 	}
 
@@ -195,7 +196,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("Profile").(*models.Profile)
-	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID) {
+	if c.isAuthorizedUser(currentUser, &order, currentUser.ID) {
 		return views.Render(ctx, "orders/cancel", order, "", storeLayout)
 	}
 	return ctx.Redirect("/orders")
@@ -213,7 +214,7 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 	}
 
 	currentUser := ctx.Locals("Profile").(*models.Profile)
-	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID) {
+	if c.isAuthorizedUser(currentUser, &order, currentUser.ID) {
 		err = c.orderService.Cancel(order.ID)
 		if err != nil {
 			return ctx.Redirect("/orders")
