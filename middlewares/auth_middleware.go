@@ -19,7 +19,7 @@ func Auth() fiber.Handler {
 		}
 
 		// Check if user is authenticated
-		if profile := sess.Get("profile"); profile != nil {
+		if profile := sess.Get("Profile"); profile != nil {
 			p, err := profileService.FindByUserId(profile.(*models.Profile).UserID)
 			if err != nil {
 				return err
@@ -32,7 +32,7 @@ func Auth() fiber.Handler {
 				}
 			}
 
-			c.Locals("profile", &p)
+			c.Locals("Profile", &p)
 			return c.Next()
 		}
 
@@ -51,7 +51,7 @@ func Auth() fiber.Handler {
 
 func LoginAndStaffRequired() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		profile, ok := c.Locals("profile").(*models.Profile)
+		profile, ok := c.Locals("Profile").(*models.Profile)
 		if !(ok && profile != nil && profile.User.IsStaff && profile.User.IsActive) {
 			return c.Redirect("/auth/logout")
 		}

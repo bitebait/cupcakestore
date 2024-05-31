@@ -85,7 +85,7 @@ func setUserSession(ctx *fiber.Ctx, profile *models.Profile) error {
 		return err
 	}
 
-	sess.Set("profile", profile)
+	sess.Set("Profile", profile)
 	if err = sess.Save(); err != nil {
 		return err
 	}

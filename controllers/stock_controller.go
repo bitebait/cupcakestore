@@ -38,7 +38,7 @@ func (c *stockController) Create(ctx *fiber.Ctx) error {
 			"Dados inválidos: "+err.Error(), baseLayout)
 	}
 
-	profile := ctx.Locals("profile").(*models.Profile)
+	profile := ctx.Locals("Profile").(*models.Profile)
 	if profile == nil || profile.ID == 0 {
 		return views.Render(ctx, "stock/create", nil,
 			"Falha ao identificar perfil do usuário.", baseLayout)

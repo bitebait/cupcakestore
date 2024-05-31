@@ -88,7 +88,7 @@ func (c *userController) getUser(ctx *fiber.Ctx) (models.User, error) {
 }
 
 func (c *userController) getUserSession(ctx *fiber.Ctx) (*models.User, error) {
-	userSess, ok := ctx.Locals("profile").(*models.Profile)
+	userSess, ok := ctx.Locals("Profile").(*models.Profile)
 	if !ok || userSess == nil {
 		return nil, fiber.ErrUnauthorized
 	}
@@ -131,7 +131,7 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	if user.ID == ctx.Locals("profile").(*models.Profile).UserID {
+	if user.ID == ctx.Locals("Profile").(*models.Profile).UserID {
 		return ctx.Redirect("/auth/logout")
 	}
 

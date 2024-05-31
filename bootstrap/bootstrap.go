@@ -29,9 +29,11 @@ func NewApplication() *fiber.App {
 	// Fiber
 	engine := html.New("./views", ".html")
 	engine.AddFuncMap(sprig.FuncMap())
+	engine.Reload(true)
 
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:             engine,
+		PassLocalsToViews: true,
 	})
 	app.Use(recover.New())
 	app.Use(logger.New())

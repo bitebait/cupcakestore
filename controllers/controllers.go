@@ -31,7 +31,7 @@ func selectRedirectPath(isStaff bool) string {
 }
 
 func getUserID(ctx *fiber.Ctx) uint {
-	profile, ok := ctx.Locals("profile").(*models.Profile)
+	profile, ok := ctx.Locals("Profile").(*models.Profile)
 	if !ok {
 		return 0
 	}

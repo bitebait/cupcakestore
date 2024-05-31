@@ -77,7 +77,7 @@ func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
 }
 
 func (c *profileController) getUserSession(ctx *fiber.Ctx) (*models.Profile, error) {
-	userSess, ok := ctx.Locals("profile").(*models.Profile)
+	userSess, ok := ctx.Locals("Profile").(*models.Profile)
 	if !ok || userSess == nil {
 		return nil, fiber.ErrUnauthorized
 	}

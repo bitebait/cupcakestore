@@ -34,7 +34,7 @@ func NewOrderController(orderService services.OrderService, storeConfigService s
 
 func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 	profileID := getUserID(ctx)
-	currentUser := ctx.Locals("profile").(*models.Profile)
+	currentUser := ctx.Locals("Profile").(*models.Profile)
 
 	if !currentUser.IsProfileComplete() {
 		return renderErrorMessage(ctx, errors.New("Perfil incompleto. Por favor, complete as informações do perfil."), "obter o carrinho de compras")
@@ -82,7 +82,7 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 		return renderErrorMessage(ctx, err, "processar o checkout do carrinho")
 	}
 
-	currentUser := ctx.Locals("profile").(*models.Profile)
+	currentUser := ctx.Locals("Profile").(*models.Profile)
 	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)) {
 		return ctx.Redirect("/orders")
 	}
@@ -145,7 +145,7 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/orders")
 	}
 
-	currentUser := ctx.Locals("profile").(*models.Profile)
+	currentUser := ctx.Locals("Profile").(*models.Profile)
 	if !(currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID)) {
 		return ctx.Redirect("/orders")
 	}
@@ -163,7 +163,7 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) RenderAllOrders(ctx *fiber.Ctx) error {
-	currentUser := ctx.Locals("profile").(*models.Profile)
+	currentUser := ctx.Locals("Profile").(*models.Profile)
 	filter := models.NewOrderFilter(currentUser.ID, ctx.QueryInt("page"), ctx.QueryInt("limit"))
 
 	var orders []models.Order
@@ -194,7 +194,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/orders")
 	}
 
-	currentUser := ctx.Locals("profile").(*models.Profile)
+	currentUser := ctx.Locals("Profile").(*models.Profile)
 	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID) {
 		return views.Render(ctx, "orders/cancel", order, "", storeLayout)
 	}
@@ -212,7 +212,7 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/orders")
 	}
 
-	currentUser := ctx.Locals("profile").(*models.Profile)
+	currentUser := ctx.Locals("Profile").(*models.Profile)
 	if currentUser.User.IsStaff || order.IsCurrentUserOrder(currentUser.ID) {
 		err = c.orderService.Cancel(order.ID)
 		if err != nil {
@@ -239,7 +239,7 @@ func (c *orderController) Update(ctx *fiber.Ctx) error {
 
 	order.Status = models.ShoppingCartStatus(ctx.FormValue("status"))
 
-	currentUser := ctx.Locals("profile").(*models.Profile)
+	currentUser := ctx.Locals("Profile").(*models.Profile)
 	if currentUser.User.IsStaff {
 		if err = c.orderService.Update(&order); err != nil {
 			return ctx.Redirect("/orders")
