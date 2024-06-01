@@ -38,5 +38,5 @@ func (c *storeController) RenderStore(ctx *fiber.Ctx) error {
 		"Filter":   filter,
 	}
 
-	return views.Render(ctx, "store/store", data, "", storeLayout)
+	return views.Render(ctx, "store/store", data, views.StoreLayout)
 }

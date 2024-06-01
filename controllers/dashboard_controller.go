@@ -22,5 +22,5 @@ func NewDashboardController(s services.DashboardService) DashboardController {
 
 func (c *dashboardController) RenderDashboard(ctx *fiber.Ctx) error {
 	data := c.dashboardService.GetInfo(30)
-	return views.Render(ctx, "dashboard/dashboard", data, "", baseLayout)
+	return views.Render(ctx, "dashboard/dashboard", data, views.BaseLayout)
 }

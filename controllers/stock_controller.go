@@ -28,33 +28,33 @@ func NewStockController(s services.StockService) StockController {
 }
 
 func (c *stockController) RenderCreate(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "stock/create", nil, "", baseLayout)
+	return views.Render(ctx, "stock/create", nil, views.BaseLayout)
 }
 
 func (c *stockController) Create(ctx *fiber.Ctx) error {
 	stock := &models.Stock{}
 	if err := ctx.BodyParser(stock); err != nil {
-		return views.Render(ctx, "stock/create", nil,
-			"Dados inválidos: "+err.Error(), baseLayout)
+		return views.RenderError(ctx, "stock/create", nil,
+			"Dados inválidos: "+err.Error(), views.BaseLayout)
 	}
 
 	profile := ctx.Locals("Profile").(*models.Profile)
 	if profile == nil || profile.ID == 0 {
-		return views.Render(ctx, "stock/create", nil,
-			"Falha ao identificar perfil do usuário.", baseLayout)
+		return views.RenderError(ctx, "stock/create", nil,
+			"Falha ao identificar perfil do usuário.", views.BaseLayout)
 	}
 	stock.ProfileID = profile.ID
 
 	if err := c.stockService.Create(stock); err != nil {
-		return views.Render(ctx, "stock/create", nil,
-			"Falha ao adicionar ao estoque: "+err.Error(), baseLayout)
+		return views.RenderError(ctx, "stock/create", nil,
+			"Falha ao adicionar ao estoque: "+err.Error(), views.BaseLayout)
 	}
 
 	return ctx.Redirect(fmt.Sprintf("/stock/%v", stock.ProductID))
 }
 
 func (c *stockController) RenderStocks(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "stock/stocks", nil, "", baseLayout)
+	return views.Render(ctx, "stock/stocks", nil, views.BaseLayout)
 }
 
 func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
@@ -70,5 +70,5 @@ func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
 		"Stocks": stocks,
 		"Filter": filter,
 	}
-	return views.Render(ctx, "stock/stock", data, "", baseLayout)
+	return views.Render(ctx, "stock/stock", data, views.BaseLayout)
 }

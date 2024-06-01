@@ -37,7 +37,7 @@ func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	return views.Render(ctx, "profile/user-profile", profile, "", layout)
+	return views.Render(ctx, "profile/user-profile", profile, layout)
 }
 
 func (c *profileController) Update(ctx *fiber.Ctx) error {
@@ -47,7 +47,7 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 	}
 
 	if err = ctx.BodyParser(&profile); err != nil {
-		return views.Render(ctx, "profile/user-profile", profile, err.Error(), baseLayout)
+		return views.RenderError(ctx, "profile/user-profile", profile, err.Error())
 	}
 
 	userSess, err := c.getUserSession(ctx)
@@ -60,7 +60,7 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 	}
 
 	if err = c.profileService.Update(&profile); err != nil {
-		return views.Render(ctx, "profile/user-profile", profile,
+		return views.RenderError(ctx, "profile/user-profile", profile,
 			"Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID))
 	}
 

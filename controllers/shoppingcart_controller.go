@@ -29,25 +29,25 @@ func (c *shoppingCartController) RenderShoppingCart(ctx *fiber.Ctx) error {
 	userID := getUserID(ctx)
 	cart, err := c.shoppingCartService.FindByUserId(userID)
 	if err != nil {
-		return renderErrorMessage(ctx, err, "obter o carrinho de compras.")
+		return renderErrorMessage(err, "obter o carrinho de compras.")
 	}
-	return views.Render(ctx, "shoppingcart/shoppingcart", cart, "", storeLayout)
+	return views.Render(ctx, "shoppingcart/shoppingcart", cart, views.StoreLayout)
 }
 
 func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 	productID, err := utils.StringToId(ctx.FormValue("id"))
 	if err != nil {
-		return renderErrorMessage(ctx, err, "adicionar o item ao carrinho de compras")
+		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
 	}
 	quantity, err := strconv.Atoi(ctx.FormValue("quantity"))
 	if err != nil {
-		return renderErrorMessage(ctx, err, "adicionar o item ao carrinho de compras")
+		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
 	}
 
 	userID := getUserID(ctx)
 
 	if err = c.shoppingCartService.AddItemToCart(userID, productID, quantity); err != nil {
-		return renderErrorMessage(ctx, err, "adicionar o item ao carrinho de compras")
+		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
 	}
 
 	return ctx.Redirect("/cart")
@@ -56,13 +56,13 @@ func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
 	productID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return renderErrorMessage(ctx, err, "remover o item do carrinho de compras")
+		return renderErrorMessage(err, "remover o item do carrinho de compras")
 	}
 
 	userID := getUserID(ctx)
 
 	if err = c.shoppingCartService.RemoveFromCart(userID, productID); err != nil {
-		return renderErrorMessage(ctx, err, "remover o item do carrinho de compras")
+		return renderErrorMessage(err, "remover o item do carrinho de compras")
 	}
 
 	return ctx.Redirect("/cart")

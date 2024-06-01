@@ -30,7 +30,7 @@ func NewAuthController(authService services.AuthService) AuthController {
 func (c *authController) Register(ctx *fiber.Ctx) error {
 	user := new(models.User)
 	if err := ctx.BodyParser(user); err != nil {
-		return views.Render(ctx, "auth/register", nil, "Dados da conta inválidos: "+err.Error())
+		return views.RenderError(ctx, "auth/register", nil, "Dados da conta inválidos: "+err.Error())
 	}
 
 	profile := &models.Profile{
@@ -39,9 +39,8 @@ func (c *authController) Register(ctx *fiber.Ctx) error {
 		User:      *user,
 	}
 
-	err := c.authService.Register(profile)
-	if err != nil {
-		return views.Render(ctx, "auth/register", nil, "Falha ao criar usuário: "+err.Error())
+	if err := c.authService.Register(profile); err != nil {
+		return views.RenderError(ctx, "auth/register", nil, "Falha ao criar usuário: "+err.Error())
 	}
 
 	return ctx.Redirect("/auth/login")
@@ -51,12 +50,11 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 	email := ctx.FormValue("email")
 	password := ctx.FormValue("password")
 
-	err := c.authService.Authenticate(ctx, email, password)
-	if err != nil {
-		return views.Render(ctx, "auth/login", nil, "Credenciais inválidas ou usuário inativo.")
+	if err := c.authService.Authenticate(ctx, email, password); err != nil {
+		return views.RenderError(ctx, "auth/login", nil, "Credenciais inválidas ou usuário inativo.")
 	}
 
-	return ctx.Redirect(config.GetEnv("REDIRECT_AFTER_LOGIN", "/"))
+	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGIN", "/"))
 }
 
 func (c *authController) Logout(ctx *fiber.Ctx) error {
@@ -65,18 +63,17 @@ func (c *authController) Logout(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	err = sess.Destroy()
-	if err != nil {
+	if err := sess.Destroy(); err != nil {
 		return err
 	}
 
-	return ctx.Redirect(config.GetEnv("REDIRECT_AFTER_LOGOUT", "/"))
+	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGOUT", "/"))
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "auth/login", nil, "")
+	return views.Render(ctx, "auth/login", nil)
 }
 
 func (c *authController) RenderRegister(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "auth/register", nil, "")
+	return views.Render(ctx, "auth/register", nil)
 }

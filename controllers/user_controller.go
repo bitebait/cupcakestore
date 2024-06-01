@@ -29,14 +29,14 @@ func NewUserController(u services.UserService) UserController {
 }
 
 func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "users/create", nil, "", baseLayout)
+	return views.Render(ctx, "users/create", nil, views.BaseLayout)
 }
 
 func (c *userController) Create(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
 		errorMessage := "Dados de usuário inválidos: " + err.Error()
-		return views.Render(ctx, "users/create", nil, errorMessage, baseLayout)
+		return views.RenderError(ctx, "users/create", nil, errorMessage, views.BaseLayout)
 	}
 
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
@@ -44,7 +44,7 @@ func (c *userController) Create(ctx *fiber.Ctx) error {
 
 	if err := c.userService.Create(user); err != nil {
 		errorMessage := "Falha ao criar usuário: " + err.Error()
-		return views.Render(ctx, "users/create", nil, errorMessage, baseLayout)
+		return views.RenderError(ctx, "users/create", nil, errorMessage, views.BaseLayout)
 	}
 
 	return ctx.Redirect("/users")
@@ -57,7 +57,7 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 	filter := models.NewUserFilter(query, page, limit)
 	users := c.userService.FindAll(filter)
 
-	return views.Render(ctx, "users/users", fiber.Map{"Users": users, "Filter": filter}, "", baseLayout)
+	return views.Render(ctx, "users/users", fiber.Map{"Users": users, "Filter": filter}, views.BaseLayout)
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
@@ -76,7 +76,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	return views.Render(ctx, "users/user", user, "", layout)
+	return views.Render(ctx, "users/user", user, layout)
 }
 
 func (c *userController) getUser(ctx *fiber.Ctx) (models.User, error) {
@@ -108,7 +108,7 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 
 	err = c.updateUserFromRequest(ctx, &user)
 	if err != nil {
-		return views.Render(ctx, "users/user", user, err.Error(), baseLayout)
+		return views.RenderError(ctx, "users/user", user, err.Error(), views.BaseLayout)
 	}
 
 	userSess, err := c.getUserSession(ctx)
@@ -119,12 +119,12 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 	if userSess.IsStaff || user.ID == userSess.ID {
 		err = c.updateUserPassword(ctx, &user)
 		if err != nil {
-			return views.Render(ctx, "users/user", user,
+			return views.RenderError(ctx, "users/user", user,
 				"Falha ao atualizar a senha. Certifique-se de tê-la digitado corretamente.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
 		}
 
 		if err = c.userService.Update(&user); err != nil {
-			return views.Render(ctx, "users/user", user,
+			return views.RenderError(ctx, "users/user", user,
 				"Falha ao atualizar usuário.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
 		}
 	} else {
@@ -175,7 +175,7 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	return views.Render(ctx, "users/delete", user, "", baseLayout)
+	return views.Render(ctx, "users/delete", user, views.BaseLayout)
 }
 
 func (c *userController) Delete(ctx *fiber.Ctx) error {

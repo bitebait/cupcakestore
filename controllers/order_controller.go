@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"log"
-
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
@@ -38,17 +36,17 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 	currentUser := ctx.Locals("Profile").(*models.Profile)
 
 	if !currentUser.IsProfileComplete() {
-		return renderErrorMessage(ctx, errors.New("Perfil incompleto. Por favor, complete as informações do perfil."), "obter o carrinho de compras")
+		return renderErrorMessage(errors.New("Perfil incompleto. Por favor, complete as informações do perfil."), "obter o carrinho de compras")
 	}
 
 	cartID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return renderErrorMessage(ctx, err, "processar o ID do carrinho")
+		return renderErrorMessage(err, "processar o ID do carrinho")
 	}
 
 	order, err := c.orderService.FindOrCreate(profileID, cartID)
 	if err != nil {
-		return renderErrorMessage(ctx, err, "obter o carrinho de compras")
+		return renderErrorMessage(err, "obter o carrinho de compras")
 	}
 
 	if !c.isAuthorizedUser(currentUser, order, profileID) || !order.CanProceedToCheckout() {
@@ -57,26 +55,26 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return renderErrorMessage(ctx, err, "carregar as configs da loja")
+		return renderErrorMessage(err, "carregar as configs da loja")
 	}
 
 	data := fiber.Map{
 		"Order":       order,
 		"StoreConfig": storeConfig,
 	}
-	return views.Render(ctx, "orders/checkout", data, "", storeLayout)
+	return views.Render(ctx, "orders/checkout", data, views.StoreLayout)
 }
 
 func (c *orderController) Payment(ctx *fiber.Ctx) error {
 	profileID := getUserID(ctx)
 	cartID, err := utils.StringToId(ctx.Params("id"))
 	if err != nil {
-		return renderErrorMessage(ctx, err, "processar o checkout do carrinho")
+		return renderErrorMessage(err, "processar o checkout do carrinho")
 	}
 
 	order, err := c.orderService.FindByCartId(cartID)
 	if err != nil {
-		return renderErrorMessage(ctx, err, "processar o checkout do carrinho")
+		return renderErrorMessage(err, "processar o checkout do carrinho")
 	}
 
 	currentUser := ctx.Locals("Profile").(*models.Profile)
@@ -100,13 +98,12 @@ func (c *orderController) isAuthorizedUser(currentUser *models.Profile, order *m
 
 func (c *orderController) handlePaymentPostRequest(ctx *fiber.Ctx, order *models.Order) error {
 	if err := ctx.BodyParser(order); err != nil {
-		log.Println(err)
-		return renderErrorMessage(ctx, err, "processar os dados de pagamento")
+		return renderErrorMessage(err, "processar os dados de pagamento")
 	}
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return renderErrorMessage(ctx, err, "carregar as configs da loja")
+		return renderErrorMessage(err, "carregar as configs da loja")
 	}
 
 	if !storeConfig.DeliveryIsActive {
@@ -114,11 +111,11 @@ func (c *orderController) handlePaymentPostRequest(ctx *fiber.Ctx, order *models
 	}
 
 	if err := c.orderService.Update(order); err != nil {
-		return renderErrorMessage(ctx, err, "atualizar o carrinho para pagamento")
+		return renderErrorMessage(err, "atualizar o carrinho para pagamento")
 	}
 
 	if err := c.orderService.Payment(order); err != nil {
-		return renderErrorMessage(ctx, err, "realizar o pagamento do carrinho")
+		return renderErrorMessage(err, "realizar o pagamento do carrinho")
 	}
 
 	if order.PaymentMethod == models.PixPaymentMethod {
@@ -153,14 +150,14 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return renderErrorMessage(ctx, err, "carregar configs da loja")
+		return renderErrorMessage(err, "carregar configs da loja")
 	}
 
 	data := fiber.Map{
 		"Order":       order,
 		"StoreConfig": storeConfig,
 	}
-	return views.Render(ctx, "orders/order", data, "", storeLayout)
+	return views.Render(ctx, "orders/order", data, views.StoreLayout)
 }
 
 func (c *orderController) RenderAllOrders(ctx *fiber.Ctx) error {
@@ -175,13 +172,13 @@ func (c *orderController) RenderAllOrders(ctx *fiber.Ctx) error {
 	}
 
 	templateName := "orders/orders"
-	layout := storeLayout
+	layout := views.StoreLayout
 	if currentUser.User.IsStaff {
 		templateName = "orders/admin"
-		layout = baseLayout
+		layout = views.BaseLayout
 	}
 
-	return views.Render(ctx, templateName, fiber.Map{"Orders": orders, "Filter": filter}, "", layout)
+	return views.Render(ctx, templateName, fiber.Map{"Orders": orders, "Filter": filter}, layout)
 }
 
 func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
@@ -197,7 +194,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 
 	currentUser := ctx.Locals("Profile").(*models.Profile)
 	if c.isAuthorizedUser(currentUser, &order, currentUser.ID) {
-		return views.Render(ctx, "orders/cancel", order, "", storeLayout)
+		return views.Render(ctx, "orders/cancel", order, views.StoreLayout)
 	}
 	return ctx.Redirect("/orders")
 }
