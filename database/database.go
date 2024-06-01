@@ -13,19 +13,26 @@ import (
 var DB *gorm.DB
 
 func SetupDatabase() {
-	var err error
-	DB, err = gorm.Open(sqlite.Open(config.GetEnv("DB_PATH", "database.db")), &gorm.Config{})
+	dbPath := config.Instance().GetEnvVar("DB_PATH", "database.db")
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
-		panic("Falha ao conectar ao banco de dados: " + err.Error())
+		log.Panicf("Failed to connect to the database: %v", err)
 	}
 
-	migrateModels(DB)
-	seedDatabase(DB)
-	DB.Logger = logger.Default.LogMode(logger.Silent)
+	if err := migrateModels(db); err != nil {
+		log.Panicf("Failed to migrate models: %v", err)
+	}
+
+	if err := SeedDatabase(db); err != nil {
+		log.Panicf("Failed to seed database: %v", err)
+	}
+
+	db.Logger = logger.Default.LogMode(logger.Silent)
+	DB = db
 }
 
-func migrateModels(db *gorm.DB) {
-	err := db.AutoMigrate(
+func migrateModels(db *gorm.DB) error {
+	m := []interface{}{
 		&models.User{},
 		&models.Profile{},
 		&models.Product{},
@@ -35,8 +42,7 @@ func migrateModels(db *gorm.DB) {
 		&models.OrderDeliveryDetail{},
 		&models.ShoppingCart{},
 		&models.ShoppingCartItem{},
-	)
-	if err != nil {
-		log.Panic("erro ao migrar os modelos")
 	}
+
+	return db.AutoMigrate(m...)
 }
