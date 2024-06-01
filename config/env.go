@@ -2,29 +2,43 @@ package config
 
 import (
 	"log"
+	"sync"
 
 	"github.com/joho/godotenv"
 )
 
-var Env map[string]string
+type Config struct {
+	env map[string]string
+	mu  sync.RWMutex
+}
 
-func GetEnv(key, def string) string {
-	if Env != nil {
-		if val, ok := Env[key]; ok {
-			return val
-		}
+var instance *Config
+var once sync.Once
+
+func Instance() *Config {
+	once.Do(func() {
+		instance = &Config{}
+		instance.loadEnvFile(".env")
+	})
+	return instance
+}
+
+func (c *Config) GetEnvVar(key, def string) string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	if val, ok := c.env[key]; ok {
+		return val
 	}
-
 	return def
 }
 
-func SetupEnvFile() {
-	envFile := ".env"
-
+func (c *Config) loadEnvFile(envFile string) {
 	var err error
-	Env, err = godotenv.Read(envFile)
+	c.env, err = godotenv.Read(envFile)
 
 	if err != nil {
 		log.Println("Failed to load .env file. Fallback to default values")
+		c.env = make(map[string]string)
 	}
 }
