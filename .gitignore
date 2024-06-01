@@ -18,6 +18,9 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-/web/images/*
 # Go workspace file
 go.work
+/web/images/*.jpeg
+/web/images/*.png
+/web/images/*.jpg
+/web/images/*.webp
