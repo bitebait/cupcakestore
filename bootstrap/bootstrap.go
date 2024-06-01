@@ -16,36 +16,16 @@ import (
 )
 
 func NewApplication() *fiber.App {
-	// Setup configurations and dependencies
-	setupConfigurations()
 	setupDatabase()
 	setupSession()
 
-	// Create Fiber application with HTML template engine
 	app := createFiberApp()
-
-	// Middlewares
 	registerMiddlewares(app)
-
-	// Serve static files
-	app.Static("/", "./web")
-
-	// Redirect to HTTPS if not in DEV_MODE
-	if !isDevMode() {
-		app.Use(redirectToHTTPS)
-	}
-
-	// Auth middleware
-	app.Use(middlewares.Auth())
-
-	// Install routers
-	routers.InstallRouters(app)
+	serveStaticFiles(app)
+	configureHTTPS(app)
+	registerRoutes(app)
 
 	return app
-}
-
-func setupConfigurations() {
-	config.SetupEnvFile()
 }
 
 func setupDatabase() {
@@ -78,8 +58,23 @@ func registerMiddlewares(app *fiber.App) {
 	}))
 }
 
+func serveStaticFiles(app *fiber.App) {
+	app.Static("/", "./web")
+}
+
+func configureHTTPS(app *fiber.App) {
+	if !isDevMode() {
+		app.Use(redirectToHTTPS)
+	}
+}
+
+func registerRoutes(app *fiber.App) {
+	app.Use(middlewares.Auth())
+	routers.InstallRouters(app)
+}
+
 func isDevMode() bool {
-	return config.GetEnv("DEV_MODE", "true") == "true"
+	return config.Instance().GetEnvVar("DEV_MODE", "true") == "true"
 }
 
 func redirectToHTTPS(c *fiber.Ctx) error {
