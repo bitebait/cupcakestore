@@ -9,7 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func seedProfileAdmin(db *gorm.DB) {
+type Seeder interface {
+	Seed(db *gorm.DB) error
+}
+
+type ProfileAdminSeeder struct{}
+
+func (s ProfileAdminSeeder) Seed(db *gorm.DB) error {
 	query := `
         INSERT INTO profiles (id, created_at, updated_at, deleted_at, first_name, last_name, address, city, state, postal_code, phone_number, user_id)
         SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
@@ -36,13 +42,16 @@ func seedProfileAdmin(db *gorm.DB) {
 
 	if result.Error != nil {
 		fmt.Println("Error executing query:", result.Error)
-		return
+		return result.Error
 	}
+	return nil
 }
 
-func seedUserAdmin(db *gorm.DB) {
+type UserAdminSeeder struct{}
+
+func (s UserAdminSeeder) Seed(db *gorm.DB) error {
 	query := `
-     INSERT INTO users (id, created_at, updated_at, deleted_at,  email, password, is_active, is_staff, first_login, last_login)
+     INSERT INTO users (id, created_at, updated_at, deleted_at, email, password, is_active, is_staff, first_login, last_login)
         SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         WHERE NOT EXISTS (
             SELECT 1 FROM users WHERE id = ?
@@ -53,8 +62,8 @@ func seedUserAdmin(db *gorm.DB) {
 		time.Now(),
 		time.Now(),
 		nil,
-		"admin@admin.com", // user account
-		"$2a$10$DcchYSRWj4ikydnA5XNTv.5o4jmmM.pltIlSI8foKiL321w5t66Wi", // user passsword: admin@admin.com
+		"admin@admin.com",
+		"$2a$10$DcchYSRWj4ikydnA5XNTv.5o4jmmM.pltIlSI8foKiL321w5t66Wi",
 		1,
 		1,
 		time.Time{},
@@ -64,11 +73,14 @@ func seedUserAdmin(db *gorm.DB) {
 
 	if result.Error != nil {
 		fmt.Println("Error executing query:", result.Error)
-		return
+		return result.Error
 	}
+	return nil
 }
 
-func seedStoreConfig(db *gorm.DB) {
+type StoreConfigSeeder struct{}
+
+func (s StoreConfigSeeder) Seed(db *gorm.DB) error {
 	var count int64
 
 	if err := db.Model(&models.StoreConfig{}).Count(&count).Error; err != nil {
@@ -82,12 +94,24 @@ func seedStoreConfig(db *gorm.DB) {
 
 		if err := db.Create(&storeConfig).Error; err != nil {
 			log.Fatalf("Falha ao criar StoreConfig: %v", err)
+			return err
 		}
 	}
+
+	return nil
 }
 
-func seedDatabase(db *gorm.DB) {
-	seedStoreConfig(db)
-	seedUserAdmin(db)
-	seedProfileAdmin(db)
+func SeedDatabase(db *gorm.DB) error {
+	seeders := []Seeder{
+		StoreConfigSeeder{},
+		UserAdminSeeder{},
+		ProfileAdminSeeder{},
+	}
+
+	for _, seeder := range seeders {
+		if err := seeder.Seed(db); err != nil {
+			return err
+		}
+	}
+	return nil
 }
