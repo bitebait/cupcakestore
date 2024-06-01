@@ -13,6 +13,7 @@ func NewHomeRouter() *HomeRouter {
 
 func (r *HomeRouter) InstallRouters(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Redirect(config.GetEnv("REDIRECT_AFTER_LOGIN", "/"), fiber.StatusMovedPermanently)
+		redirectURL := config.Instance().GetEnvVar("REDIRECT_AFTER_LOGIN", "/")
+		return c.Redirect(redirectURL, fiber.StatusMovedPermanently)
 	})
 }
