@@ -10,9 +10,13 @@ import (
 
 func main() {
 	app := bootstrap.NewApplication()
-	addr := fmt.Sprintf("%s:%s", config.GetEnv("APP_HOST", "localhost"), config.GetEnv("APP_PORT", "4000"))
+	cfg := config.Instance()
 
-	if config.GetEnv("DEV_MODE", "true") == "true" {
+	host := cfg.GetEnvVar("APP_HOST", "localhost")
+	port := cfg.GetEnvVar("APP_PORT", "4000")
+	addr := fmt.Sprintf("%s:%s", host, port)
+
+	if cfg.GetEnvVar("DEV_MODE", "true") == "true" {
 		log.Fatal(app.Listen(addr))
 		return
 	}
