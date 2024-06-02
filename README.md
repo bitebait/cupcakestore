@@ -15,12 +15,12 @@ cd cupcakestore/
 ~~~
 
 Atualize os módulos:
-~~~sh
+~~~go
 go mod tidy
 ~~~
 
 Rode o projeto:
-~~~sh
+~~~go
 go run .
 ~~~
 
