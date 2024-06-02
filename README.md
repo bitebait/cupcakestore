@@ -55,7 +55,7 @@ A estrutura do projeto é organizada da seguinte forma:
 ### Tecnologias Utilizadas
 
 - **Linguagens**: Go, JavaScript, CSS, HTML
-- **Frameworks e Bibliotecas**: gorm (ORM para Golang)
+- **Frameworks e Bibliotecas**: GO Fiber Framework & GORM (ORM para Golang)
 
 ### Autoria
 
