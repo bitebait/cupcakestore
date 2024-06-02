@@ -37,20 +37,20 @@ go run .
 
 A estrutura do projeto é organizada da seguinte forma:
 
-- `bootstrap`
-- `config`
-- `controllers`
-- `database`
-- `docs`
-- `middlewares`
-- `models`
-- `repositories`
-- `routers`
-- `services`
-- `session`
-- `utils`
-- `views`
-- `web`
+- `bootstrap`: *Contém arquivos relacionados à inicialização do projeto.*
+- `config`: *Responsável pelas configurações do ambiente.*
+- `controllers`: *Engloba os controladores da aplicação.*
+- `database`: *Arquivos relativos ao banco de dados, incluindo scripts de inicialização.*
+- `docs`: *Documentação do projeto.*
+- `middlewares`: *Implementação de middlewares, como controle de autenticação.*
+- `models`: *Define os modelos de dados utilizados na aplicação.*
+- `repositories`: *Responsável pelo acesso e manipulação dos dados.*
+- `routers`: *Configuração das rotas da aplicação.*
+- `services`: *Serviços oferecidos pela aplicação.*
+- `session`: *Gerenciamento de sessões de usuário.*
+- `utils`: *Utilitários diversos.*
+- `views`: *Templates e arquivos relacionados à visualização da aplicação.*
+- `web`: *Recursos web, como favicons, imagens, assets, etc.*
 
 ### Tecnologias Utilizadas
 
