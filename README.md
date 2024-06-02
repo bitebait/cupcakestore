@@ -1,26 +1,68 @@
-# Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro do Sul Virtual
+# Cupcake Store
 
-## Informações do Projeto
+Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro Sul Virtual
+
+## Como rodar o projeto *local*?
+
+Clone o repositório:
+~~~sh
+git clone https://github.com/bitebait/cupcakestore.git
+~~~
+
+Navegue até a pasta do projeto:
+~~~sh
+cd cupcakestore/
+~~~
+
+Atualize os módulos:
+~~~sh
+go mod tidy
+~~~
+
+Rode o projeto:
+~~~sh
+go run .
+~~~
+
+### Informações Adicionais
 
 - **Link da Solução em Funcionamento:** [Cupcake Store](https://cupcakestore.schwaab.me:2053/store)
-- **DEMO USER ADMIN**: admin@admin.com/admin@admin.com (user/password)
-- **Autor:** William Schwaab
+- **Usuário DEMO ADMIN**: `admin@admin.com` / `admin@admin.com`
+- **Linguagem Back-end**: Golang
+- **Banco de Dados**: Sqlite3 (usando gorm – Golang ORM)
+- **Hospedagem**: Linode (VPS) + Cloudflare
+- **Plataforma**: Web (responsivo para tablet, smartphone e web)
 
-## Documentação
+### Estrutura do Projeto
 
-- **Link do Repositório:** [Repositório no GitHub](https://github.com/bitebait/cupcakestore/tree/main/docs)
-- **Documentação:** [Documentação](https://github.com/bitebait/cupcakestore/blob/main/docs/Documentacao%20-%20PIT%20-%20William%20Schwaab.pdf)
+A estrutura do projeto é organizada da seguinte forma:
 
-## Codificação
+- `bootstrap`
+- `config`
+- `controllers`
+- `database`
+- `docs`
+- `middlewares`
+- `models`
+- `repositories`
+- `routers`
+- `services`
+- `session`
+- `utils`
+- `views`
+- `web`
 
-- **Linguagem do Back-end:** Golang
-- **Banco de Dados:** Sqlite3 (gorm – Golang ORM)
-- **Hospedagem:** Linode (VPS) + Cloudflare
-- **Plataforma:** Web (responsivo para tablet, smartphone e web)
-- **Modo de Codificação:**
-  - (X) Tradicional
-  - ( ) Low-code
-  - ( ) No-code
+### Tecnologias Utilizadas
+
+- **Linguagens**: Go, JavaScript, CSS, HTML
+- **Frameworks e Bibliotecas**: gorm (ORM para Golang)
+
+### Autoria
+
+Este projeto foi desenvolvido por William Schwaab como parte do Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro Sul Virtual.
+
+Para mais informações, consulte a [documentação](https://github.com/bitebait/cupcakestore/tree/main/docs).
+
 
 ## Imagens
 
