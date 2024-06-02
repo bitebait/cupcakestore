@@ -62,7 +62,7 @@ func (c *productController) RenderDetails(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/store")
 	}
 
-	return views.Render(ctx, "products/details", product, views.BaseLayout)
+	return views.Render(ctx, "products/details", product, views.StoreLayout)
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
