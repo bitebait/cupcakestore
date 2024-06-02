@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
@@ -55,6 +56,10 @@ func registerMiddlewares(app *fiber.App) {
 	}))
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
+	}))
+	app.Use(favicon.New(favicon.Config{
+		File: "./web/dist/img/favicon.png",
+		URL:  "/favicon.ico",
 	}))
 }
 
