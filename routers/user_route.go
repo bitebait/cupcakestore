@@ -29,7 +29,7 @@ func NewUserRouter() *UserRouter {
 }
 
 func (r *UserRouter) InstallRouters(app *fiber.App) {
-	userGroup := app.Group("/users")
+	userGroup := app.Group("/users").Use(middlewares.LoginRequired())
 	userGroup.Get("/user/:id", r.userController.RenderUser)
 	userGroup.Post("/user/update/:id", r.userController.Update)
 

@@ -10,52 +10,66 @@ import (
 )
 
 func Auth() fiber.Handler {
+	return sessionHandler(false, false)
+}
+
+func LoginRequired() fiber.Handler {
+	return sessionHandler(true, false)
+}
+
+func LoginAndStaffRequired() fiber.Handler {
+	return sessionHandler(true, true)
+}
+
+func sessionHandler(loginRequired, staffRequired bool) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		profileRespository := repositories.NewProfileRepository(database.DB)
-		profileService := services.NewProfileService(profileRespository)
 		sess, err := session.Store.Get(c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("Internal server error")
 		}
 
-		// Check if user is authenticated
-		if profile := sess.Get("Profile"); profile != nil {
-			p, err := profileService.FindByUserId(profile.(*models.Profile).UserID)
+		profile, ok := sess.Get("Profile").(*models.Profile)
+		if ok {
+			err := processAuthenticatedUser(c, profile)
 			if err != nil {
 				return err
 			}
-
-			// Check if user is active
-			if !p.User.IsActive {
-				if err = sess.Destroy(); err != nil {
-					return err
+			if loginRequired {
+				if staffRequired && !profile.User.IsStaff {
+					return c.Redirect("/auth/logout")
 				}
-			}
-
-			c.Locals("Profile", &p)
-			return c.Next()
-		}
-
-		// Check allowed paths for unauthenticated users
-		allowedPaths := []string{"/auth/login", "/store", "/auth/register", "/"}
-		for _, path := range allowedPaths {
-			if c.Path() == path {
 				return c.Next()
 			}
 		}
 
-		// Redirect to login page for other paths
-		return c.Redirect("/auth/login")
-	}
-}
-
-func LoginAndStaffRequired() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		profile, ok := c.Locals("Profile").(*models.Profile)
-		if !(ok && profile != nil && profile.User.IsStaff && profile.User.IsActive) {
-			return c.Redirect("/auth/logout")
+		if loginRequired {
+			return c.Redirect("/auth/login")
 		}
 
 		return c.Next()
 	}
+}
+
+func processAuthenticatedUser(c *fiber.Ctx, profile *models.Profile) error {
+	profileService := getProfileService()
+	updatedProfile, err := profileService.FindByUserId(profile.UserID)
+	if err != nil {
+		return err
+	}
+
+	if !updatedProfile.User.IsActive {
+		sess, _ := session.Store.Get(c)
+		if err := sess.Destroy(); err != nil {
+			return err
+		}
+		return c.Redirect("/auth/login")
+	}
+
+	c.Locals("Profile", &updatedProfile)
+	return nil
+}
+
+func getProfileService() services.ProfileService {
+	profileRepository := repositories.NewProfileRepository(database.DB)
+	return services.NewProfileService(profileRepository)
 }

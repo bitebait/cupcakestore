@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/bitebait/cupcakestore/controllers"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
@@ -30,7 +31,7 @@ func NewShoppingCartRouter() *ShoppingCartRouter {
 }
 
 func (r *ShoppingCartRouter) InstallRouters(app *fiber.App) {
-	cart := app.Group("/cart")
+	cart := app.Group("/cart").Use(middlewares.LoginRequired())
 	cart.Get("/", r.shoppingCartController.RenderShoppingCart)
 	cart.Post("/", r.shoppingCartController.AddShoppingCartItem)
 	cart.Get("/count", r.shoppingCartController.CountShoppingCart)

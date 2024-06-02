@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/bitebait/cupcakestore/controllers"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
@@ -30,7 +31,7 @@ func NewOrderRouter() *OrderRouter {
 }
 
 func (r *OrderRouter) InstallRouters(app *fiber.App) {
-	order := app.Group("/orders")
+	order := app.Group("/orders").Use(middlewares.LoginRequired())
 	order.Get("/checkout/:id", r.orderController.Checkout)
 	order.Post("/payment/:id", r.orderController.Payment)
 	order.Get("/payment/:id", r.orderController.Payment)
