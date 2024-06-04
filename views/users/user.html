@@ -83,7 +83,7 @@
                             <div class="form-row">
                                 <div class="col-12">
                                     <i class="text-muted">Último
-                                        Acesso: {{if .Profile.User.LastLogin.IsZero }} N/A {{else}} {{.Profile.User.LastLogin|date "02/01/2006 15:04h"}} {{end}}</i>
+                                        Acesso: {{if .Object.LastLogin.IsZero }} N/A {{else}} {{ .Object.LastLogin|date "02/01/2006 15:04h"}} {{end}}</i>
                                 </div>
                             </div>
                         </div>
