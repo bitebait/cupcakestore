@@ -26,10 +26,6 @@ func (c *storeController) RenderStore(ctx *fiber.Ctx) error {
 	page := ctx.QueryInt("page")
 	limit := ctx.QueryInt("limit")
 
-	if limit == 0 {
-		limit = 4
-	}
-
 	filter := models.NewProductFilter(query, page, limit)
 	products := c.productService.FindActiveWithStock(filter)
 
