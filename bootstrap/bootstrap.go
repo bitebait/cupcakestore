@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"github.com/Masterminds/sprig/v3"
+	minifier "github.com/beyer-stefan/gofiber-minifier"
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/middlewares"
@@ -60,6 +61,11 @@ func registerMiddlewares(app *fiber.App) {
 	app.Use(favicon.New(favicon.Config{
 		File: "./web/dist/img/favicon.png",
 		URL:  "/favicon.ico",
+	}))
+	app.Use(minifier.New(minifier.Config{
+		MinifyHTML: true,
+		MinifyCSS:  true,
+		MinifyJS:   true,
 	}))
 }
 
