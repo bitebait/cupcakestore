@@ -59,35 +59,43 @@
                             </thead>
                             <tbody>
                             {{range .Object.Users}}
-                                <tr>
-                                    <td>{{.ID}}</td>
-                                    <td>
-                                        <a href="/users/user/{{.ID}}">{{.Email}}
-                                            <br/>
-                                        </a>
-                                    </td>
-                                    <td>{{.UpdatedAt|date "02/01/2006 15:04h"}}</td>
-                                    <td>{{if .IsStaff}}
-                                            <span class="badge badge-primary">Administrador</span>
-                                        {{else}}
-                                            <span class="badge badge-secondary">Membro</span>{{end}}
-                                    </td>
-                                    <td>{{if .IsActive}}
-                                            <span class="badge badge-success">Ativo</span>
-                                        {{else}}
-                                            <span class="badge badge-danger">Inativo</span>{{end}}
-                                    </td>
-                                    <td>{{if .FirstLogin.IsZero }} N/A {{else}} {{.FirstLogin|date "02/01/2006 15:04h"}} {{end}}</td>
-                                    <td>{{if .LastLogin.IsZero }} N/A {{else}} {{.LastLogin|date "02/01/2006 15:04h"}} {{end}}</td>
-                                    <td>
-                                        <a href="/users/user/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <a href="/users/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
-                                            <i class="fa fa-trash"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>{{.ID}}</td>
+                                <td>
+                                    <a href="/users/user/{{.ID}}">{{.Email}}
+                                        <br/>
+                                    </a>
+                                </td>
+                                <td>{{.UpdatedAt|date "02/01/2006 15:04h"}}</td>
+                                <td>{{if .IsStaff}}
+                                    <span class="badge badge-primary">Administrador</span>
+                                    {{else}}
+                                    <span class="badge badge-secondary">Membro</span>{{end}}
+                                </td>
+                                <td>{{if .IsActive}}
+                                    <span class="badge badge-success">Ativo</span>
+                                    {{else}}
+                                    <span class="badge badge-danger">Inativo</span>{{end}}
+                                </td>
+                                <td>{{if .FirstLogin.IsZero }} N/A {{else}} {{.FirstLogin|date "02/01/2006 15:04h"}}
+                                    {{end}}
+                                </td>
+                                <td>{{if .LastLogin.IsZero }} N/A {{else}} {{.LastLogin|date "02/01/2006 15:04h"}}
+                                    {{end}}
+                                </td>
+                                <td>
+                                    {{if not .IsStaff}}
+                                    <a href="/users/user/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <a href="/users/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    {{else}}
+                                    -
+                                    {{end}}
+                                </td>
+                            </tr>
                             {{end}}
                             </tbody>
                         </table>

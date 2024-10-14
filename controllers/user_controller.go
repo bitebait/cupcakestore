@@ -71,6 +71,10 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	if user.IsStaff && user.ID != userSess.ID {
+		return ctx.Redirect("/users")
+	}
+
 	layout := selectLayout(userSess.IsStaff, user.ID == userSess.ID)
 	if layout == "" {
 		return ctx.SendStatus(fiber.StatusUnauthorized)
@@ -106,29 +110,31 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/users")
 	}
 
-	err = c.updateUserFromRequest(ctx, &user)
-	if err != nil {
-		return views.RenderError(ctx, "users/user", user, err.Error(), views.BaseLayout)
-	}
-
 	userSess, err := c.getUserSession(ctx)
 	if err != nil {
 		return err
 	}
 
-	if userSess.IsStaff || user.ID == userSess.ID {
-		err = c.updateUserPassword(ctx, &user)
-		if err != nil {
-			return views.RenderError(ctx, "users/user", user,
-				"Falha ao atualizar a senha. Certifique-se de tê-la digitado corretamente.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
-		}
-
-		if err = c.userService.Update(&user); err != nil {
-			return views.RenderError(ctx, "users/user", user,
-				"Falha ao atualizar usuário.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
-		}
-	} else {
+	if user.IsStaff && user.ID != userSess.ID {
 		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	if !userSess.IsStaff && user.ID != userSess.ID {
+		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	if err := c.updateUserFromRequest(ctx, &user); err != nil {
+		return views.RenderError(ctx, "users/user", user, err.Error(), views.BaseLayout)
+	}
+
+	if err := c.updateUserPassword(ctx, &user); err != nil {
+		return views.RenderError(ctx, "users/user", user,
+			"Failed to update password. Ensure it is entered correctly.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
+	}
+
+	if err := c.userService.Update(&user); err != nil {
+		return views.RenderError(ctx, "users/user", user,
+			"Failed to update user.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
 	}
 
 	if user.ID == ctx.Locals("Profile").(*models.Profile).UserID {

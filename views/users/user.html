@@ -42,6 +42,7 @@
                                            placeholder="E-mail do usuário" value="{{.Object.Email}}">
                                 </div>
                             </div>
+
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="oldPassword">Senha Antiga</label>
@@ -54,6 +55,7 @@
                                            placeholder="Nova Senha" minlength="8">
                                 </div>
                             </div>
+
                             {{if not .Profile.User.IsStaff}}
                             <input type="checkbox" class="custom-control-input" id="isActive"
                                    name="isActive" {{if .Object.IsActive}}checked{{end}} hidden/>

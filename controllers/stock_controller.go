@@ -1,6 +1,5 @@
 package controllers
 
-import "C"
 import (
 	"fmt"
 	"github.com/bitebait/cupcakestore/models"
