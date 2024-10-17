@@ -35,16 +35,14 @@ func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 func (c *userController) Create(ctx *fiber.Ctx) error {
 	user := &models.User{}
 	if err := ctx.BodyParser(user); err != nil {
-		errorMessage := "Dados de usuário inválidos: " + err.Error()
-		return views.RenderError(ctx, "users/create", nil, errorMessage, views.BaseLayout)
+		return views.RenderError(ctx, "users/create", nil, "Dados de usuário inválidos: "+err.Error(), views.BaseLayout)
 	}
 
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 
 	if err := c.userService.Create(user); err != nil {
-		errorMessage := "Falha ao criar usuário: " + err.Error()
-		return views.RenderError(ctx, "users/create", nil, errorMessage, views.BaseLayout)
+		return views.RenderError(ctx, "users/create", nil, "Falha ao criar usuário: "+err.Error(), views.BaseLayout)
 	}
 
 	return ctx.Redirect("/users")
@@ -100,49 +98,58 @@ func (c *userController) getUserSession(ctx *fiber.Ctx) (*models.User, error) {
 }
 
 func (c *userController) Update(ctx *fiber.Ctx) error {
-	id, err := utils.StringToId(ctx.Params("id"))
-	if err != nil {
-		return ctx.Redirect("/users")
-	}
-
-	user, err := c.userService.FindById(id)
-	if err != nil {
-		return ctx.Redirect("/users")
-	}
-
-	userSess, err := c.getUserSession(ctx)
+	user, err := c.getUserAndCheckAccess(ctx)
 	if err != nil {
 		return err
 	}
 
-	if user.IsStaff && user.ID != userSess.ID {
-		return ctx.SendStatus(fiber.StatusUnauthorized)
+	if err := c.updateUserFromRequest(ctx, user); err != nil {
+		return views.RenderError(ctx, "users/user", user, err.Error(), selectLayout(user.IsStaff, user.ID == ctx.Locals("Profile").(*models.Profile).UserID))
 	}
 
-	if !userSess.IsStaff && user.ID != userSess.ID {
-		return ctx.SendStatus(fiber.StatusUnauthorized)
-	}
-
-	if err := c.updateUserFromRequest(ctx, &user); err != nil {
-		return views.RenderError(ctx, "users/user", user, err.Error(), views.BaseLayout)
-	}
-
-	if err := c.updateUserPassword(ctx, &user); err != nil {
+	if err := c.updateUserPassword(ctx, user); err != nil {
 		return views.RenderError(ctx, "users/user", user,
-			"Failed to update password. Ensure it is entered correctly.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
+			"Falha ao atualizar a senha. Certifique-se de que está inserido corretamente.", selectLayout(user.IsStaff, user.ID == ctx.Locals("Profile").(*models.Profile).UserID))
 	}
 
-	if err := c.userService.Update(&user); err != nil {
+	if err := c.userService.Update(user); err != nil {
 		return views.RenderError(ctx, "users/user", user,
-			"Failed to update user.", selectLayout(userSess.IsStaff, user.ID == userSess.ID))
+			"Falha ao atualizar o usuário.", selectLayout(user.IsStaff, user.ID == ctx.Locals("Profile").(*models.Profile).UserID))
 	}
 
 	if user.ID == ctx.Locals("Profile").(*models.Profile).UserID {
 		return ctx.Redirect("/auth/logout")
 	}
 
-	redirectPath := selectRedirectPath(userSess.IsStaff)
+	redirectPath := selectRedirectPath(user.IsStaff)
 	return ctx.Redirect(redirectPath)
+}
+
+func (c *userController) getUserAndCheckAccess(ctx *fiber.Ctx) (*models.User, error) {
+	id, err := utils.StringToId(ctx.Params("id"))
+	if err != nil {
+		return nil, ctx.Redirect("/users")
+	}
+
+	user, err := c.userService.FindById(id)
+	if err != nil {
+		return nil, ctx.Redirect("/users")
+	}
+
+	userSess, err := c.getUserSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if user.IsStaff && user.ID != userSess.ID {
+		return nil, ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	if !userSess.IsStaff && user.ID != userSess.ID {
+		return nil, ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	return &user, nil
 }
 
 func (c *userController) updateUserFromRequest(ctx *fiber.Ctx, user *models.User) error {
@@ -171,12 +178,7 @@ func (c *userController) updateUserPassword(ctx *fiber.Ctx, user *models.User) e
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
-	id, err := utils.StringToId(ctx.Params("id"))
-	if err != nil {
-		return ctx.Redirect("/users")
-	}
-
-	user, err := c.userService.FindById(id)
+	user, err := c.getUser(ctx)
 	if err != nil {
 		return ctx.Redirect("/users")
 	}
