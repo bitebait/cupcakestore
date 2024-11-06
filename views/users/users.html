@@ -24,16 +24,16 @@
                     <div class="card-header">
                         <h3 class="card-title mb-2">Lista de Usuários</h3>
                         <div class="card-tools">
-                            <form method="get" id="filters">
+                            <form id="filters" method="get">
                                 <div class="row">
                                     <div class="col-12 mb-2">
                                         <div class="input-group m-0">
-                                            <input type="text" id="limit" name="limit"
-                                                   value="{{.Object.Filter.Pagination.Limit}}" hidden="hidden">
-                                            <input type="text" class="form-control" id="q" name="q"
-                                                   onclick="this.value = '';" placeholder="Pesquisar Usuário">
+                                            <input hidden="hidden" id="limit" name="limit"
+                                                   type="text" value="{{.Object.Filter.Pagination.Limit}}">
+                                            <input class="form-control" id="q" name="q" onclick="this.value = '';"
+                                                   placeholder="Pesquisar Usuário" type="text">
                                             <div class="input-group-append">
-                                                <button type="submit" class="btn btn-default">
+                                                <button class="btn btn-default" type="submit">
                                                     <i class="fas fa-search"></i>
                                                 </button>
                                             </div>
@@ -66,7 +66,7 @@
                                         <br/>
                                     </a>
                                 </td>
-                                <td>{{.UpdatedAt|date "02/01/2006 15:04h"}}</td>
+                                <td>{{.CreatedAts|date "02/01/2006 15:04h"}}</td>
                                 <td>{{if .IsStaff}}
                                     <span class="badge badge-primary">Administrador</span>
                                     {{else}}
@@ -85,10 +85,10 @@
                                 </td>
                                 <td>
                                     {{if not .IsStaff}}
-                                    <a href="/users/user/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
+                                    <a class="btn btn-sm btn-outline-primary mr-2" href="/users/user/{{.ID}}">
                                         <i class="fas fa-pen"></i>
                                     </a>
-                                    <a href="/users/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
+                                    <a class="btn btn-sm btn-outline-danger" href="/users/delete/{{.ID}}">
                                         <i class="fa fa-trash"></i>
                                     </a>
                                     {{else}}
