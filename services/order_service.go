@@ -53,21 +53,21 @@ func (s *orderService) Update(order *models.Order) error {
 	return s.orderRepository.Update(order)
 }
 
+const (
+	CashPaymentMethod = models.CashPaymentMethod
+	PixPaymentMethod  = models.PixPaymentMethod
+)
+
 func (s *orderService) Payment(order *models.Order) error {
-	var err error
 	order.Status = models.AwaitingPaymentStatus
-
 	switch order.PaymentMethod {
-	case models.CashPaymentMethod:
+	case CashPaymentMethod:
 		order.Status = models.ProcessingStatus
-	case models.PixPaymentMethod:
-		err = s.processPixPayment(order)
+	case PixPaymentMethod:
+		if err := s.processPixPayment(order); err != nil {
+			return err
+		}
 	}
-
-	if err != nil {
-		return err
-	}
-
 	return s.orderRepository.Update(order)
 }
 
@@ -76,7 +76,6 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 	if err != nil {
 		return err
 	}
-
 	pixData := &models.PixPaymentData{
 		Tipo:  string(storeConfig.PixKeyType),
 		Chave: storeConfig.PixKey,
@@ -84,17 +83,14 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 		Info:  fmt.Sprintf("CupCake Store R$ %v - ID#%v", order.Total, order.ID),
 		Nome:  "Cupcake Store",
 	}
-
 	payment, err := models.GeneratePixPayment(pixData)
 	if err != nil {
 		return err
 	}
-
 	order.PixQR = payment.PixQR
 	order.PixString = payment.PixString
 	order.PixTransactionID = payment.PixTransactionID
 	order.PixURL = payment.PixURL
-
 	return nil
 }
 

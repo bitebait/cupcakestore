@@ -8,6 +8,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const (
+	CreateProductPage = "products/create"
+	ProductPage       = "products/product"
+)
+
 type ProductController interface {
 	Create(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
@@ -31,91 +36,62 @@ func NewProductController(s services.ProductService) ProductController {
 }
 
 func (c *productController) RenderCreate(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "products/create", nil, views.BaseLayout)
+	return views.Render(ctx, CreateProductPage, nil, views.BaseLayout)
 }
 
 func (c *productController) Create(ctx *fiber.Ctx) error {
 	product := &models.Product{}
 	if err := ctx.BodyParser(product); err != nil {
-		return views.RenderError(ctx, "proucts/create", product, "Dados do produto inválidos: "+err.Error(), views.BaseLayout)
+		return views.RenderError(ctx, CreateProductPage, product, "Dados do produto inválidos: "+err.Error(), views.BaseLayout)
 	}
-
 	if err := c.saveProductImage(ctx, product); err != nil {
-		return views.RenderError(ctx, "products/product", product, err.Error(), views.BaseLayout)
+		return views.RenderError(ctx, ProductPage, product, err.Error(), views.BaseLayout)
 	}
-
 	if err := c.productService.Create(product); err != nil {
-		return views.RenderError(ctx, "proucts/create", product, "Falha ao criar produto: "+err.Error(), views.BaseLayout)
+		return views.RenderError(ctx, CreateProductPage, product, "Falha ao criar produto: "+err.Error(), views.BaseLayout)
 	}
-
 	return ctx.Redirect("/products")
 }
 
 func (c *productController) RenderDetails(ctx *fiber.Ctx) error {
-	productID, err := c.getProductIdFromParam(ctx)
+	product, err := c.getProductByID(ctx)
 	if err != nil {
 		return ctx.Redirect("/store")
 	}
-
-	product, err := c.productService.FindById(productID)
-	if err != nil {
-		return ctx.Redirect("/store")
-	}
-
 	return views.Render(ctx, "products/details", product, views.StoreLayout)
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
 	filter := c.getProductFilterFromQueryParams(ctx)
 	products := c.productService.FindAll(filter)
-
 	return views.Render(ctx, "products/products", fiber.Map{"Products": products, "Filter": filter}, views.BaseLayout)
 }
 
 func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
-	productID, err := c.getProductIdFromParam(ctx)
+	product, err := c.getProductByID(ctx)
 	if err != nil {
 		return ctx.Redirect("/products")
 	}
-
-	product, err := c.productService.FindById(productID)
-	if err != nil {
-		return ctx.Redirect("/products")
-	}
-
-	return views.Render(ctx, "products/product", product, views.BaseLayout)
+	return views.Render(ctx, ProductPage, product, views.BaseLayout)
 }
 
 func (c *productController) RenderDelete(ctx *fiber.Ctx) error {
-	productID, err := c.getProductIdFromParam(ctx)
+	product, err := c.getProductByID(ctx)
 	if err != nil {
 		return ctx.Redirect("/products")
 	}
-
-	product, err := c.productService.FindById(productID)
-	if err != nil {
-		return ctx.Redirect("/products")
-	}
-
 	return views.Render(ctx, "products/delete", product, views.BaseLayout)
 }
 
 func (c *productController) Update(ctx *fiber.Ctx) error {
-	productID, err := c.getProductIdFromParam(ctx)
+	product, err := c.getProductByID(ctx)
 	if err != nil {
 		return ctx.Redirect("/products")
 	}
-
-	product, err := c.productService.FindById(productID)
-	if err != nil {
-		return ctx.Redirect("/products")
-	}
-
 	err = c.updateProductFromRequest(ctx, &product)
 	if err != nil {
-		return views.RenderError(ctx, "products/product", &product, err.Error(), views.BaseLayout)
+		return views.RenderError(ctx, ProductPage, &product, err.Error(), views.BaseLayout)
 	}
-
 	return ctx.Redirect("/products")
 }
 
@@ -124,41 +100,32 @@ func (c *productController) Delete(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Redirect("/products")
 	}
-
-	err = c.productService.Delete(productID)
-	if err != nil {
+	if err := c.productService.Delete(productID); err != nil {
 		return ctx.Redirect("/products")
 	}
-
 	return ctx.Redirect("/products")
 }
 
 func (c *productController) JSONProducts(ctx *fiber.Ctx) error {
 	filter := c.getProductFilterFromQueryParams(ctx)
 	products := c.productService.FindAll(filter)
-
-	data := map[string]interface{}{
+	return ctx.JSON(map[string]interface{}{
 		"Products": products,
 		"Filter":   filter,
-	}
-
-	return ctx.JSON(data)
+	})
 }
 
 func (c *productController) updateProductFromRequest(ctx *fiber.Ctx, product *models.Product) error {
 	oldImage := product.Image
-
 	if err := ctx.BodyParser(product); err != nil {
 		return err
 	}
-
 	product.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.saveProductImage(ctx, product); err != nil {
 		product.Image = oldImage
 	}
-
 	if err := c.productService.Update(product); err != nil {
-		return views.RenderError(ctx, "products/product", product, "Falha ao atualizar produto.", views.BaseLayout)
+		return views.RenderError(ctx, ProductPage, product, "Falha ao atualizar produto.", views.BaseLayout)
 	}
 	return nil
 }
@@ -168,12 +135,10 @@ func (c *productController) saveProductImage(ctx *fiber.Ctx, product *models.Pro
 	if err != nil {
 		return err
 	}
-
 	img := &models.ProductImage{}
 	if err := img.Save(imageFile); err != nil {
 		return err
 	}
-
 	product.Image = img.Path
 	return nil
 }
@@ -183,8 +148,13 @@ func (c *productController) getProductIdFromParam(ctx *fiber.Ctx) (uint, error) 
 }
 
 func (c *productController) getProductFilterFromQueryParams(ctx *fiber.Ctx) *models.ProductFilter {
-	query := ctx.Query("q", "")
-	page := ctx.QueryInt("page")
-	limit := ctx.QueryInt("limit")
-	return models.NewProductFilter(query, page, limit)
+	return models.NewProductFilter(ctx.Query("q", ""), ctx.QueryInt("page"), ctx.QueryInt("limit"))
+}
+
+func (c *productController) getProductByID(ctx *fiber.Ctx) (models.Product, error) {
+	productID, err := c.getProductIdFromParam(ctx)
+	if err != nil {
+		return models.Product{}, err
+	}
+	return c.productService.FindById(productID)
 }

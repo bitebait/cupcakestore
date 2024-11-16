@@ -10,53 +10,55 @@ import (
 )
 
 func Auth() fiber.Handler {
-	return sessionHandler(false, false)
+	return createSessionHandler(false, false)
 }
 
 func LoginRequired() fiber.Handler {
-	return sessionHandler(true, false)
+	return createSessionHandler(true, false)
 }
 
 func LoginAndStaffRequired() fiber.Handler {
-	return sessionHandler(true, true)
+	return createSessionHandler(true, true)
 }
 
-func sessionHandler(loginRequired, staffRequired bool) fiber.Handler {
+func createSessionHandler(requireLogin, requireStaff bool) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sess, err := session.Store.Get(c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("Internal server error")
 		}
-
-		profile, ok := sess.Get("Profile").(*models.Profile)
-		if ok {
-			err := processAuthenticatedUser(c, profile)
+		profile, isAuthenticated := sess.Get("Profile").(*models.Profile)
+		if isAuthenticated {
+			err := handleAuthenticatedUser(c, profile, requireLogin, requireStaff)
 			if err != nil {
 				return err
 			}
-			if loginRequired {
-				if staffRequired && !profile.User.IsStaff {
-					return c.Redirect("/auth/logout")
-				}
-				return c.Next()
-			}
+			return c.Next()
 		}
-
-		if loginRequired {
+		if requireLogin {
 			return c.Redirect("/auth/login")
 		}
-
 		return c.Next()
 	}
 }
 
-func processAuthenticatedUser(c *fiber.Ctx, profile *models.Profile) error {
-	profileService := getProfileService()
+func handleAuthenticatedUser(c *fiber.Ctx, profile *models.Profile, requireLogin, requireStaff bool) error {
+	err := updateProfileIfNeeded(c, profile)
+	if err != nil {
+		return err
+	}
+	if requireStaff && !profile.User.IsStaff {
+		return c.Redirect("/auth/logout")
+	}
+	return nil
+}
+
+func updateProfileIfNeeded(c *fiber.Ctx, profile *models.Profile) error {
+	profileService := fetchProfileService()
 	updatedProfile, err := profileService.FindByUserId(profile.UserID)
 	if err != nil {
 		return err
 	}
-
 	if !updatedProfile.User.IsActive {
 		sess, _ := session.Store.Get(c)
 		if err := sess.Destroy(); err != nil {
@@ -64,12 +66,11 @@ func processAuthenticatedUser(c *fiber.Ctx, profile *models.Profile) error {
 		}
 		return c.Redirect("/auth/login")
 	}
-
 	c.Locals("Profile", &updatedProfile)
 	return nil
 }
 
-func getProfileService() services.ProfileService {
-	profileRepository := repositories.NewProfileRepository(database.DB)
-	return services.NewProfileService(profileRepository)
+func fetchProfileService() services.ProfileService {
+	profileRepo := repositories.NewProfileRepository(database.DB)
+	return services.NewProfileService(profileRepo)
 }

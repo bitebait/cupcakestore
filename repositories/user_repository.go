@@ -30,12 +30,7 @@ func (r *userRepository) Create(user *models.User) error {
 
 func (r *userRepository) FindAll(filter *models.UserFilter) []models.User {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
-
-	query := r.db.Model(&models.User{}).Omit("Password")
-
-	if filter.User.Email != "" {
-		query = query.Where("email LIKE ?", "%"+filter.User.Email+"%")
-	}
+	query := buildFilteredQuery(r.db, filter)
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
@@ -45,8 +40,15 @@ func (r *userRepository) FindAll(filter *models.UserFilter) []models.User {
 
 	var users []models.User
 	query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc").Find(&users)
-
 	return users
+}
+
+func buildFilteredQuery(db *gorm.DB, filter *models.UserFilter) *gorm.DB {
+	query := db.Model(&models.User{}).Omit("Password")
+	if filter.User.Email != "" {
+		query = query.Where("email LIKE ?", "%"+filter.User.Email+"%")
+	}
+	return query
 }
 
 func (r *userRepository) FindById(id uint) (models.User, error) {
@@ -62,10 +64,11 @@ func (r *userRepository) FindByEmail(email string) (models.User, error) {
 }
 
 func (r *userRepository) Update(user *models.User) error {
+	query := r.db
 	if user.Password == "" {
-		return r.db.Omit("Password").Save(user).Error
+		query = query.Omit("Password")
 	}
-	return r.db.Save(user).Error
+	return query.Save(user).Error
 }
 
 func (r *userRepository) Delete(user *models.User) error {

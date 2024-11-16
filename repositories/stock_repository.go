@@ -32,23 +32,33 @@ func (r *stockRepository) SumProductStockQuantity(productID uint) (int, error) {
 }
 
 func (r *stockRepository) FindByProductId(filter *models.StockFilter) []models.Stock {
-	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
-
-	query := r.db.Model(&models.Stock{}).
-		Where("product_id = ?", filter.Stock.ProductID)
-
-	var total int64
-	if err := query.Count(&total).Error; err != nil {
-		return nil
-	}
+	offset := calculateOffset(filter.Pagination)
+	total := countTotalStocks(r.db, filter.Stock.ProductID)
 	filter.Pagination.Total = total
 
+	return fetchStocks(r.db, filter, offset)
+}
+
+func calculateOffset(pagination *models.Pagination) int {
+	return (pagination.Page - 1) * pagination.Limit
+}
+
+func countTotalStocks(db *gorm.DB, productID uint) int64 {
+	var total int64
+	query := db.Model(&models.Stock{}).Where("product_id = ?", productID)
+	query.Count(&total)
+	return total
+}
+
+func fetchStocks(db *gorm.DB, filter *models.StockFilter, offset int) []models.Stock {
 	var stocks []models.Stock
-	query.Offset(offset).
+	query := db.Model(&models.Stock{}).
+		Where("product_id = ?", filter.Stock.ProductID).
+		Offset(offset).
 		Limit(filter.Pagination.Limit).
 		Order("created_at desc").
 		Preload("Product").
-		Preload("Profile.User").
-		Find(&stocks)
+		Preload("Profile.User")
+	query.Find(&stocks)
 	return stocks
 }

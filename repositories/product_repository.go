@@ -18,10 +18,8 @@ type productRepository struct {
 	db *gorm.DB
 }
 
-func NewProductRepository(database *gorm.DB) ProductRepository {
-	return &productRepository{
-		db: database,
-	}
+func NewProductRepository(db *gorm.DB) ProductRepository {
+	return &productRepository{db: db}
 }
 
 func (r *productRepository) Create(product *models.Product) error {
@@ -29,32 +27,20 @@ func (r *productRepository) Create(product *models.Product) error {
 }
 
 func (r *productRepository) FindAll(filter *models.ProductFilter) []models.Product {
-	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
-
-	query := r.db.Model(&models.Product{})
-
-	if filter.Product.Name != "" {
-		filterPattern := "%" + filter.Product.Name + "%"
-		query = query.Where("name LIKE ? OR description LIKE ?", filterPattern, filterPattern)
-	}
-
-	var total int64
-	if err := query.Count(&total).Error; err != nil {
-		return nil
-	}
-	filter.Pagination.Total = total
-
-	var products []models.Product
-	query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc").Find(&products)
-	return products
+	return r.findProducts(filter, "")
 }
 
 func (r *productRepository) FindActiveWithStock(filter *models.ProductFilter) []models.Product {
+	return r.findProducts(filter, "is_active = 1 AND current_stock > 0")
+}
+
+func (r *productRepository) findProducts(filter *models.ProductFilter, additionalCondition string) []models.Product {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
+	query := r.db.Model(&models.Product{})
 
-	query := r.db.Model(&models.Product{}).
-		Where("is_active = 1 AND current_stock > 0")
-
+	if additionalCondition != "" {
+		query = query.Where(additionalCondition)
+	}
 	if filter.Product.Name != "" {
 		filterPattern := "%" + filter.Product.Name + "%"
 		query = query.Where("name LIKE ? OR description LIKE ?", filterPattern, filterPattern)

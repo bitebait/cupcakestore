@@ -62,6 +62,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 		"Order":       order,
 		"StoreConfig": storeConfig,
 	}
+
 	return views.Render(ctx, "orders/checkout", data, views.StoreLayout)
 }
 
@@ -84,19 +85,19 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 
 	switch ctx.Method() {
 	case fiber.MethodPost:
-		return c.handlePaymentPostRequest(ctx, order)
+		return c.processPaymentPost(ctx, order)
 	case fiber.MethodGet:
-		return c.handlePaymentGetRequest(ctx, order)
+		return c.processPaymentGet(ctx, order)
 	default:
 		return ctx.Redirect("/orders")
 	}
 }
 
-func (c *orderController) isAuthorizedUser(currentUser *models.Profile, order *models.Order, profileID uint) bool {
-	return currentUser.User.IsStaff || order.IsCurrentUserOrder(profileID)
+func (c *orderController) isAuthorizedUser(user *models.Profile, order *models.Order, profileID uint) bool {
+	return user.User.IsStaff || order.IsCurrentUserOrder(profileID)
 }
 
-func (c *orderController) handlePaymentPostRequest(ctx *fiber.Ctx, order *models.Order) error {
+func (c *orderController) processPaymentPost(ctx *fiber.Ctx, order *models.Order) error {
 	if err := ctx.BodyParser(order); err != nil {
 		return renderErrorMessage(err, "processar os dados de pagamento")
 	}
@@ -111,11 +112,11 @@ func (c *orderController) handlePaymentPostRequest(ctx *fiber.Ctx, order *models
 	}
 
 	if err := c.orderService.Update(order); err != nil {
-		return renderErrorMessage(err, "atualizar o carrinho para pagamento")
+		return renderErrorMessage(err, "atualizar o pedido para pagamento")
 	}
 
 	if err := c.orderService.Payment(order); err != nil {
-		return renderErrorMessage(err, "realizar o pagamento do carrinho")
+		return renderErrorMessage(err, "realizar o pagamento")
 	}
 
 	if order.PaymentMethod == models.PixPaymentMethod {
@@ -125,7 +126,7 @@ func (c *orderController) handlePaymentPostRequest(ctx *fiber.Ctx, order *models
 	return ctx.Redirect("/orders")
 }
 
-func (c *orderController) handlePaymentGetRequest(ctx *fiber.Ctx, order *models.Order) error {
+func (c *orderController) processPaymentGet(ctx *fiber.Ctx, order *models.Order) error {
 	if order.CanRedirectToPixPayment() {
 		return ctx.Redirect("https://pix.ae" + order.PixURL)
 	}
@@ -157,6 +158,7 @@ func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
 		"Order":       order,
 		"StoreConfig": storeConfig,
 	}
+
 	return views.Render(ctx, "orders/order", data, views.StoreLayout)
 }
 
@@ -196,6 +198,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 	if c.isAuthorizedUser(currentUser, &order, currentUser.ID) {
 		return views.Render(ctx, "orders/cancel", order, views.StoreLayout)
 	}
+
 	return ctx.Redirect("/orders")
 }
 
@@ -217,6 +220,7 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 			return ctx.Redirect("/orders")
 		}
 	}
+
 	return ctx.Redirect("/orders")
 }
 
@@ -243,5 +247,6 @@ func (c *orderController) Update(ctx *fiber.Ctx) error {
 			return ctx.Redirect("/orders")
 		}
 	}
+
 	return ctx.Redirect("/orders")
 }

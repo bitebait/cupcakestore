@@ -27,30 +27,32 @@ func NewAuthService(u UserService, p ProfileService) AuthService {
 }
 
 func (s *authService) Register(profile *models.Profile) error {
-	err := s.userService.Create(&profile.User)
-	if err != nil {
+	if err := s.userService.Create(&profile.User); err != nil {
 		return err
 	}
+	return s.updateUserProfile(profile)
+}
 
+func (s *authService) updateUserProfile(profile *models.Profile) error {
 	p, err := s.profileService.FindByUserId(profile.User.ID)
 	if err != nil {
 		return err
 	}
-
 	p.FirstName = profile.FirstName
 	p.LastName = profile.LastName
-
 	return s.profileService.Update(&p)
 }
 
 func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error {
+	const inactiveUserError = "usuário inativo"
+
 	user, err := s.userService.FindByEmail(email)
 	if err != nil {
 		return err
 	}
 
 	if !user.IsActive {
-		return errors.New("usuário inativo")
+		return errors.New(inactiveUserError)
 	}
 
 	if err = user.CheckPassword(password); err != nil {
@@ -62,8 +64,7 @@ func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error
 		return err
 	}
 
-	err = setUserSession(ctx, &profile)
-	if err != nil {
+	if err = setUserSession(ctx, &profile); err != nil {
 		return err
 	}
 
@@ -71,11 +72,11 @@ func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error
 }
 
 func (s *authService) registerUserLoginDate(user *models.User) error {
+	now := time.Now()
 	if user.FirstLogin.IsZero() {
-		user.FirstLogin = time.Now()
+		user.FirstLogin = now
 	}
-
-	user.LastLogin = time.Now()
+	user.LastLogin = now
 	return s.userService.Update(user)
 }
 
@@ -84,11 +85,6 @@ func setUserSession(ctx *fiber.Ctx, profile *models.Profile) error {
 	if err != nil {
 		return err
 	}
-
 	sess.Set("Profile", profile)
-	if err = sess.Save(); err != nil {
-		return err
-	}
-
-	return nil
+	return sess.Save()
 }

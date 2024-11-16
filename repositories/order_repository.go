@@ -26,22 +26,25 @@ func NewOrderRepository(database *gorm.DB) OrderRepository {
 	}
 }
 
+// Helper function to apply common preloads
+func applyPreloads(db *gorm.DB) *gorm.DB {
+	return db.
+		Preload("Profile").
+		Preload("DeliveryDetail").
+		Preload("ShoppingCart.Items.Product")
+}
+
 func (r *orderRepository) FindById(id uint) (models.Order, error) {
 	var order models.Order
-	err := r.db.
+	err := applyPreloads(r.db).
 		Preload("Profile.User").
-		Preload("DeliveryDetail").
-		Preload("ShoppingCart.Items.Product").
 		First(&order, id).Error
 	return order, err
 }
 
 func (r *orderRepository) FindByCartId(cartID uint) (*models.Order, error) {
 	var order models.Order
-	err := r.db.
-		Preload("Profile").
-		Preload("DeliveryDetail").
-		Preload("ShoppingCart.Items.Product").
+	err := applyPreloads(r.db).
 		Where("shopping_cart_id = ?", cartID).
 		First(&order).Error
 	if err != nil {
@@ -57,11 +60,9 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 		if err = r.db.First(&cart, cartID).Error; err != nil {
 			return nil, err
 		}
-
 		if cart.ProfileID != profileID {
 			return nil, errors.New("perfil e carrinho não correspondem")
 		}
-
 		order := models.Order{
 			ProfileID:      profileID,
 			ShoppingCart:   cart,
@@ -69,37 +70,28 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (*models.Order, e
 			Status:         models.ActiveStatus,
 			PaymentMethod:  models.PixPaymentMethod,
 		}
-
 		if err = r.db.Create(&order).Error; err != nil {
 			return nil, err
 		}
-
 		cart.OrderID = order.ID
 		if err = r.db.Save(&cart).Error; err != nil {
 			return nil, err
 		}
-
 		order, err = r.FindById(order.ID)
 		if err != nil {
 			return nil, err
 		}
-
 		return &order, nil
 	} else if err != nil {
 		return nil, err
 	}
-
 	return foundOrder, nil
 }
 
 func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
-
-	query := r.db.
-		Model(&models.Order{}).
-		Preload("Profile").
-		Preload("DeliveryDetail").
-		Preload("ShoppingCart.Items.Product")
+	query := applyPreloads(r.db).
+		Model(&models.Order{})
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
@@ -120,12 +112,8 @@ func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 
 func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Order {
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
-
-	query := r.db.
+	query := applyPreloads(r.db).
 		Model(&models.Order{}).
-		Preload("Profile").
-		Preload("DeliveryDetail").
-		Preload("ShoppingCart.Items.Product").
 		Where("profile_id = ?", filter.Order.ProfileID)
 
 	var total int64
@@ -154,8 +142,6 @@ func (r *orderRepository) Cancel(id uint) error {
 	if err != nil {
 		return err
 	}
-
 	foundOrder.Status = models.CancelledStatus
-
 	return r.db.Save(&foundOrder).Error
 }
