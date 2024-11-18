@@ -17,13 +17,13 @@
         smartlook('init', 'ca5dad74e4686bf7fe9575ca78620f1f7f703c71', {region: 'eu'});
     </script>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>CupcakeStore | Acessar</title>
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <link rel="stylesheet" href="/dist/css/adminlte.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
+          rel="stylesheet">
+    <link href="/plugins/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+    <link href="/dist/css/adminlte.min.css" rel="stylesheet">
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
@@ -35,15 +35,15 @@
     </div>
     <div class="card card-outline card-primary">
         <div class="card-header text-center">
-            <a href="/auth/login" class="h1">
+            <a class="h1" href="/auth/login">
                 <b>Cupcake</b>Store </a>
         </div>
         <div class="card-body">
             <p class="login-box-msg">Acesse sua conta para iniciar a sessão</p>
             <form method="post">
                 <div class="input-group mb-3">
-                    <input type="email" class="form-control" id="email" name="email" placeholder="E-mail do usuário"
-                           required="required">
+                    <input class="form-control" id="email" name="email" placeholder="E-mail do usuário" required="required"
+                           type="email">
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-at"></span>
@@ -51,21 +51,21 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <input type="password" class="form-control password-field" id="password" name="password"
-                           placeholder="Senha do usuário" minlength="8" required="required"/>
+                    <input class="form-control password-field" id="password" minlength="8" name="password"
+                           placeholder="Senha do usuário" required="required" type="password"/>
                     <div class="input-group-append">
-                        <button id="show-password-button" class="input-group-text show-password-button" type="button">
-                            <span id="show-password-icon" class="fas fa-eye"></span>
+                        <button class="input-group-text show-password-button" id="show-password-button" type="button">
+                            <span class="fas fa-eye" id="show-password-icon"></span>
                         </button>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary btn-block">Acessar</button>
+                        <button class="btn btn-primary btn-block" type="submit">Acessar</button>
                     </div>
                 </div>
                 <p class="mb-0 mt-2 text-center">
-                    <a href="/auth/register" class="text-center">Clique aqui para fazer o registro</a>
+                    <a class="text-center" href="/auth/register">Clique aqui para fazer o registro</a>
                 </p>
             </form>
         </div>

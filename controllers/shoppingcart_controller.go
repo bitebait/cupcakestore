@@ -39,7 +39,7 @@ func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 	if err != nil {
 		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
 	}
-	quantity, err := strconv.Atoi(ctx.FormValue("quantity"))
+	quantity, err := strconv.Atoi(ctx.FormValue("quantity", "1"))
 	if err != nil {
 		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
 	}

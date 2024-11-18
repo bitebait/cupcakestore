@@ -10,10 +10,8 @@ import (
 )
 
 const (
-	RegisterTemplate      = "auth/register"
-	LoginTemplate         = "auth/login"
-	DefaultLoginRedirect  = "/"
-	DefaultLogoutRedirect = "/"
+	RegisterTemplate = "auth/register"
+	LoginTemplate    = "auth/login"
 )
 
 type AuthController interface {
@@ -32,17 +30,29 @@ func NewAuthController(authService services.AuthService) AuthController {
 	return &authController{authService: authService}
 }
 
-func (c *authController) Register(ctx *fiber.Ctx) error {
+func (c *authController) parseUser(ctx *fiber.Ctx) (*models.User, error) {
 	user := new(models.User)
 	if err := ctx.BodyParser(user); err != nil {
-		return views.RenderError(ctx, RegisterTemplate, nil, "Dados da conta inválidos: "+err.Error())
+		return nil, err
 	}
+	return user, nil
+}
 
-	profile := &models.Profile{
+func (c *authController) createProfile(ctx *fiber.Ctx, user *models.User) *models.Profile {
+	return &models.Profile{
 		FirstName: ctx.FormValue("firstname"),
 		LastName:  ctx.FormValue("lastname"),
 		User:      *user,
 	}
+}
+
+func (c *authController) Register(ctx *fiber.Ctx) error {
+	user, err := c.parseUser(ctx)
+	if err != nil {
+		return views.RenderError(ctx, RegisterTemplate, nil, "Dados da conta inválidos: "+err.Error())
+	}
+
+	profile := c.createProfile(ctx, user)
 
 	if err := c.authService.Register(profile); err != nil {
 		return views.RenderError(ctx, RegisterTemplate, nil, "Falha ao criar usuário: "+err.Error())
@@ -56,7 +66,7 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 	if err := c.authService.Authenticate(ctx, email, password); err != nil {
 		return views.RenderError(ctx, LoginTemplate, nil, "Credenciais inválidas ou usuário inativo.")
 	}
-	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGIN", DefaultLoginRedirect))
+	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGIN", "/"))
 }
 
 func (c *authController) Logout(ctx *fiber.Ctx) error {
@@ -68,7 +78,7 @@ func (c *authController) Logout(ctx *fiber.Ctx) error {
 	if err := sess.Destroy(); err != nil {
 		return err
 	}
-	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGOUT", DefaultLogoutRedirect))
+	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGOUT", "/"))
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
