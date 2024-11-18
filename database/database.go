@@ -10,29 +10,31 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var DB *gorm.DB
+var (
+	DB           *gorm.DB
+	dbLoggerMode = logger.Silent
+)
 
 func SetupDatabase() {
 	dbPath := config.Instance().GetEnvVar("DB_PATH", "database.db")
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
-	if err != nil {
-		log.Panicf("Failed to connect to the database: %v", err)
-	}
+	handleError("Failed to connect to the database", err)
 
-	if err := migrateModels(db); err != nil {
-		log.Panicf("Failed to migrate models: %v", err)
-	}
+	handleError("Failed to migrate models", migrateModels(db))
+	handleError("Failed to seed database", SeedDatabase(db))
 
-	if err := SeedDatabase(db); err != nil {
-		log.Panicf("Failed to seed database: %v", err)
-	}
-
-	db.Logger = logger.Default.LogMode(logger.Silent)
+	db.Logger = logger.Default.LogMode(dbLoggerMode)
 	DB = db
 }
 
+func handleError(msg string, err error) {
+	if err != nil {
+		log.Panicf("%s: %v", msg, err)
+	}
+}
+
 func migrateModels(db *gorm.DB) error {
-	m := []interface{}{
+	modelsToMigrate := []interface{}{
 		&models.User{},
 		&models.Profile{},
 		&models.Product{},
@@ -43,6 +45,5 @@ func migrateModels(db *gorm.DB) error {
 		&models.ShoppingCart{},
 		&models.ShoppingCartItem{},
 	}
-
-	return db.AutoMigrate(m...)
+	return db.AutoMigrate(modelsToMigrate...)
 }
