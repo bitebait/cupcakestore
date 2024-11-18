@@ -17,31 +17,25 @@ import (
 	"github.com/gofiber/template/html/v2"
 )
 
+const (
+	faviconPath = "./web/dist/img/favicon.png"
+	faviconURL  = "/favicon.ico"
+)
+
 func NewApplication() *fiber.App {
-	setupDatabase()
-	setupSession()
-
-	app := createFiberApp()
-	registerMiddlewares(app)
-	serveStaticFiles(app)
-	configureHTTPS(app)
-	registerRoutes(app)
-
-	return app
-}
-
-func setupDatabase() {
 	database.SetupDatabase()
-}
-
-func setupSession() {
 	session.SetupSession()
+
+	fiberApp := createFiberApp()
+	registerMiddlewares(fiberApp)
+	serveStaticFiles(fiberApp)
+	configureHTTPS(fiberApp)
+	registerRoutes(fiberApp)
+	return fiberApp
 }
 
 func createFiberApp() *fiber.App {
-	engine := html.New("./views", ".html")
-	engine.AddFuncMap(sprig.FuncMap())
-	engine.Reload(true)
+	engine := setupTemplateEngine()
 
 	return fiber.New(fiber.Config{
 		Views:             engine,
@@ -49,39 +43,35 @@ func createFiberApp() *fiber.App {
 	})
 }
 
-func registerMiddlewares(app *fiber.App) {
-	app.Use(recover.New())
-	app.Use(logger.New())
-	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestCompression,
-	}))
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-	}))
-	app.Use(favicon.New(favicon.Config{
-		File: "./web/dist/img/favicon.png",
-		URL:  "/favicon.ico",
-	}))
-	app.Use(minifier.New(minifier.Config{
-		MinifyHTML: true,
-		MinifyCSS:  true,
-		MinifyJS:   true,
-	}))
+func setupTemplateEngine() *html.Engine {
+	engine := html.New("./views", ".html")
+	engine.AddFuncMap(sprig.FuncMap())
+	engine.Reload(true)
+	return engine
 }
 
-func serveStaticFiles(app *fiber.App) {
-	app.Static("/", "./web")
+func registerMiddlewares(fiberApp *fiber.App) {
+	fiberApp.Use(recover.New())
+	fiberApp.Use(logger.New())
+	fiberApp.Use(compress.New(compress.Config{Level: compress.LevelBestCompression}))
+	fiberApp.Use(cors.New(cors.Config{AllowOrigins: "*"}))
+	fiberApp.Use(favicon.New(favicon.Config{File: faviconPath, URL: faviconURL}))
+	fiberApp.Use(minifier.New(minifier.Config{MinifyHTML: true, MinifyCSS: true, MinifyJS: true}))
 }
 
-func configureHTTPS(app *fiber.App) {
+func serveStaticFiles(fiberApp *fiber.App) {
+	fiberApp.Static("/", "./web")
+}
+
+func configureHTTPS(fiberApp *fiber.App) {
 	if !isDevMode() {
-		app.Use(redirectToHTTPS)
+		fiberApp.Use(redirectToHTTPS)
 	}
 }
 
-func registerRoutes(app *fiber.App) {
-	app.Use(middlewares.Auth())
-	routers.InstallRouters(app)
+func registerRoutes(fiberApp *fiber.App) {
+	fiberApp.Use(middlewares.Auth())
+	routers.InstallRouters(fiberApp)
 }
 
 func isDevMode() bool {
