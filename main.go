@@ -2,26 +2,44 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/bitebait/cupcakestore/bootstrap"
 	"github.com/bitebait/cupcakestore/config"
+	"log"
 )
+
+const (
+	envCertFilePath = "CERT_FILE_PATH"
+	envKeyFilePath  = "KEY_FILE_PATH"
+	envAppHost      = "APP_HOST"
+	envAppPort      = "APP_PORT"
+	envDevMode      = "DEV_MODE"
+	defaultHost     = "localhost"
+	defaultPort     = "4000"
+	defaultDevMode  = "true"
+)
+
+// Extracted function to get configuration values for better readability
+func getConfigValue(cfg *config.Config, key, def string) string {
+	return cfg.GetEnvVar(key, def)
+}
 
 func main() {
 	app := bootstrap.NewApplication()
 	cfg := config.Instance()
 
-	host := cfg.GetEnvVar("APP_HOST", "localhost")
-	port := cfg.GetEnvVar("APP_PORT", "4000")
+	certFilePath := getConfigValue(cfg, envCertFilePath, "")
+	keyFilePath := getConfigValue(cfg, envKeyFilePath, "")
+	host := getConfigValue(cfg, envAppHost, defaultHost)
+	port := getConfigValue(cfg, envAppPort, defaultPort)
 	addr := fmt.Sprintf("%s:%s", host, port)
 
-	if cfg.GetEnvVar("DEV_MODE", "true") == "true" {
+	if isDevelopmentMode(cfg) {
 		log.Fatal(app.Listen(addr))
-		return
+	} else {
+		log.Fatal(app.ListenTLS(addr, certFilePath, keyFilePath))
 	}
+}
 
-	certFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/fullchain.pem"
-	keyFile := "/etc/letsencrypt/live/cupcakestore.schwaab.me/privkey.pem"
-	log.Fatal(app.ListenTLS(addr, certFile, keyFile))
+func isDevelopmentMode(cfg *config.Config) bool {
+	return getConfigValue(cfg, envDevMode, defaultDevMode) == "true"
 }
