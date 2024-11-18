@@ -6,6 +6,18 @@ import (
 	"log"
 )
 
+const (
+	adminEmail               = "admin@admin.com"
+	adminPassword            = "admin@admin.com"
+	storePhysicalEmail       = "foo@bar.com"
+	storePhysicalAddress     = "Foo Bar"
+	storePhysicalCity        = "Foo Bar"
+	storePhysicalState       = "Foo Bar"
+	storePhysicalPostalCode  = "00000-000"
+	storePhysicalPhoneNumber = "(00)00000-0000"
+	storePixKey              = "000.000.000-00"
+)
+
 type Seeder interface {
 	Seed(db *gorm.DB) error
 }
@@ -14,18 +26,12 @@ type UserAdminSeeder struct{}
 
 func (s UserAdminSeeder) Seed(db *gorm.DB) error {
 	admin := &models.User{
-		Email:    "admin@admin.com",
-		Password: "admin@admin.com",
+		Email:    adminEmail,
+		Password: adminPassword,
 		IsActive: true,
 		IsStaff:  true,
 	}
-
-	if err := db.FirstOrCreate(&admin, "email = ?", admin.Email).Error; err != nil {
-		log.Fatalf("Failed to create AdminUser: %v", err)
-		return err
-	}
-
-	return nil
+	return createRecordIfNotExists(db, admin, "email = ?", admin.Email, "AdminUser")
 }
 
 type StoreConfigSeeder struct{}
@@ -34,23 +40,25 @@ func (s StoreConfigSeeder) Seed(db *gorm.DB) error {
 	storeConfig := &models.StoreConfig{
 		DeliveryPrice:            10,
 		DeliveryIsActive:         true,
-		PhysicalStoreEmail:       "foo@bar.com",
-		PhysicalStoreAddress:     "Foo Bar",
-		PhysicalStoreCity:        "Foo Bar",
-		PhysicalStoreState:       "Foo Bar",
-		PhysicalStorePostalCode:  "00000-000",
-		PhysicalStorePhoneNumber: "(00)00000-0000",
+		PhysicalStoreEmail:       storePhysicalEmail,
+		PhysicalStoreAddress:     storePhysicalAddress,
+		PhysicalStoreCity:        storePhysicalCity,
+		PhysicalStoreState:       storePhysicalState,
+		PhysicalStorePostalCode:  storePhysicalPostalCode,
+		PhysicalStorePhoneNumber: storePhysicalPhoneNumber,
 		PaymentCashIsActive:      true,
 		PaymentPixIsActive:       true,
-		PixKey:                   "000.000.000-00",
+		PixKey:                   storePixKey,
 		PixKeyType:               models.PixTypeCPF,
 	}
+	return createRecordIfNotExists(db, storeConfig, "physical_store_email = ?", storeConfig.PhysicalStoreEmail, "StoreConfig")
+}
 
-	if err := db.FirstOrCreate(&storeConfig, "physical_store_email = ?", storeConfig.PhysicalStoreEmail).Error; err != nil {
-		log.Fatalf("Failed to create StoreConfig: %v", err)
+func createRecordIfNotExists(db *gorm.DB, value interface{}, query string, args ...interface{}) error {
+	if err := db.FirstOrCreate(value, append([]interface{}{query}, args...)...).Error; err != nil {
+		log.Printf("Failed to create %T: %v", value, err)
 		return err
 	}
-
 	return nil
 }
 
@@ -59,7 +67,6 @@ func SeedDatabase(db *gorm.DB) error {
 		UserAdminSeeder{},
 		StoreConfigSeeder{},
 	}
-
 	for _, seeder := range seeders {
 		if err := seeder.Seed(db); err != nil {
 			return err
