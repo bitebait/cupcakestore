@@ -22,44 +22,51 @@
 <div class="content">
     <div class="container">
         <div class="row row-eq-height">
-            {{ if  .Object.Products}}
-                {{range .Object.Products}}
-                    <div class="col-md-3">
-                        <div class="card card-produto  text-center">
-                            <img src="{{.Image}}" class="card-img-top" alt="{{.Name}}">
-                            <div class="card-body d-flex flex-column">
-                                <a class="card-title font-weight-bold text-dark" href="/products/details/{{.ID}}">
-                                    <h5>{{abbrev 40 .Name}}</h5></a>
-                                <p class="card-text text-muted"><small>{{abbrev 70 .Description}}</small></p>
-                                <div class="mt-auto">
-                                    <p class="card-text font-weight-bold fontsize-20">R$ {{ printf "%.2f" .Price}}<small
-                                                class="text-muted">/uni</small></p>
-                                    <div class="input-group mb-3">
-                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-decrement"
-                                                onclick="decrementQuantity('{{.ID}}')">-
-                                        </button>
-                                        <input type="number" id="{{.ID}}-quantity" class="form-control text-center"
-                                               pattern="[0-9]*" inputmode="numeric" min="1" value="1" aria-label="Example text with button addon"
-                                               aria-describedby="{{.ID}}-decrement {{.ID}}-increment">
-                                        <button class="btn btn-outline-secondary" type="button" id="{{.ID}}-increment"
-                                                onclick="incrementQuantity('{{.ID}}')">+
-                                        </button>
-                                    </div>
-                                    <a href="#" class="adicionar-ao-carrinho" data-id="{{.ID}}">Adicionar ao
-                                        Carrinho</a>
-                                </div>
+            {{ if .Object.Products}}
+            {{range .Object.Products}}
+            <div class="col-md-3">
+                <div class="card card-produto  text-center">
+                    <img alt="{{.Name}}" class="card-img-top" src="{{.Image}}">
+                    <div class="card-body d-flex flex-column">
+                        <a class="card-title font-weight-bold text-dark" href="/products/details/{{.ID}}">
+                            <h5>{{.Name}}</h5></a>
+                        <a class="link-muted" href="/products/details/{{.ID}}"><u>Ler descrição</u></a>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-text font-weight-bold"
+                              style="font-size: 24px;">R$ {{ printf "%.2f" .Price}}<small
+                                class="text-muted">/uni</small></span>
+                        <div class="mt-3">
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-secondary" id="{{.ID}}-decrement"
+                                        onclick="decrementQuantity('{{.ID}}')"
+                                        type="button">-
+                                </button>
+                                <input aria-describedby="{{.ID}}-decrement {{.ID}}-increment"
+                                       aria-label="Example text with button addon" class="form-control text-center"
+                                       id="{{.ID}}-quantity" inputmode="numeric" min="1" pattern="[0-9]*"
+                                       type="number"
+                                       value="1">
+                                <button class="btn btn-outline-secondary" id="{{.ID}}-increment"
+                                        onclick="incrementQuantity('{{.ID}}')"
+                                        type="button">+
+                                </button>
                             </div>
                         </div>
+                        <a class="adicionar-ao-carrinho btn btn-outline-primary w-100" data-id="{{.ID}}" href="#">
+                            Adicionar ao carrinho</a>
                     </div>
-                {{end}}
+                </div>
+            </div>
+            {{end}}
             {{end}}
         </div>
         {{ if not .Object.Products}}
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p>Nenhum produto disponível no momento.</p>
-                </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>Nenhum produto disponível no momento.</p>
             </div>
+        </div>
         {{end}}
         <div class="mb-5">{{template "snippets/pagination" .Object.Filter.Pagination}}</div>
 
