@@ -65,6 +65,20 @@
         <div class="row">
             <div class="col-12 text-center">
                 <p>Nenhum produto disponível no momento.</p>
+                {{if .Profile.User.IsStaff}}
+                <p>
+                    <a href="/products/create">
+                        <button class="btn btn-sm btn-primary">
+                            <i class="fa fa-plus"></i> Cadastrar novo produto
+                        </button>
+                    </a> ou
+                    <a href="/stock/create">
+                        <button class="btn btn-sm btn-success">
+                            <i class="fa fa-plus"></i> Adicionar ao estoque
+                        </button>
+                    </a>
+                </p>
+                {{ end }}
             </div>
         </div>
         {{end}}
