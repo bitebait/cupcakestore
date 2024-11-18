@@ -29,11 +29,11 @@
                     <img alt="{{.Name}}" class="card-img-top" src="{{.Image}}">
                     <div class="card-body d-flex flex-column">
                         <a class="card-title font-weight-bold text-dark" href="/products/details/{{.ID}}">
-                            <h5>{{.Name}}</h5></a>
+                            <h5>{{abbrev 40 .Name}}</h5></a>
                         <a class="link-muted" href="/products/details/{{.ID}}"><u>Ler descrição</u></a>
                     </div>
                     <div class="card-footer">
-                        <span class="card-text font-weight-bold"
+                        <span class="card-text font-weight-bold" s
                               style="font-size: 24px;">R$ {{ printf "%.2f" .Price}}<small
                                 class="text-muted">/uni</small></span>
                         <div class="mt-3">
