@@ -69,7 +69,7 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 }
 
 func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
-	userID, err := utils.StringToId(ctx.Params("id"))
+	userID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return models.Profile{}, ctx.SendStatus(fiber.StatusInternalServerError)
 	}

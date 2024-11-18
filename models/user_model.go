@@ -69,7 +69,7 @@ func (u *User) AfterDelete(tx *gorm.DB) error {
 }
 
 func (u *User) HashPassword() error {
-	hash, err := utils.PasswordHasher(u.Password)
+	hash, err := utils.HashPassword(u.Password)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 		return errors.New("nova senha não pode estar vazia")
 	}
 
-	hash, err := utils.PasswordHasher(newPassword)
+	hash, err := utils.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}

@@ -81,7 +81,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) getUser(ctx *fiber.Ctx) (models.User, error) {
-	userID, err := utils.StringToId(ctx.Params("id"))
+	userID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return models.User{}, ctx.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -117,7 +117,7 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) getUserAndCheckAccess(ctx *fiber.Ctx) (*models.User, error) {
-	id, err := utils.StringToId(ctx.Params("id"))
+	id, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return nil, ctx.Redirect("/users")
 	}
@@ -166,7 +166,7 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) Delete(ctx *fiber.Ctx) error {
-	id, err := utils.StringToId(ctx.Params("id"))
+	id, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/users")
 	}

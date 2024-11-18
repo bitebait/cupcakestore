@@ -4,26 +4,28 @@ import (
 	"crypto/rand"
 )
 
+const defaultCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+// Randomizer struct
 type Randomizer struct {
 	charset string
 }
 
 func NewRandomizer() *Randomizer {
 	return &Randomizer{
-		charset: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+		charset: defaultCharset,
 	}
 }
 
-func (r *Randomizer) GenerateRandomString(length int) (string, error) {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
+func (r *Randomizer) GenerateString(length int) (string, error) {
+	randomBytes := make([]byte, length)
+	_, err := rand.Read(randomBytes)
 	if err != nil {
 		return "", err
 	}
 
-	for i, b := range bytes {
-		bytes[i] = r.charset[b%byte(len(r.charset))]
+	for i, b := range randomBytes {
+		randomBytes[i] = r.charset[b%byte(len(r.charset))]
 	}
-
-	return string(bytes), nil
+	return string(randomBytes), nil
 }

@@ -64,7 +64,7 @@ func (i *ProductImage) saveCroppedImage(imageName string, thumbnail image.Image)
 
 func (i *ProductImage) generateRandomImageFileName(filename string) (string, error) {
 	rand := utils.NewRandomizer()
-	randString, err := rand.GenerateRandomString(22)
+	randString, err := rand.GenerateString(22)
 	if err != nil {
 		return "", err
 	}

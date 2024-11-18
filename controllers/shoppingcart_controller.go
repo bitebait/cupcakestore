@@ -35,7 +35,7 @@ func (c *shoppingCartController) RenderShoppingCart(ctx *fiber.Ctx) error {
 }
 
 func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
-	productID, err := utils.StringToId(ctx.FormValue("id"))
+	productID, err := utils.ParseStringToID(ctx.FormValue("id"))
 	if err != nil {
 		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
 	}
@@ -54,7 +54,7 @@ func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 }
 
 func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
-	productID, err := utils.StringToId(ctx.Params("id"))
+	productID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return renderErrorMessage(err, "remover o item do carrinho de compras")
 	}

@@ -39,7 +39,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 		return renderErrorMessage(errors.New("Perfil incompleto. Por favor, complete as informações do perfil."), "obter o carrinho de compras")
 	}
 
-	cartID, err := utils.StringToId(ctx.Params("id"))
+	cartID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return renderErrorMessage(err, "processar o ID do carrinho")
 	}
@@ -68,7 +68,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 
 func (c *orderController) Payment(ctx *fiber.Ctx) error {
 	profileID := getUserID(ctx)
-	cartID, err := utils.StringToId(ctx.Params("id"))
+	cartID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return renderErrorMessage(err, "processar o checkout do carrinho")
 	}
@@ -134,7 +134,7 @@ func (c *orderController) processPaymentGet(ctx *fiber.Ctx, order *models.Order)
 }
 
 func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
-	orderID, err := utils.StringToId(ctx.Params("id"))
+	orderID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/orders")
 	}
@@ -184,7 +184,7 @@ func (c *orderController) RenderAllOrders(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
-	orderID, err := utils.StringToId(ctx.Params("id"))
+	orderID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/orders")
 	}
@@ -203,7 +203,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Cancel(ctx *fiber.Ctx) error {
-	orderID, err := utils.StringToId(ctx.Params("id"))
+	orderID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/orders")
 	}
@@ -225,7 +225,7 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Update(ctx *fiber.Ctx) error {
-	orderID, err := utils.StringToId(ctx.Params("id"))
+	orderID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/orders")
 	}

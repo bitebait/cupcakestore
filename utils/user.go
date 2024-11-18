@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func PasswordHasher(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -13,10 +13,10 @@ func PasswordHasher(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func StringToId(s string) (uint, error) {
-	parseUint, err := strconv.ParseUint(s, 10, 64)
+func ParseStringToID(s string) (uint, error) {
+	id, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
 		return 0, err
 	}
-	return uint(parseUint), nil
+	return uint(id), nil
 }

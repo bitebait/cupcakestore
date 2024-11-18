@@ -144,7 +144,7 @@ func (c *productController) saveProductImage(ctx *fiber.Ctx, product *models.Pro
 }
 
 func (c *productController) getProductIdFromParam(ctx *fiber.Ctx) (uint, error) {
-	return utils.StringToId(ctx.Params("id"))
+	return utils.ParseStringToID(ctx.Params("id"))
 }
 
 func (c *productController) getProductFilterFromQueryParams(ctx *fiber.Ctx) *models.ProductFilter {

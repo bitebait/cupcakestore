@@ -57,7 +57,7 @@ func (c *stockController) RenderStocks(ctx *fiber.Ctx) error {
 }
 
 func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
-	productID, err := utils.StringToId(ctx.Params("id"))
+	productID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return ctx.Redirect("/stocks")
 	}
