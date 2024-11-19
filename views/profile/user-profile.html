@@ -7,13 +7,13 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     {{ if.Profile.User.IsStaff }}
-                    <li class="breadcrumb-item">
-                        <a href="/users">Usuários Registrados</a>
-                    </li>
+                        <li class="breadcrumb-item">
+                            <a href="/users">Usuários Registrados</a>
+                        </li>
                     {{else}}
-                    <li class="breadcrumb-item">
-                        <a href="/">Home</a>
-                    </li>
+                        <li class="breadcrumb-item">
+                            <a href="/">Home</a>
+                        </li>
                     {{end}}
                     <li class="breadcrumb-item active">Detalhes do Perfil</li>
                 </ol>
@@ -29,78 +29,78 @@
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Perfil do Usuário</h3>
-                        <a class="btn float-right" href="/users/user/{{.Object.UserID}}">
+                        <a href="/users/user/{{.Object.UserID}}" class="btn float-right">
                             <i class="fas fa-eye"></i> <u>Conta de Usuário</u>
                         </a>
                     </div>
-                    <form action="/profile/update/{{.Object.UserID}}" method="Post">
+                    <form method="Post" action="/profile/update/{{.Object.UserID}}">
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-12">
                                     <label for="mail">E-mail</label>
-                                    <input class="form-control" disabled id="mail" type="mail"
-                                           value="{{.Object.User.Email}}">
+                                    <input type="mail" class="form-control" id="mail" value="{{.Object.User.Email}}"
+                                           disabled>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="firstname">Nome</label>
-                                    <input class="form-control" id="firstname" minlength="4" name="firstname"
+                                    <input type="text" class="form-control" id="firstname" name="firstname"
                                            placeholder="Nome"
-                                           type="text" value="{{.Object.FirstName}}">
+                                           minlength="4" value="{{.Object.FirstName}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="lastname">Sobrenome</label>
-                                    <input class="form-control" id="lastname" name="lastname" placeholder="Sobrenome"
-                                           type="text"
+                                    <input type="text" class="form-control" id="lastname" name="lastname"
+                                           placeholder="Sobrenome"
                                            value="{{.Object.LastName}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-12">
                                     <label for="address">Endereço</label>
-                                    <input class="form-control" id="address" minlength="4" name="address"
+                                    <input type="text" class="form-control" id="address" name="address"
                                            placeholder="Endereço"
-                                           type="text" value="{{.Object.Address}}">
+                                           minlength="4" value="{{.Object.Address}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="phonenumber">Telefone</label>
-                                    <input class="form-control phone-number" id="phonenumber" name="phonenumber"
-                                           placeholder="Telefone"
-                                           type="text" value="{{.Object.PhoneNumber}}">
+                                    <input type="text" class="form-control phone-number" id="phonenumber"
+                                           name="phonenumber"
+                                           placeholder="Telefone" value="{{.Object.PhoneNumber}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="postalcode">Código postal</label>
-                                    <input class="form-control postal-code" id="postalcode" name="postalcode"
-                                           placeholder="Código postal"
-                                           type="text" value="{{.Object.PostalCode}}">
+                                    <input type="text" class="form-control postal-code" id="postalcode"
+                                           name="postalcode"
+                                           placeholder="Código postal" value="{{.Object.PostalCode}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="state">Estado</label>
-                                    <input class="form-control" id="state" minlength="4" name="state" placeholder="Estado"
-                                           type="text"
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="Estado"
+                                           minlength="4"
                                            value="{{.Object.State}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="city">Cidade</label>
-                                    <input class="form-control" id="city" name="city" placeholder="Cidade" type="text"
+                                    <input type="text" class="form-control" id="city" name="city" placeholder="Cidade"
                                            value="{{.Object.City}}">
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             {{ if.Profile.User.IsStaff }}
-                            <a class="btn btn-default" href="/users/user/{{.Object.UserID}}">
-                                <i class="fas fa-undo-alt"></i> Cancelar </a>
+                                <a href="/users/user/{{.Object.UserID}}" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
                             {{else}}
-                            <a class="btn btn-default" href="javascript:history.back()">
-                                <i class="fas fa-undo-alt"></i> Cancelar </a>
+                                <a href="javascript:history.back()" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
                             {{end}}
-                            <button class="btn btn-primary float-right" type="submit">Atualizar perfil</button>
+                            <button type="submit" class="btn btn-primary float-right">Atualizar perfil</button>
                         </div>
                     </form>
                 </div>

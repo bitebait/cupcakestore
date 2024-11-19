@@ -1,22 +1,22 @@
 <div class="row">
     <div class="col-12 mx-auto">
         {{ if .Error }}
-        <div class="alert alert-danger alert-dismissible" style="border-radius: 0;">
-            <button aria-hidden="true" class="close" data-dismiss="alert" type="button">×</button>
-            <h5>
-                <i class="icon fas fa-window-close"></i> Atenção!
-            </h5>
-            {{ .Message }}
-        </div>
+            <div class="alert alert-danger alert-dismissible" style="border-radius: 0;">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h5>
+                    <i class="icon fas fa-window-close"></i> Atenção!
+                </h5>
+                {{ .Message }}
+            </div>
         {{ end }}
         {{ if and (not .Error) (.Message) }}
-        <div class="alert alert-success alert-dismissible" style="border-radius: 0;">
-            <button aria-hidden="true" class="close" data-dismiss="alert" type="button">×</button>
-            <h5>
-                <i class="icon fas fa-check"></i> Sucesso!
-            </h5>
-            {{ .Message }}
-        </div>
+            <div class="alert alert-success alert-dismissible" style="border-radius: 0;">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h5>
+                    <i class="icon fas fa-check"></i> Sucesso!
+                </h5>
+                {{ .Message }}
+            </div>
         {{ end }}
     </div>
 </div>

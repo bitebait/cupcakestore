@@ -25,26 +25,23 @@
                     <div class="card-header">
                         <h3 class="card-title">Gerenciar as Configurações de Entrega</h3>
                     </div>
-                    <form action="/config" method="Post">
+                    <form method="Post" action="/config">
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="deliveryPrice">Valor da Taxa de Entrega (R$)</label>
-                                <input class="form-control" id="deliveryPrice" min="0.01" name="deliveryPrice"
-                                       placeholder="Valor da Taxa de Entrega" required="required" step="0.01"
-                                       type="number" value="{{.Object.DeliveryPrice}}"/>
+                                <input type="number" step="0.01" class="form-control" id="deliveryPrice" name="deliveryPrice" placeholder="Valor da Taxa de Entrega" min="0.01" value="{{.Object.DeliveryPrice}}" required="required" />
                             </div>
                             <div class="form-group">
                                 <label for="deliveryIsActive">Oferecer serviço de entrega?</label>
                                 <select class="form-control" id="deliveryIsActive" name="deliveryIsActive">
-                                    <option {{if .Object.DeliveryIsActive}}selected{{end}} value="1">Sim</option>
-                                    <option {{if .Object.DeliveryIsActive}}selected{{end}} not value="0">Não</option>
+                                    <option value="1" {{if .Object.DeliveryIsActive}}selected{{end}}>Sim</option>
+                                    <option value="0" {{if not .Object.DeliveryIsActive}}selected{{end}}>Não</option>
                                 </select>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a class="btn btn-default" href="javascript:history.back()"> <i class="fas fa-undo-alt"></i>
-                                Cancelar </a>
-                            <button class="btn btn-primary float-right" type="submit">Atualizar</button>
+                            <a href="javascript:history.back()" class="btn btn-default"> <i class="fas fa-undo-alt"></i> Cancelar </a>
+                            <button type="submit" class="btn btn-primary float-right">Atualizar</button>
                         </div>
                     </form>
                 </div>

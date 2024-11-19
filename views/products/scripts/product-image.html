@@ -1,41 +1,36 @@
 <script>
-    const fileInputElement = document.getElementById('image');
-    const statusLabel = document.getElementById('imageLabel');
-    const imagePreview = document.getElementById('previewImage');
+    const fileInput = document.getElementById('image');
+    const statusElement = document.getElementById('imageLabel');
+    const previewImage = document.getElementById('previewImage');
+    const maxFileSizeInMB = 2;
+    const maxFileSizeInBytes = 1024 * 1024 * maxFileSizeInMB;
 
-    const MAX_FILE_SIZE_MB = 2;
-    const MAX_FILE_SIZE_BYTES = 1024 * 1024 * MAX_FILE_SIZE_MB;
-    const PLACEHOLDER_IMAGE_SRC = "/images/placeholder.jpg";
-
-    function updateStatusLabel(color, message) {
-        statusLabel.style.color = color;
-        statusLabel.innerHTML = message;
+    function updateStatus(color, message) {
+        statusElement.style.color = color;
+        statusElement.innerHTML = message;
     }
 
-    function resetInputAndPreview() {
-        fileInputElement.value = '';
-        imagePreview.src = PLACEHOLDER_IMAGE_SRC;
+    function resetFileInput() {
+        fileInput.value = '';
+        previewImage.src = "/images/placeholder.jpg";
     }
 
-    function loadImagePreview(file) {
+    function previewFile(file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            imagePreview.src = e.target.result;
+            previewImage.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
 
-    function handleFileChange(event) {
-        const file = fileInputElement.files[0];
-
-        if (file.size > MAX_FILE_SIZE_BYTES) {
-            resetInputAndPreview();
-            updateStatusLabel("red", `Por favor, selecione um arquivo de até ${MAX_FILE_SIZE_MB}MB.`);
+    fileInput.addEventListener('change', event => {
+        const file = fileInput.files[0];
+        if (file.size > maxFileSizeInBytes) {
+            resetFileInput();
+            updateStatus("red", `Por favor, selecione um arquivo de até ${maxFileSizeInMB}MB.`);
         } else {
-            updateStatusLabel("green", 'Arquivo carregado com sucesso!');
-            loadImagePreview(file);
+            updateStatus("green", 'Arquivo carregado com sucesso!');
+            previewFile(file);
         }
-    }
-
-    fileInputElement.addEventListener('change', handleFileChange);
+    });
 </script>

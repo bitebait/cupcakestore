@@ -7,13 +7,13 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     {{ if.Profile.User.IsStaff }}
-                    <li class="breadcrumb-item">
-                        <a href="/users">Usuários Registrados</a>
-                    </li>
+                        <li class="breadcrumb-item">
+                            <a href="/users">Usuários Registrados</a>
+                        </li>
                     {{else}}
-                    <li class="breadcrumb-item">
-                        <a href="/">Home</a>
-                    </li>
+                        <li class="breadcrumb-item">
+                            <a href="/">Home</a>
+                        </li>
                     {{end}}
                     <li class="breadcrumb-item active">Detalhes do Usuário</li>
                 </ol>
@@ -29,80 +29,77 @@
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Dados do Usuário</h3>
-                        <a class="btn float-right" href="/profile/{{.Object.ID}}">
+                        <a href="/profile/{{.Object.ID}}" class="btn float-right">
                             <i class="fas fa-eye"></i> <u>Perfil do Usuário</u>
                         </a>
                     </div>
-                    <form action="/users/user/update/{{.Object.ID}}" method="Post">
+                    <form method="Post" action="/users/user/update/{{.Object.ID}}">
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-12">
                                     <label for="email">E-mail</label>
-                                    <input class="form-control" id="email" name="email" placeholder="E-mail do usuário"
-                                           type="email" value="{{.Object.Email}}">
+                                    <input type="email" class="form-control" id="email" name="email"
+                                           placeholder="E-mail do usuário" value="{{.Object.Email}}">
                                 </div>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="oldPassword">Senha Antiga</label>
-                                    <input class="form-control" id="oldPassword" minlength="8" name="oldPassword"
-                                           placeholder="Senha Antiga" type="password">
+                                    <input type="password" class="form-control" id="oldPassword" name="oldPassword"
+                                           placeholder="Senha Antiga" minlength="8">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="newPassword">Nova Senha</label>
-                                    <input class="form-control" id="newPassword" minlength="8" name="newPassword"
-                                           placeholder="Nova Senha" type="password">
+                                    <input type="password" class="form-control" id="newPassword" name="newPassword"
+                                           placeholder="Nova Senha" minlength="8">
                                 </div>
                             </div>
 
                             {{if not .Profile.User.IsStaff}}
-                            <input {{if .Object.IsActive}}checked{{end}} class="custom-control-input" hidden
-                                   id="isActive" name="isActive" type="checkbox"/>
+                            <input type="checkbox" class="custom-control-input" id="isActive"
+                                   name="isActive" {{if .Object.IsActive}}checked{{end}} hidden/>
                             {{end}}
                             {{if .Profile.User.IsStaff}}
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <div class="custom-control custom-switch">
-                                        <input {{if .Object.IsStaff}}checked{{end}} class="custom-control-input"
-                                               id="isStaff"
-                                               name="isStaff"
-                                               type="checkbox"/>
-                                        <label class="custom-control-label" for="isStaff">Tornar
-                                            Administrador</label>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="isStaff"
+                                                   name="isStaff"
+                                                   {{if .Object.IsStaff}}checked{{end}} />
+                                            <label class="custom-control-label" for="isStaff">Tornar
+                                                Administrador</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                            <input type="checkbox" class="custom-control-input" id="isActive"
+                                                   name="isActive" {{if .Object.IsActive}}checked{{end}} />
+                                            <label class="custom-control-label" for="isActive">Ativar/Desativar
+                                                Conta</label>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-                                        <input {{if .Object.IsActive}}checked{{end}} class="custom-control-input"
-                                               id="isActive"
-                                               name="isActive" type="checkbox"/>
-                                        <label class="custom-control-label" for="isActive">Ativar/Desativar
-                                            Conta</label>
-                                    </div>
-                                </div>
-                            </div>
                             {{end}}
 
                             <div class="form-row">
                                 <div class="col-12">
                                     <i class="text-muted">Último
-                                        Acesso: {{if .Object.LastLogin.IsZero }} N/A {{else}}
-                                        {{ .Object.LastLogin|date "02/01/2006 15:04h"}} {{end}}</i>
+                                        Acesso: {{if .Object.LastLogin.IsZero }} N/A {{else}} {{ .Object.LastLogin|date "02/01/2006 15:04h"}} {{end}}</i>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             {{ if.Profile.User.IsStaff }}
-                            <a class="btn btn-default" href="/users">
-                                <i class="fas fa-undo-alt"></i> Cancelar </a>
-                            <a class="btn btn-outline-danger" href="/users/delete/{{.Object.ID}}">
-                                <i class="fa fa-trash"></i> Deletar </a>
+                                <a href="/users" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
+                                <a href="/users/delete/{{.Object.ID}}" class="btn btn-outline-danger">
+                                    <i class="fa fa-trash"></i> Deletar </a>
                             {{else}}
-                            <a class="btn btn-default" href="javascript:history.back()">
-                                <i class="fas fa-undo-alt"></i> Cancelar </a>
+                                <a href="javascript:history.back()" class="btn btn-default">
+                                    <i class="fas fa-undo-alt"></i> Cancelar </a>
                             {{end}}
-                            <button class="btn btn-primary float-right" type="submit">Atualizar</button>
+                            <button type="submit" class="btn btn-primary float-right">Atualizar</button>
                         </div>
                     </form>
                 </div>

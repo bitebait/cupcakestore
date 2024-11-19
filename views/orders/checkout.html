@@ -38,8 +38,7 @@
                             <div class="col-sm-4 invoice-col">
                                 <b>Carrinho #{{.Object.Order.ShoppingCart.ID}}</b><br>
                                 <br>
-                                <b>Data do Pedido:</b>
-                                {{.Object.Order.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
+                                <b>Data do Pedido:</b> {{.Object.Order.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
                                 <b>Cliente:</b> {{.Profile.FullName}}
                             </div>
                             <!-- /.col -->
@@ -60,20 +59,20 @@
                                     </thead>
                                     <tbody>
                                     {{range .Object.Order.ShoppingCart.Items}}
-                                    <tr>
-                                        <td>
-                                            <div style="display: flex; justify-content: center; align-items: center;">
-                                                <img alt="Pré-visualização da imagem"
-                                                     id="previewImage"
-                                                     src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/600x400.svg{{end}}"
-                                                     style="max-width: 4vh;height: auto;max-height: 4vh;">
-                                            </div>
-                                        </td>
-                                        <td>{{.Quantity}}</td>
-                                        <td>{{.Product.Name}}</td>
-                                        <td>{{abbrev 60 .Product.Description}}</td>
-                                        <td>R$ {{mulf .Quantity .ItemPrice}}</td>
-                                    </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; justify-content: center; align-items: center;">
+                                                    <img id="previewImage"
+                                                         src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/600x400.svg{{end}}"
+                                                         alt="Pré-visualização da imagem"
+                                                         style="max-width: 4vh;height: auto;max-height: 4vh;">
+                                                </div>
+                                            </td>
+                                            <td>{{.Quantity}}</td>
+                                            <td>{{.Product.Name}}</td>
+                                            <td>{{abbrev 60 .Product.Description}}</td>
+                                            <td>R$ {{mulf .Quantity .ItemPrice}}</td>
+                                        </tr>
                                     {{end}}
                                     </tbody>
                                 </table>
@@ -84,30 +83,29 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-md-6">
-                                <form action="/orders/payment/{{.Object.Order.ShoppingCartID}}" class="form-row"
-                                      id="payment" method="Post">
+                                <form method="Post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}" id="payment" class="form-row">
                                     <div class="row">
                                         <div class="col-12">
                                             <p class="lead">Formas de Pagamento:</p>
                                             <select class="form-control" id="paymentMethod" name="paymentMethod">
                                                 {{if .Object.StoreConfig.PaymentPixIsActive}}
-                                                <option value="Pix">Pix</option>
+                                                    <option value="Pix">Pix</option>
                                                 {{end}}
                                                 {{if .Object.StoreConfig.PaymentCashIsActive}}
-                                                <option value="Dinheiro">Dinheiro</option>
+                                                    <option value="Dinheiro">Dinheiro</option>
                                                 {{end}}
                                             </select>
                                         </div>
                                         {{if .Object.StoreConfig.DeliveryIsActive}}
-                                        <div class="col-12 mt-2">
-                                            <p class="lead">Receber Produto Por:</p>
-                                            <select class="form-control" id="isDelivery" name="isDelivery">
-                                                {{if .Object.StoreConfig.DeliveryIsActive}}
-                                                <option value="1">Entregar no Endereço</option>
-                                                {{end}}
-                                                <option value="0">Retirada na Loja</option>
-                                            </select>
-                                        </div>
+                                            <div class="col-12 mt-2">
+                                                <p class="lead">Receber Produto Por:</p>
+                                                <select class="form-control" id="isDelivery" name="isDelivery">
+                                                    {{if .Object.StoreConfig.DeliveryIsActive}}
+                                                        <option value="1">Entregar no Endereço</option>
+                                                    {{end}}
+                                                    <option value="0">Retirada na Loja</option>
+                                                </select>
+                                            </div>
                                         {{end}}
                                     </div>
                                 </form>
@@ -121,10 +119,10 @@
                                             <td>R$ {{ printf "%.2f" .Object.Order.ShoppingCart.Total}}</td>
                                         </tr>
                                         {{if .Object.StoreConfig.DeliveryIsActive}}
-                                        <tr id="deliveryRow">
-                                            <th>Entrega:</th>
-                                            <td>R$ {{ printf "%.2f" .Object.StoreConfig.DeliveryPrice}}</td>
-                                        </tr>
+                                            <tr id="deliveryRow">
+                                                <th>Entrega:</th>
+                                                <td>R$ {{ printf "%.2f" .Object.StoreConfig.DeliveryPrice}}</td>
+                                            </tr>
                                         {{end}}
                                         <tr id="totalRow">
                                             <th>Total:</th>
@@ -138,12 +136,12 @@
                         <!-- /.row -->
                         <div class="row no-print mt-4">
                             <div class="col-12">
-                                <a class="btn btn-default" href="javascript:history.back()">
+                                <a href="javascript:history.back()" class="btn btn-default">
                                     <i class="fas fa-undo-alt"></i> Cancelar
                                 </a>
-                                <button class="btn btn-success float-right" form="payment"
-                                        type="submit"><i
-                                        class="far fa-credit-card"></i> Finalizar
+                                <button type="submit" form="payment"
+                                        class="btn btn-success float-right"><i
+                                            class="far fa-credit-card"></i> Finalizar
                                 </button>
                             </div>
                         </div>

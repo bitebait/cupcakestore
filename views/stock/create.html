@@ -29,10 +29,10 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="productName">Nome do produto</label>
-                                    <input class="form-control" id="productName" name="productName" placeholder="Nome do produto"
-                                           required="required" type="text">
+                                    <input type="text" class="form-control" id="productName" name="productName"
+                                           placeholder="Nome do produto" required="required">
                                 </div>
-                                <form action="/stock/create" id="stockForm" method="POST">
+                                <form method="POST" action="/stock/create" id="stockForm">
                                     <div class="form-group">
                                         <label for="type">Selecione Entra/Saída</label>
                                         <select class="form-control" id="type" name="type">
@@ -42,21 +42,21 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="quantity">Quantidade</label>
-                                        <input class="form-control" id="quantity" min="1" name="quantity"
-                                               pattern="[1-9]\d*" placeholder="Quantidade" required="required" step="1"
-                                               type="number"/>
-                                        <input class="form-control" hidden="hidden" id="productID" name="productID"
-                                               required="required" type="number" value="">
+                                        <input type="number" class="form-control" id="quantity" name="quantity"
+                                               placeholder="Quantidade" pattern="[1-9]\d*" step="1" min="1"
+                                               required="required"/>
+                                        <input type="number" class="form-control" id="productID" name="productID"
+                                               required="required" value="" hidden="hidden">
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a class="btn btn-default" href="/stock">
+                        <a href="/stock" class="btn btn-default">
                             <i class="fas fa-undo-alt"></i> Cancelar </a>
-                        <button class="btn btn-primary float-right" onclick="document.getElementById('stockForm').submit();"
-                                type="button">Adicionar
+                        <button type="button" onclick="document.getElementById('stockForm').submit();"
+                                class="btn btn-primary float-right">Adicionar
                         </button>
                     </div>
                 </div>
@@ -91,8 +91,8 @@
                                 <div class="form-group">
                                     <div class="mt-2"
                                          style="display: flex; justify-content: center; align-items: center;">
-                                        <img alt="Pré-visualização da imagem" id="previewImage"
-                                             src="/images/placeholder.jpg"
+                                        <img id="previewImage" src="/images/placeholder.jpg"
+                                             alt="Pré-visualização da imagem"
                                              style="max-width: 100%;height: auto;max-height: 40vh;">
                                     </div>
                                 </div>
