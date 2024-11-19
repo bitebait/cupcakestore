@@ -2,7 +2,7 @@
 
 Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro Sul Virtual
 
-_Esse é um projeto que funcionará como uma loja online de cupcakes para uma pequena empresa. 
+_Esse é um projeto que funcionará como uma loja online de cupcakes para uma pequena loja de cupcakes. 
 Ele faz parte de um trabalho acadêmico e utiliza conceitos aprendidos durante o curso._
 
 ## Como rodar o projeto *local*?
