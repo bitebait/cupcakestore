@@ -38,14 +38,14 @@
                                 </thead>
                                 <tbody id="cartItems">
                                 {{range .Object.Items}}
-                                    <tr>
-                                        <td><strong>{{.Product.Name}}</strong></td>
-                                        <td>R$ {{.ItemPrice}}</td>
-                                        <td><small>x</small>{{.Quantity}}</td>
-                                        <td>R$ {{mulf .Quantity .ItemPrice}}</td>
-                                        <td><a href="/cart/remove/{{.Product.ID}}"><u
-                                                        class="text-danger">Remover</u></a></td>
-                                    </tr>
+                                <tr>
+                                    <td><strong>{{.Product.Name}}</strong></td>
+                                    <td>R$ {{.ItemPrice}}</td>
+                                    <td><small>x</small>{{.Quantity}}</td>
+                                    <td>R$ {{mulf .Quantity .ItemPrice}}</td>
+                                    <td><a href="/cart/remove/{{.Product.ID}}"><u
+                                            class="text-danger">Remover</u></a></td>
+                                </tr>
                                 {{end}}
                                 </tbody>
                             </table>
@@ -56,12 +56,12 @@
                             <strong style="margin-right: auto;">Total: R$ {{ printf "%.2f" .Object.Total }}</strong>
                             <div class="float-right">
                                 {{ if not .Profile.IsProfileComplete }}
-                                    <a href="/profile/{{.Profile.User.ID}}"><u>Complete o seu perfil</u></a> para
-                                    prosseguir para o checkout.
+                                <a href="/profile/{{.Profile.User.ID}}"><u>Complete o seu perfil</u></a> para
+                                prosseguir para o checkout.
                                 {{ else }}
-                                    {{  if gt .Object.Total 0.0 }}
-                                        <a class="btn btn-success" href="/orders/checkout/{{.Object.ID}}">Finalizar</a>
-                                    {{ end }}
+                                {{ if gt .Object.Total 0.0 }}
+                                <a class="btn btn-success" href="/orders/checkout/{{.Object.ID}}">Finalizar</a>
+                                {{ end }}
                                 {{ end }}
                             </div>
                         </div>

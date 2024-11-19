@@ -13,7 +13,8 @@
                 <div class="card-body">
                     <div class="row row-eq-height">
                         <div class="col-12 col-sm-6">
-                            <img src="{{.Object.Image}}" style="max-height: 400px; max-width: 400px; display: block; margin-left: auto; margin-right: auto;"
+                            <img src="{{.Object.Image}}"
+                                 style="max-height: 400px; max-width: 400px; display: block; margin-left: auto; margin-right: auto;"
                                  class="product-image img-fluid" alt="Product Image">
                         </div>
                         <div class="col-12 col-sm-6">
@@ -26,13 +27,17 @@
                             <div class="row">
                                 <div class="col-md-7">
                                     <div class="input-group mb-3">
-                                        <button class="btn btn-outline-secondary" type="button" id="{{.Object.ID}}-decrement"
+                                        <button class="btn btn-outline-secondary" type="button"
+                                                id="{{.Object.ID}}-decrement"
                                                 onclick="decrementQuantity('{{.Object.ID}}')">-
                                         </button>
-                                        <input type="number" id="{{.Object.ID}}-quantity" class="form-control text-center"
-                                               pattern="[0-9]*" inputmode="numeric" min="1" value="1" aria-label="Example text with button addon"
+                                        <input type="number" id="{{.Object.ID}}-quantity"
+                                               class="form-control text-center"
+                                               pattern="[0-9]*" inputmode="numeric" min="1" value="1"
+                                               aria-label="Example text with button addon"
                                                aria-describedby="{{.Object.ID}}-decrement {{.Object.ID}}-increment">
-                                        <button class="btn btn-outline-secondary" type="button" id="{{.Object.ID}}-increment"
+                                        <button class="btn btn-outline-secondary" type="button"
+                                                id="{{.Object.ID}}-increment"
                                                 onclick="incrementQuantity('{{.Object.ID}}')">+
                                         </button>
                                     </div>

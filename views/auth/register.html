@@ -2,12 +2,19 @@
 <html lang="pt-BR">
 <head>
     <script type='text/javascript'>
-        window.smartlook||(function(d) {
-            var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
-            var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
-            c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+        window.smartlook || (function (d) {
+            var o = smartlook = function () {
+                o.api.push(arguments)
+            }, h = d.getElementsByTagName('head')[0];
+            var c = d.createElement('script');
+            o.api = new Array();
+            c.async = true;
+            c.type = 'text/javascript';
+            c.charset = 'utf-8';
+            c.src = 'https://web-sdk.smartlook.com/recorder.js';
+            h.appendChild(c);
         })(document);
-        smartlook('init', 'ca5dad74e4686bf7fe9575ca78620f1f7f703c71', { region: 'eu' });
+        smartlook('init', 'ca5dad74e4686bf7fe9575ca78620f1f7f703c71', {region: 'eu'});
     </script>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">

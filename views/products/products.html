@@ -60,40 +60,40 @@
                             </thead>
                             <tbody>
                             {{range .Object.Products}}
-                                <tr>
-                                    <td>{{.ID}}</td>
-                                    <td>
-                                        <a href="/products/{{.ID}}">{{.Name}}
-                                            <br/>
-                                        </a>
-                                        <small>{{.UpdatedAt|date "02/01/2006 15:04h"}}</small>
-                                    </td>
-                                    <td>{{abbrev 30 .Description}}</td>
-                                    <td>R$ {{ printf "%.2f" .Price}}</td>
-                                    <td>{{abbrev 30 .Ingredients}}</td>
-                                    <td>
-                                        <div style="display: flex; justify-content: center; align-items: center;">
-                                            <img id="previewImage"
-                                                 src="{{if .Image}}{{.Image}}{{else}}/images/600x400.svg{{end}}"
-                                                 alt="Pré-visualização da imagem"
-                                                 style="max-width: 100%;height: auto;max-height: 5vh;">
-                                        </div>
-                                    </td>
-                                    <td>{{.CurrentStock}}</td>
-                                    <td>{{if .IsActive}}
-                                            <span class="badge badge-success">Ativo</span>
-                                        {{else}}
-                                            <span class="badge badge-danger">Inativo</span>{{end}}
-                                    </td>
-                                    <td>
-                                        <a href="/products/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <a href="/products/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
-                                            <i class="fa fa-trash"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>{{.ID}}</td>
+                                <td>
+                                    <a href="/products/{{.ID}}">{{.Name}}
+                                        <br/>
+                                    </a>
+                                    <small>{{.UpdatedAt|date "02/01/2006 15:04h"}}</small>
+                                </td>
+                                <td>{{abbrev 30 .Description}}</td>
+                                <td>R$ {{ printf "%.2f" .Price}}</td>
+                                <td>{{abbrev 30 .Ingredients}}</td>
+                                <td>
+                                    <div style="display: flex; justify-content: center; align-items: center;">
+                                        <img id="previewImage"
+                                             src="{{if .Image}}{{.Image}}{{else}}/images/600x400.svg{{end}}"
+                                             alt="Pré-visualização da imagem"
+                                             style="max-width: 100%;height: auto;max-height: 5vh;">
+                                    </div>
+                                </td>
+                                <td>{{.CurrentStock}}</td>
+                                <td>{{if .IsActive}}
+                                    <span class="badge badge-success">Ativo</span>
+                                    {{else}}
+                                    <span class="badge badge-danger">Inativo</span>{{end}}
+                                </td>
+                                <td>
+                                    <a href="/products/{{.ID}}" class="btn btn-sm btn-outline-primary mr-2">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <a href="/products/delete/{{.ID}}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
                             {{end}}
                             </tbody>
                         </table>

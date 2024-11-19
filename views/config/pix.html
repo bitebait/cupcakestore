@@ -35,15 +35,20 @@
                             <div class="form-group">
                                 <label for="pixKeyType">Tipo de Chave</label>
                                 <select class="form-control" id="pixKeyType" name="pixKeyType">
-                                    <option value="email" {{if eq .Object.PixKeyType "email"}}selected{{end}}>Email
+                                    <option value="email" {{if eq .Object.PixKeyType
+                                    "email"}}selected{{end}}>Email
                                     </option>
-                                    <option value="celular" {{if eq .Object.PixKeyType "celular"}}selected{{end}}>Celular
+                                    <option value="celular" {{if eq .Object.PixKeyType
+                                    "celular"}}selected{{end}}>Celular
                                     </option>
-                                    <option value="aleatoria" {{if eq .Object.PixKeyType "aleatoria"}}selected{{end}}>
-                                        Aleatória
+                                    <option value="aleatoria" {{if eq .Object.PixKeyType
+                                    "aleatoria"}}selected{{end}}>
+                                    Aleatória
                                     </option>
-                                    <option value="cpf" {{if eq .Object.PixKeyType "cpf"}}selected{{end}}>CPF</option>
-                                    <option value="cnpj" {{if eq .Object.PixKeyType "cnpj"}}selected{{end}}>CNPJ</option>
+                                    <option value="cpf" {{if eq .Object.PixKeyType
+                                    "cpf"}}selected{{end}}>CPF</option>
+                                    <option value="cnpj" {{if eq .Object.PixKeyType
+                                    "cnpj"}}selected{{end}}>CNPJ</option>
                                 </select>
                             </div>
                         </div>
