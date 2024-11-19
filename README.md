@@ -14,6 +14,11 @@ Navegue até a pasta do projeto:
 cd cupcakestore/
 ~~~
 
+Crie um novo arquivo .env com base no .env.example e atualize suas configurações:
+~~~sh
+cp .env.example .env 
+~~~
+
 Atualize os módulos:
 ~~~go
 go mod tidy
