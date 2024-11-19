@@ -29,17 +29,17 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="productName">Nome do produto</label>
-                                    <input type="text" class="form-control" id="productName" name="productName"
-                                           placeholder="Nome do produto" required="required">
+                                    <input class="form-control" id="productName" name="productName" placeholder="Nome do produto"
+                                           required="required" type="text">
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="/stock" class="btn btn-default">
+                        <a class="btn btn-default" href="/stock">
                             <i class="fas fa-undo-alt"></i> Cancelar </a>
-                        <a href="javascript:function() { return false; }" id="productID"
-                           class="btn btn-primary float-right" disabled>Carregar Histórico
+                        <a class="btn btn-primary float-right" disabled
+                           href="javascript:function() { return false; }" id="productID">Carregar Histórico
                         </a>
                     </div>
                 </div>
@@ -72,8 +72,8 @@
                                 <div class="form-group">
                                     <div class="mt-2"
                                          style="display: flex; justify-content: center; align-items: center;">
-                                        <img id="previewImage" src="/images/placeholder.jpg"
-                                             alt="Pré-visualização da imagem"
+                                        <img alt="Pré-visualização da imagem" id="previewImage"
+                                             src="/images/placeholder.jpg"
                                              style="max-width: 100%;height: auto;max-height: 26.5vh;">
                                     </div>
                                 </div>

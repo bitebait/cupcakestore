@@ -30,23 +30,25 @@
                                 </thead>
                                 <tbody>
                                 {{range .Object.Orders}}
-                                    <tr>
-                                        <td><strong>{{.ID}}</strong></td>
-                                        <td>
-                                            <strong {{if eq .Status "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
-                                        </td>
-                                        <td>{{.DeliveryDetail.UserFirstName}} {{.DeliveryDetail.UserLastName}}</td>
-                                        <td>R$ {{ printf "%.2f" .Total}}</td>
-                                        <td>{{.PaymentMethod}}</td>
-                                        <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
-                                        <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
-                                        <td>
-                                            <a href="/orders/order/{{.ID}}" class="mr-2"><u>Visualizar</u></a>
-                                            {{if and (eq .Status "Em Aberto") (eq .ProfileID $.Profile.ID)}}
-                                                <a href="/orders/checkout/{{.ShoppingCartID}}" class="text-info"><u>Ir Para Checkout</u></a>
-                                            {{end}}
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td><strong>{{.ID}}</strong></td>
+                                    <td>
+                                        <strong .Status eq {{if
+                                        "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
+                                    </td>
+                                    <td>{{.DeliveryDetail.UserFirstName}} {{.DeliveryDetail.UserLastName}}</td>
+                                    <td>R$ {{ printf "%.2f" .Total}}</td>
+                                    <td>{{.PaymentMethod}}</td>
+                                    <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
+                                    <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
+                                    <td>
+                                        <a class="mr-2" href="/orders/order/{{.ID}}"><u>Visualizar</u></a>
+                                        {{if and (eq .Status "Em Aberto") (eq .ProfileID $.Profile.ID)}}
+                                        <a class="text-info" href="/orders/checkout/{{.ShoppingCartID}}"><u>Ir Para
+                                            Checkout</u></a>
+                                        {{end}}
+                                    </td>
+                                </tr>
                                 {{end}}
                                 </tbody>
                             </table>

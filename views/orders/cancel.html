@@ -14,18 +14,18 @@
                                 <i class="fas fa-exclamation-triangle text-danger"></i> Você realmente deseja cancelar o
                                 pedido
                                 <strong><a href="/orders/order/{{.Object.ID}}"><u>#{{.Object.ID}} -
-                                            R$ {{ printf "%.2f" .Object.Total}}</u></a></strong>?
+                                    R$ {{ printf "%.2f" .Object.Total}}</u></a></strong>?
                             </h3>
                             <p> Essa operação é irreversível e não pode ser desfeita.
                                 Caso
                                 não queira continuar, clique <a href="/orders">aqui</a> para retornar à sua lista de
                                 pedidos.
                             </p>
-                            <form method="POST" action="/orders/cancel/{{.Object.ID}}">
-                                <a href="/orders" class="btn btn-default">
+                            <form action="/orders/cancel/{{.Object.ID}}" method="POST">
+                                <a class="btn btn-default" href="/orders">
                                     <i class="fas fa-undo-alt"></i> Cancelar </a>
                                 <div class="float-right">
-                                    <button type="submit" class="btn btn-danger">
+                                    <button class="btn btn-danger" type="submit">
                                         <i class="fa fa-trash"></i> Confirmar e Cancelar
                                     </button>
                                 </div>

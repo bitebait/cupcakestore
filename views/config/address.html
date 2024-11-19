@@ -24,60 +24,60 @@
                     <div class="card-header">
                         <h3 class="card-title">Gerenciar as Configurações de Endereço</h3>
                     </div>
-                    <form method="Post" action="/config">
+                    <form action="/config" method="Post">
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-12">
                                     <label for="physicalStoreEmail">E-mail</label>
-                                    <input type="email" class="form-control" id="physicalStoreEmail"
-                                           name="physicalStoreEmail"
-                                           placeholder="E-mail da loja" required="required"
+                                    <input class="form-control" id="physicalStoreEmail" name="physicalStoreEmail"
+                                           placeholder="E-mail da loja"
+                                           required="required" type="email"
                                            value="{{.Object.PhysicalStoreEmail}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-12">
                                     <label for="physicalStoreAddress">Endereço</label>
-                                    <input type="text" class="form-control" id="physicalStoreAddress"
+                                    <input class="form-control" id="physicalStoreAddress" minlength="4"
                                            name="physicalStoreAddress"
                                            placeholder="Endereço"
-                                           minlength="4" value="{{.Object.PhysicalStoreAddress}}">
+                                           type="text" value="{{.Object.PhysicalStoreAddress}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="physicalStorePhoneNumber">Telefone</label>
-                                    <input type="text" class="form-control phone-number" id="physicalStorePhoneNumber"
-                                           name="physicalStorePhoneNumber"
-                                           placeholder="Telefone" value="{{.Object.PhysicalStorePhoneNumber}}">
+                                    <input class="form-control phone-number" id="physicalStorePhoneNumber" name="physicalStorePhoneNumber"
+                                           placeholder="Telefone"
+                                           type="text" value="{{.Object.PhysicalStorePhoneNumber}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="physicalStorePostalCode">Código postal</label>
-                                    <input type="text" class="form-control postal-code" id="physicalStorePostalCode"
-                                           name="physicalStorePostalCode"
-                                           placeholder="Código postal" value="{{.Object.PhysicalStorePostalCode}}">
+                                    <input class="form-control postal-code" id="physicalStorePostalCode" name="physicalStorePostalCode"
+                                           placeholder="Código postal"
+                                           type="text" value="{{.Object.PhysicalStorePostalCode}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="physicalStorEstate">Estado</label>
-                                    <input type="text" class="form-control" id="physicalStorEstate"
+                                    <input class="form-control" id="physicalStorEstate" minlength="4"
                                            name="physicalStorEstate" placeholder="Estado"
-                                           minlength="4"
+                                           type="text"
                                            value="{{.Object.PhysicalStoreState}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="physicalStoreCity">Cidade</label>
-                                    <input type="text" class="form-control" id="physicalStoreCity"
-                                           name="physicalStoreCity" placeholder="Cidade"
+                                    <input class="form-control" id="physicalStoreCity" name="physicalStoreCity"
+                                           placeholder="Cidade" type="text"
                                            value="{{.Object.PhysicalStoreCity}}">
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="javascript:history.back()" class="btn btn-default">
+                            <a class="btn btn-default" href="javascript:history.back()">
                                 <i class="fas fa-undo-alt"></i> Cancelar </a>
-                            <button type="submit" class="btn btn-primary float-right">Atualizar</button>
+                            <button class="btn btn-primary float-right" type="submit">Atualizar</button>
                         </div>
                     </form>
                 </div>

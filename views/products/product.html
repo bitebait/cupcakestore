@@ -23,69 +23,69 @@
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Dados do Produto</h3>
-                        <a href="/stock/{{.Object.ID}}" class="btn float-right">
+                        <a class="btn float-right" href="/stock/{{.Object.ID}}">
                             <i class="fas fa-history"></i> <u>Abrir movimentação de estoque</u>
                         </a>
                     </div>
-                    <form method="POST" action="/products/update/{{.Object.ID}}" enctype="multipart/form-data">
+                    <form action="/products/update/{{.Object.ID}}" enctype="multipart/form-data" method="POST">
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="name">Nome do produto</label>
-                                        <input type="text" class="form-control" id="name" name="name"
-                                               placeholder="Nome do produto" minlength="4" maxlength="60"
-                                               value="{{.Object.Name}}"
-                                               required="required">
+                                        <input class="form-control" id="name" maxlength="60" minlength="4"
+                                               name="name" placeholder="Nome do produto" required="required"
+                                               type="text"
+                                               value="{{.Object.Name}}">
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group  col-md-6">
                                             <label for="price">Preço</label>
-                                            <input type="number" step="0.01" class="form-control" id="price"
-                                                   name="price"
-                                                   placeholder="Preço do produto" min="0.01" value="{{.Object.Price}}"
-                                                   required="required"/>
+                                            <input class="form-control" id="price" min="0.01" name="price"
+                                                   placeholder="Preço do produto"
+                                                   required="required" step="0.01" type="number"
+                                                   value="{{.Object.Price}}"/>
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="stock">Qtd Estoque</label>
-                                            <input type="number" step="1" class="form-control" id="stock"
-                                                   value="{{.Object.CurrentStock}}" disabled/>
+                                            <input class="form-control" disabled id="stock" step="1"
+                                                   type="number" value="{{.Object.CurrentStock}}"/>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <a href="/stock/create" class=" m-2 btn btn-sm btn-success">
+                                            <a class=" m-2 btn btn-sm btn-success" href="/stock/create">
                                                 <i class="fa fa-plus"></i> Adicionar Estoque
                                             </a>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="description">Descrição</label>
-                                        <textarea class="form-control" id="description" name="description"
-                                                  maxlength="200" rows="3"
+                                        <textarea class="form-control" id="description" maxlength="200"
+                                                  name="description" placeholder="Descrição do produto"
                                                   required="required"
-                                                  placeholder="Descrição do produto">{{.Object.Description}}</textarea>
+                                                  rows="3">{{.Object.Description}}</textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="ingredients">Ingredientes</label>
-                                        <textarea class="form-control" id="ingredients" name="ingredients"
-                                                  maxlength="300" rows="3"
+                                        <textarea class="form-control" id="ingredients" maxlength="300"
+                                                  name="ingredients" placeholder="Lista de ingredientes"
                                                   required="required"
-                                                  placeholder="Lista de ingredientes">{{.Object.Ingredients}}</textarea>
+                                                  rows="3">{{.Object.Ingredients}}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="image">Imagem do Produto</label>
                                         <div class="input-group">
-                                            <input type="file" id="image" name="image"
-                                                   accept="image/png, image/jpeg, image/jpg">
+                                            <input accept="image/png, image/jpeg, image/jpg" id="image" name="image"
+                                                   type="file">
                                             <label for="image" id="imageLabel">Escolher Imagem do Produto</label>
                                         </div>
                                         <div class="mt-2"
                                              style="display: flex; justify-content: center; align-items: center;">
-                                            <img id="previewImage" src="{{.Object.Image}}"
-                                                 alt="Pré-visualização da imagem"
+                                            <img alt="Pré-visualização da imagem" id="previewImage"
+                                                 src="{{.Object.Image}}"
                                                  style="max-width: 100%;height: auto;max-height: 50vh;">
                                         </div>
                                     </div>
@@ -94,12 +94,13 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-                                        <input type="checkbox" class="custom-control-input" id="isActive"
-                                               aria-describedby="statusHelp" name="isActive"
-                                               {{if .Object.IsActive}}checked{{end}}/>
+                                        <input {{if .Object.IsActive}}checked{{end}} aria-describedby="statusHelp"
+                                               class="custom-control-input"
+                                               id="isActive" name="isActive"
+                                               type="checkbox"/>
                                         <label class="custom-control-label" for="isActive">Ativar/Desativar
                                             Produto</label>
-                                        <small id="statusHelp" class="form-text text-muted">Ao desativar um produto, ele
+                                        <small class="form-text text-muted" id="statusHelp">Ao desativar um produto, ele
                                             não estará mais disponível na loja, mas ainda aparecerá na lista de
                                             cadastro. </small>
                                     </div>
@@ -107,12 +108,12 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="/products" class="btn btn-default mr-2">
+                            <a class="btn btn-default mr-2" href="/products">
                                 <i class="fas fa-undo-alt"></i> Cancelar </a>
-                            <a href="/products/delete/{{.Object.ID}}" class="btn btn-outline-danger">
+                            <a class="btn btn-outline-danger" href="/products/delete/{{.Object.ID}}">
                                 <i class="fa fa-trash"></i> Deletar </a>
                             <div class="float-right">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Atualizar
+                                <button class="btn btn-primary" type="submit"><i class="fa fa-check"></i> Atualizar
                                 </button>
                             </div>
                         </div>

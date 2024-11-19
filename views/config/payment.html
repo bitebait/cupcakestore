@@ -25,26 +25,27 @@
                     <div class="card-header">
                         <h3 class="card-title">Gerenciar as Configurações de Pagamento</h3>
                     </div>
-                    <form method="Post" action="/config">
+                    <form action="/config" method="Post">
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="paymentCashIsActive">Aceitar Pagamento em Dinheiro?</label>
                                 <select class="form-control" id="paymentCashIsActive" name="paymentCashIsActive">
-                                    <option value="1" {{if .Object.PaymentCashIsActive}}selected{{end}}>Sim</option>
-                                    <option value="0" {{if not .Object.PaymentCashIsActive}}selected{{end}}>Não</option>
+                                    <option {{if .Object.PaymentCashIsActive}}selected{{end}} value="1">Sim</option>
+                                    <option {{if .Object.PaymentCashIsActive}}selected{{end}} not value="0">Não</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="paymentPixIsActive">Aceitar Pagamento em Pix?</label>
                                 <select class="form-control" id="paymentPixIsActive" name="paymentPixIsActive">
-                                    <option value="1" {{if .Object.PaymentPixIsActive}}selected{{end}}>Sim</option>
-                                    <option value="0" {{if not .Object.PaymentPixIsActive}}selected{{end}}>Não</option>
+                                    <option {{if .Object.PaymentPixIsActive}}selected{{end}} value="1">Sim</option>
+                                    <option {{if .Object.PaymentPixIsActive}}selected{{end}} not value="0">Não</option>
                                 </select>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="javascript:history.back()" class="btn btn-default"> <i class="fas fa-undo-alt"></i> Cancelar </a>
-                            <button type="submit" class="btn btn-primary float-right">Atualizar</button>
+                            <a class="btn btn-default" href="javascript:history.back()"> <i class="fas fa-undo-alt"></i>
+                                Cancelar </a>
+                            <button class="btn btn-primary float-right" type="submit">Atualizar</button>
                         </div>
                     </form>
                 </div>
