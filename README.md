@@ -57,6 +57,7 @@ A estrutura do projeto é organizada da seguinte forma:
 
 - **Linguagens**: Go, JavaScript, CSS, HTML
 - **Frameworks e Bibliotecas**: [GO Fiber Framework](https://github.com/gofiber/fiber) & [GORM](https://gorm.io/index.html) (ORM para Golang)
+- **Front-end**: HTML+CSS+JS ([AdminLTE Bootstrap Admin Dashboard](https://adminlte.io/))
 
 ### Autoria
 
