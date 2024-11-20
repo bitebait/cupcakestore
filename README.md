@@ -5,6 +5,8 @@ Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruz
 _Esse é um projeto que funcionará como uma loja online de cupcakes para uma pequena loja de cupcakes. 
 Ele faz parte de um trabalho acadêmico e utiliza conceitos aprendidos durante o curso._
 
+ #### 🔥 Sinta-se à vontade para contribuir com o código (; 🔥
+
 ## Como rodar o projeto *local*?
 
 Clone o repositório:
