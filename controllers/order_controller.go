@@ -8,6 +8,7 @@ import (
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 type OrderController interface {
@@ -272,5 +273,5 @@ func (c *orderController) Update(ctx *fiber.Ctx) error {
 	}
 
 	messages.SetSuccessMessage(ctx, "status do pedido atualizado com sucesso")
-	return ctx.Redirect("/orders")
+	return ctx.Redirect("/orders/order/" + strconv.Itoa(int(order.ID)))
 }

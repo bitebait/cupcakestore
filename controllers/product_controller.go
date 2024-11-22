@@ -7,6 +7,7 @@ import (
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 type ProductController interface {
@@ -107,7 +108,8 @@ func (c *productController) Update(ctx *fiber.Ctx) error {
 	}
 
 	messages.SetSuccessMessage(ctx, "produto atualizado com sucesso")
-	return ctx.Redirect("/products")
+	return ctx.Redirect("/products/" + strconv.Itoa(int(product.ID)))
+
 }
 
 func (c *productController) Delete(ctx *fiber.Ctx) error {
