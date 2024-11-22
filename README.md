@@ -2,6 +2,11 @@
 
 Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro Sul Virtual
 
+_Esse é um projeto que funcionará como uma loja online de cupcakes para uma pequena loja de cupcakes. 
+Ele faz parte de um trabalho acadêmico e utiliza conceitos aprendidos durante o curso._
+
+ #### 🔥 Sinta-se à vontade para contribuir com o código (; 🔥
+
 ## Como rodar o projeto *local*?
 
 Clone o repositório:
@@ -12,6 +17,11 @@ git clone https://github.com/bitebait/cupcakestore.git
 Navegue até a pasta do projeto:
 ~~~sh
 cd cupcakestore/
+~~~
+
+Crie um novo arquivo .env com base no .env.example e atualize suas configurações:
+~~~sh
+cp .env.example .env 
 ~~~
 
 Atualize os módulos:
@@ -57,10 +67,11 @@ A estrutura do projeto é organizada da seguinte forma:
 
 - **Linguagens**: Go, JavaScript, CSS, HTML
 - **Frameworks e Bibliotecas**: [GO Fiber Framework](https://github.com/gofiber/fiber) & [GORM](https://gorm.io/index.html) (ORM para Golang)
+- **Front-end**: HTML+CSS+JS ([AdminLTE Bootstrap Admin Dashboard](https://adminlte.io/))
 
 ### Autoria
 
-Este projeto foi desenvolvido por William Schwaab como parte do Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro Sul Virtual.
+Este projeto foi desenvolvido por William Schwaab (<william@schwaab.me>) como parte do Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro Sul Virtual.
 
 Para mais informações, consulte a [documentação](https://github.com/bitebait/cupcakestore/tree/main/docs).
 
