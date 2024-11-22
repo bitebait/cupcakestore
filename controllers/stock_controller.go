@@ -2,11 +2,18 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+)
+
+const (
+	StockCreateView = "stock/create"
+	StocksView      = "stock/stocks"
+	StockView       = "stock/stock"
 )
 
 type StockController interface {
@@ -27,40 +34,45 @@ func NewStockController(s services.StockService) StockController {
 }
 
 func (c *stockController) RenderCreate(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "stock/create", nil, views.BaseLayout)
+	return ctx.Render(StockCreateView, fiber.Map{}, views.BaseLayout)
 }
 
 func (c *stockController) Create(ctx *fiber.Ctx) error {
-	stock := &models.Stock{}
-	if err := ctx.BodyParser(stock); err != nil {
-		return views.RenderError(ctx, "stock/create", nil,
-			"Dados inválidos: "+err.Error(), views.BaseLayout)
+	var stock models.Stock
+
+	if err := ctx.BodyParser(&stock); err != nil {
+		messages.SetErrorMessage(ctx, "erro ao processar as informações fornecidas, verifique os dados e tente novamente")
+		return ctx.Render(StockCreateView, fiber.Map{}, views.BaseLayout)
 	}
 
 	profile := ctx.Locals("Profile").(*models.Profile)
 	if profile == nil || profile.ID == 0 {
-		return views.RenderError(ctx, "stock/create", nil,
-			"Falha ao identificar perfil do usuário.", views.BaseLayout)
+		messages.SetErrorMessage(ctx, "por favor faça o login e tente novamente")
+		return ctx.Render(StockCreateView, fiber.Map{}, views.BaseLayout)
 	}
+
 	stock.ProfileID = profile.ID
-
-	if err := c.stockService.Create(stock); err != nil {
-		return views.RenderError(ctx, "stock/create", nil,
-			"Falha ao adicionar ao estoque: "+err.Error(), views.BaseLayout)
+	if err := c.stockService.Create(&stock); err != nil {
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Render(StockCreateView, fiber.Map{}, views.BaseLayout)
 	}
 
+	messages.SetSuccessMessage(ctx, "estoque adicionado com sucesso")
 	return ctx.Redirect(fmt.Sprintf("/stock/%v", stock.ProductID))
 }
 
 func (c *stockController) RenderStocks(ctx *fiber.Ctx) error {
-	return views.Render(ctx, "stock/stocks", nil, views.BaseLayout)
+	return ctx.Render(StocksView, fiber.Map{}, views.BaseLayout)
 }
 
 func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
 	productID, err := utils.ParseStringToID(ctx.Params("id"))
+
 	if err != nil {
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/stocks")
 	}
+
 	page := ctx.QueryInt("page")
 	limit := ctx.QueryInt("limit")
 	filter := models.NewStockFilter(productID, page, limit)
@@ -69,5 +81,6 @@ func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
 		"Stocks": stocks,
 		"Filter": filter,
 	}
-	return views.Render(ctx, "stock/stock", data, views.BaseLayout)
+
+	return ctx.Render(StockView, fiber.Map{"Object": data}, views.BaseLayout)
 }

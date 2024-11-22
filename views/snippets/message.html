@@ -1,22 +1,96 @@
-<div class="row">
-    <div class="col-12 mx-auto">
-        {{ if .Error }}
-        <div class="alert alert-danger alert-dismissible" style="border-radius: 0;">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-            <h5>
-                <i class="icon fas fa-window-close"></i> Atenção!
-            </h5>
-            {{ .Message }}
-        </div>
-        {{ end }}
-        {{ if and (not .Error) (.Message) }}
-        <div class="alert alert-success alert-dismissible" style="border-radius: 0;">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-            <h5>
-                <i class="icon fas fa-check"></i> Sucesso!
-            </h5>
-            {{ .Message }}
-        </div>
-        {{ end }}
-    </div>
+<style>
+    .message {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 15px;
+        text-align: center;
+        z-index: 9999;
+        border-radius: 5px;
+        transition: opacity 0.5s ease-in-out;
+        opacity: 0;
+        display: none;
+    }
+
+    .message--visible {
+        opacity: 1;
+        display: block;
+    }
+
+    .message--error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .message--success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    const FADE_DURATION = 500;
+    const DEFAULT_TIMEOUT = 4000;
+
+    function toggleMessageVisibility(element, isVisible) {
+        element.style.display = isVisible ? 'block' : 'none';
+        setTimeout(() => {
+            element.classList.toggle('message--visible', isVisible);
+        }, 10);
+    }
+
+    function showMessage(elementId) {
+        const element = document.getElementById(elementId);
+        toggleMessageVisibility(element, true);
+    }
+
+    function hideMessage(elementId) {
+        const element = document.getElementById(elementId);
+        element.classList.remove('message--visible');
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, FADE_DURATION);
+    }
+
+    function autoHideMessage(elementId, timeout = DEFAULT_TIMEOUT) {
+        setTimeout(() => {
+            hideMessage(elementId);
+        }, timeout);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.message').forEach(msg => {
+            const timeout = msg.dataset.timeout || DEFAULT_TIMEOUT;
+            showMessage(msg.id);
+            autoHideMessage(msg.id, timeout);
+        });
+    });
+
+    function closeMessage(elementId) {
+        hideMessage(elementId);
+    }
+</script>
+
+{{if .Messages.Error}}
+<div class="message message--error" id="message-error">
+    <strong>Atenção: </strong>{{ .Messages.Error }}.
+    <button class="close-btn" onclick="closeMessage('message-error')">&times;</button>
 </div>
+{{end}}
+
+{{if .Messages.Success}}
+<div class="message message--success" id="message-success">
+    <strong>Sucesso: </strong>{{ .Messages.Success }}.
+    <button class="close-btn" onclick="closeMessage('message-success')">&times;</button>
+</div>
+{{end}}

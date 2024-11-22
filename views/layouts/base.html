@@ -199,7 +199,7 @@
         </div>
         <!-- /.sidebar -->
         <div class="sidebar-custom">
-            <a class="btn btn-secondary btn-sm btn-block" href="/auth/logout"> <i class="fas fa-sign-out-alt"></i> Sair
+            <a class="btn btn-danger btn-sm btn-block" href="/auth/logout"> <i class="fas fa-sign-out-alt"></i> Sair
             </a>
         </div>
         <!-- /.sidebar-custom -->
@@ -209,6 +209,9 @@
         {{embed}}
     </div>
     <!-- /.content-wrapper -->
+
+    {{template "snippets/message" .}}
+
     <!-- Main Footer -->
     <footer class="main-footer">
         <!-- To the right -->

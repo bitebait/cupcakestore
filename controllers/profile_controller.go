@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"errors"
+	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
-	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 type ProfileController interface {
@@ -22,56 +24,60 @@ func NewProfileController(profileService services.ProfileService) ProfileControl
 }
 
 func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
-	profile, err := c.getProfile(ctx)
+	profile, userSess, err := c.getAuthorizedProfileAndUser(ctx)
 	if err != nil {
-		return err
-	}
-
-	userSess, err := c.getUserSession(ctx)
-	if err != nil {
-		return err
+		messages.SetErrorMessage(ctx, "ocorreu um erro ao processar o perfil")
+		return ctx.Redirect("/")
 	}
 
 	layout := selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID)
-	if layout == "" {
-		return ctx.SendStatus(fiber.StatusUnauthorized)
-	}
-
-	return views.Render(ctx, "profile/user-profile", profile, layout)
+	return ctx.Render("profile/user-profile", fiber.Map{"Object": profile}, layout)
 }
 
 func (c *profileController) Update(ctx *fiber.Ctx) error {
-	profile, err := c.getProfile(ctx)
+	profile, userSess, err := c.getAuthorizedProfileAndUser(ctx)
 	if err != nil {
-		return err
+		messages.SetErrorMessage(ctx, "ocorreu um erro ao processar o perfil")
+		return ctx.Redirect("/")
 	}
 
-	if err = ctx.BodyParser(&profile); err != nil {
-		return views.RenderError(ctx, "profile/user-profile", profile, err.Error())
+	if err := ctx.BodyParser(&profile); err != nil {
+		messages.SetErrorMessage(ctx, "ocorreu um erro ao processar o perfil")
+		return ctx.Redirect("/")
+	}
+
+	if err = c.profileService.Update(&profile); err != nil {
+		layout := selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID)
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Render("profile/user-profile", fiber.Map{"Object": profile}, layout)
+	}
+
+	messages.SetSuccessMessage(ctx, "perfil atualizado com sucesso")
+	return ctx.Redirect("/profile/" + strconv.Itoa(int(profile.ID)))
+}
+
+func (c *profileController) getAuthorizedProfileAndUser(ctx *fiber.Ctx) (models.Profile, *models.Profile, error) {
+	profile, err := c.getProfile(ctx)
+	if err != nil {
+		return models.Profile{}, nil, err
 	}
 
 	userSess, err := c.getUserSession(ctx)
 	if err != nil {
-		return err
+		return models.Profile{}, nil, err
 	}
 
-	if !userSess.User.IsStaff && profile.UserID != userSess.UserID {
-		return ctx.SendStatus(fiber.StatusUnauthorized)
+	if !userSess.User.IsStaff && profile.UserID != userSess.User.ID {
+		return models.Profile{}, nil, errors.New("usuário não autorizado, por favor, efetue o login e tente novamente")
 	}
 
-	if err = c.profileService.Update(&profile); err != nil {
-		return views.RenderError(ctx, "profile/user-profile", profile,
-			"Falha ao atualizar perfil do usuário.", selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID))
-	}
-
-	redirectPath := selectRedirectPath(userSess.User.IsStaff)
-	return ctx.Redirect(redirectPath)
+	return profile, userSess, nil
 }
 
 func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
 	userID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
-		return models.Profile{}, ctx.SendStatus(fiber.StatusInternalServerError)
+		return models.Profile{}, errors.New("usuário não autorizado, por favor, efetue o login e tente novamente")
 	}
 	return c.profileService.FindByUserId(userID)
 }
@@ -79,7 +85,7 @@ func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
 func (c *profileController) getUserSession(ctx *fiber.Ctx) (*models.Profile, error) {
 	userSess, ok := ctx.Locals("Profile").(*models.Profile)
 	if !ok || userSess == nil {
-		return nil, fiber.ErrUnauthorized
+		return nil, errors.New("usuário não autorizado, por favor, efetue o login e tente novamente")
 	}
 	return userSess, nil
 }

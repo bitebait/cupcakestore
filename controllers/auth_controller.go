@@ -1,11 +1,12 @@
 package controllers
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/config"
+	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/session"
-	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -30,15 +31,15 @@ func NewAuthController(authService services.AuthService) AuthController {
 	return &authController{authService: authService}
 }
 
-func (c *authController) parseUser(ctx *fiber.Ctx) (*models.User, error) {
+func parseUserFromContext(ctx *fiber.Ctx) (*models.User, error) {
 	user := new(models.User)
 	if err := ctx.BodyParser(user); err != nil {
-		return nil, err
+		return nil, errors.New("dados inválidos")
 	}
 	return user, nil
 }
 
-func (c *authController) createProfile(ctx *fiber.Ctx, user *models.User) *models.Profile {
+func createProfileFromContext(ctx *fiber.Ctx, user *models.User) *models.Profile {
 	return &models.Profile{
 		FirstName: ctx.FormValue("firstname"),
 		LastName:  ctx.FormValue("lastname"),
@@ -47,44 +48,60 @@ func (c *authController) createProfile(ctx *fiber.Ctx, user *models.User) *model
 }
 
 func (c *authController) Register(ctx *fiber.Ctx) error {
-	user, err := c.parseUser(ctx)
+	user, err := parseUserFromContext(ctx)
+
 	if err != nil {
-		return views.RenderError(ctx, RegisterTemplate, nil, "Dados da conta inválidos: "+err.Error())
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/auth/register")
 	}
 
-	profile := c.createProfile(ctx, user)
+	profile := createProfileFromContext(ctx, user)
 
 	if err := c.authService.Register(profile); err != nil {
-		return views.RenderError(ctx, RegisterTemplate, nil, "Falha ao criar usuário: "+err.Error())
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/auth/register")
 	}
 
 	return ctx.Redirect("/auth/login")
 }
 
 func (c *authController) Login(ctx *fiber.Ctx) error {
-	email, password := ctx.FormValue("email"), ctx.FormValue("password")
+	email := ctx.FormValue("email")
+	password := ctx.FormValue("password")
+
 	if err := c.authService.Authenticate(ctx, email, password); err != nil {
-		return views.RenderError(ctx, LoginTemplate, nil, "Credenciais inválidas ou usuário inativo.")
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/auth/login")
 	}
-	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGIN", "/"))
+
+	redirectPath := config.Instance().GetEnvVar("REDIRECT_AFTER_LOGIN", "/")
+
+	return ctx.Redirect(redirectPath)
 }
 
 func (c *authController) Logout(ctx *fiber.Ctx) error {
+	redirectPath := config.Instance().GetEnvVar("REDIRECT_AFTER_LOGOUT", "/")
 	sess, err := session.Store.Get(ctx)
+
 	if err != nil {
-		return err
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect(redirectPath)
 	}
 
 	if err := sess.Destroy(); err != nil {
-		return err
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect(redirectPath)
+
 	}
-	return ctx.Redirect(config.Instance().GetEnvVar("REDIRECT_AFTER_LOGOUT", "/"))
+
+	return ctx.Redirect(redirectPath)
+
 }
 
 func (c *authController) RenderLogin(ctx *fiber.Ctx) error {
-	return views.Render(ctx, LoginTemplate, nil)
+	return ctx.Render(LoginTemplate, fiber.Map{})
 }
 
 func (c *authController) RenderRegister(ctx *fiber.Ctx) error {
-	return views.Render(ctx, RegisterTemplate, nil)
+	return ctx.Render(RegisterTemplate, fiber.Map{})
 }

@@ -2,11 +2,12 @@ package repositories
 
 import (
 	"github.com/bitebait/cupcakestore/models"
+	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
 )
 
 type StoreConfigRepository interface {
-	GetStoreConfig() (*models.StoreConfig, error)
+	GetStoreConfig() (models.StoreConfig, error)
 	Update(storeConfig *models.StoreConfig) error
 }
 
@@ -20,12 +21,22 @@ func NewStoreConfigRepository(database *gorm.DB) StoreConfigRepository {
 	}
 }
 
-func (r *storeConfigRepository) GetStoreConfig() (*models.StoreConfig, error) {
+func (r *storeConfigRepository) GetStoreConfig() (models.StoreConfig, error) {
 	var storeConfig models.StoreConfig
 	err := r.db.First(&storeConfig).Error
-	return &storeConfig, err
+
+	if err != nil {
+		log.Errorf("StoreConfigRepository GetStoreConfig: %s", err.Error())
+	}
+
+	return storeConfig, err
 }
 
 func (r *storeConfigRepository) Update(storeConfig *models.StoreConfig) error {
-	return r.db.Save(storeConfig).Error
+	if err := r.db.Save(storeConfig).Error; err != nil {
+		log.Errorf("StoreConfigRepository Update: %s", err.Error())
+		return err
+	}
+
+	return nil
 }

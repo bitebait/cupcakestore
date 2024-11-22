@@ -35,11 +35,6 @@
         <a href="/auth/register"><b>Cupcake</b>Store</a>
     </div>
     <!-- /.login-logo -->
-    <div class="row">
-        <div class="col-12 mb-2">
-            {{template "snippets/message" .}}
-        </div>
-    </div>
     <div class="card">
         <div class="card-body register-card-body">
             <p class="login-box-msg">Formulário de Registro de Conta</p>
@@ -96,6 +91,7 @@
         </div>
     </div>
     <!-- /.card -->
+    {{template "snippets/message" .}}
 </div>
 <!-- /.register-box -->
 <!-- jQuery -->

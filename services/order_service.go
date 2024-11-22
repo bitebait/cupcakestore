@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
@@ -8,8 +9,8 @@ import (
 
 type OrderService interface {
 	FindById(id uint) (models.Order, error)
-	FindByCartId(cartID uint) (*models.Order, error)
-	FindOrCreate(profileID, cartID uint) (*models.Order, error)
+	FindByCartId(cartID uint) (models.Order, error)
+	FindOrCreate(profileID, cartID uint) (models.Order, error)
 	FindAll(filter *models.OrderFilter) []models.Order
 	FindAllByUser(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
@@ -30,15 +31,33 @@ func NewOrderService(orderRepository repositories.OrderRepository, storeConfigSe
 }
 
 func (s *orderService) FindById(id uint) (models.Order, error) {
-	return s.orderRepository.FindById(id)
+	order, err := s.orderRepository.FindById(id)
+
+	if err != nil {
+		err = errors.New("falha ao encontrar o pedido pelo id")
+	}
+
+	return order, err
 }
 
-func (s *orderService) FindByCartId(cartID uint) (*models.Order, error) {
-	return s.orderRepository.FindByCartId(cartID)
+func (s *orderService) FindByCartId(cartID uint) (models.Order, error) {
+	order, err := s.orderRepository.FindByCartId(cartID)
+
+	if err != nil {
+		err = errors.New("falha ao encontrar o pedido pelo id do carrinho")
+	}
+
+	return order, err
 }
 
-func (s *orderService) FindOrCreate(profileID, cartID uint) (*models.Order, error) {
-	return s.orderRepository.FindOrCreate(profileID, cartID)
+func (s *orderService) FindOrCreate(profileID, cartID uint) (models.Order, error) {
+	order, err := s.orderRepository.FindOrCreate(profileID, cartID)
+
+	if err != nil {
+		err = errors.New("falha ao criar ou encontrar o pedido")
+	}
+
+	return order, err
 }
 
 func (s *orderService) FindAll(filter *models.OrderFilter) []models.Order {
@@ -50,32 +69,39 @@ func (s *orderService) FindAllByUser(filter *models.OrderFilter) []models.Order 
 }
 
 func (s *orderService) Update(order *models.Order) error {
-	return s.orderRepository.Update(order)
-}
+	if err := s.orderRepository.Update(order); err != nil {
+		return errors.New("falha ao atualizar o pedido")
+	}
 
-const (
-	CashPaymentMethod = models.CashPaymentMethod
-	PixPaymentMethod  = models.PixPaymentMethod
-)
+	return nil
+}
 
 func (s *orderService) Payment(order *models.Order) error {
 	order.Status = models.AwaitingPaymentStatus
+
 	switch order.PaymentMethod {
-	case CashPaymentMethod:
+	case models.CashPaymentMethod:
 		order.Status = models.ProcessingStatus
-	case PixPaymentMethod:
+	case models.PixPaymentMethod:
 		if err := s.processPixPayment(order); err != nil {
-			return err
+			return errors.New("falha ao processar o pagamento com pix")
 		}
 	}
-	return s.orderRepository.Update(order)
+
+	if err := s.orderRepository.Update(order); err != nil {
+		return errors.New("falha ao atualizar o status do pedido")
+	}
+
+	return nil
 }
 
 func (s *orderService) processPixPayment(order *models.Order) error {
 	storeConfig, err := s.storeConfigService.GetStoreConfig()
+
 	if err != nil {
 		return err
 	}
+
 	pixData := &models.PixPaymentData{
 		Tipo:  string(storeConfig.PixKeyType),
 		Chave: storeConfig.PixKey,
@@ -83,17 +109,26 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 		Info:  fmt.Sprintf("CupCake Store R$ %v - ID#%v", order.Total, order.ID),
 		Nome:  "Cupcake Store",
 	}
+
 	payment, err := models.GeneratePixPayment(pixData)
+
 	if err != nil {
 		return err
 	}
+
+	order.PaymentMethod = models.PixPaymentMethod
 	order.PixQR = payment.PixQR
 	order.PixString = payment.PixString
 	order.PixTransactionID = payment.PixTransactionID
 	order.PixURL = payment.PixURL
+
 	return nil
 }
 
 func (s *orderService) Cancel(id uint) error {
-	return s.orderRepository.Cancel(id)
+	if err := s.orderRepository.Cancel(id); err != nil {
+		return errors.New("falha ao cancelar o pedido")
+	}
+
+	return nil
 }

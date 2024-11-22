@@ -24,18 +24,28 @@ func NewStockService(stockRepository repositories.StockRepository) StockService 
 
 func (s *stockService) Create(stock *models.Stock) error {
 	if stock.Quantity <= 0 {
-		return errors.New("quantidade inválida")
+		return errors.New("quantidade deve ser maior que zero")
 	}
 
 	if stock.ProfileID == 0 {
-		return errors.New("ProfileID não fornecido")
+		return errors.New("o id do perfil deve ser informado")
 	}
 
-	return s.stockRepository.Create(stock)
+	if err := s.stockRepository.Create(stock); err != nil {
+		return errors.New("falha ao criar o estoque do produto")
+	}
+
+	return nil
 }
 
 func (s *stockService) GetTotalStockQuantity(productID uint) (int, error) {
-	return s.stockRepository.SumProductStockQuantity(productID)
+	total, err := s.stockRepository.SumProductStockQuantity(productID)
+
+	if err != nil {
+		return 0, errors.New("falha ao obter a quantidade de estoque do produto")
+	}
+
+	return total, nil
 }
 
 func (s *stockService) FindByProductId(filter *models.StockFilter) []models.Stock {

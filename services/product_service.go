@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 	"strings"
@@ -27,7 +28,12 @@ func NewProductService(productRepository repositories.ProductRepository) Product
 
 func (s *productService) Create(product *models.Product) error {
 	s.normalizeProduct(product)
-	return s.productRepository.Create(product)
+
+	if err := s.productRepository.Create(product); err != nil {
+		return errors.New("falha ao cadastrar o produto")
+	}
+
+	return nil
 }
 
 func (s *productService) FindAll(filter *models.ProductFilter) []models.Product {
@@ -39,20 +45,37 @@ func (s *productService) FindActiveWithStock(filter *models.ProductFilter) []mod
 }
 
 func (s *productService) FindById(id uint) (models.Product, error) {
-	return s.productRepository.FindById(id)
+	product, err := s.productRepository.FindById(id)
+
+	if err != nil {
+		err = errors.New("falha ao encontrar o produto com o id informado")
+	}
+
+	return product, err
 }
 
 func (s *productService) Update(product *models.Product) error {
 	s.normalizeProduct(product)
-	return s.productRepository.Update(product)
+
+	if err := s.productRepository.Update(product); err != nil {
+		return errors.New("falha ao atualizar o produto")
+	}
+
+	return nil
 }
 
 func (s *productService) Delete(id uint) error {
 	product, err := s.FindById(id)
+
 	if err != nil {
-		return err
+		return errors.New("falha ao encontrar o produto com o id informado")
 	}
-	return s.productRepository.Delete(&product)
+
+	if err := s.productRepository.Delete(&product); err != nil {
+		return errors.New("falha ao deletar o produto")
+	}
+
+	return nil
 }
 
 func (s *productService) normalizeProduct(product *models.Product) {

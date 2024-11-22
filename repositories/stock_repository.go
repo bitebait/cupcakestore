@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"github.com/bitebait/cupcakestore/models"
+	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -22,13 +23,23 @@ func NewStockRepository(database *gorm.DB) StockRepository {
 }
 
 func (r *stockRepository) Create(stock *models.Stock) error {
-	return r.db.Create(stock).Error
+	if err := r.db.Create(stock).Error; err != nil {
+		log.Errorf("StockRepository Create: %s", err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (r *stockRepository) SumProductStockQuantity(productID uint) (int, error) {
 	var totalQuantity int64
-	result := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("SUM(quantity)").Scan(&totalQuantity)
-	return int(totalQuantity), result.Error
+	err := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("SUM(quantity)").Scan(&totalQuantity).Error
+
+	if err != nil {
+		log.Errorf("StockRepository SumProductStockQuantity: %s", err.Error())
+	}
+
+	return int(totalQuantity), err
 }
 
 func (r *stockRepository) FindByProductId(filter *models.StockFilter) []models.Stock {
@@ -45,13 +56,14 @@ func calculateOffset(pagination *models.Pagination) int {
 
 func countTotalStocks(db *gorm.DB, productID uint) int64 {
 	var total int64
-	query := db.Model(&models.Stock{}).Where("product_id = ?", productID)
-	query.Count(&total)
+	db.Model(&models.Stock{}).Where("product_id = ?", productID).Count(&total)
+
 	return total
 }
 
 func fetchStocks(db *gorm.DB, filter *models.StockFilter, offset int) []models.Stock {
 	var stocks []models.Stock
+
 	query := db.Model(&models.Stock{}).
 		Where("product_id = ?", filter.Stock.ProductID).
 		Offset(offset).
@@ -60,5 +72,6 @@ func fetchStocks(db *gorm.DB, filter *models.StockFilter, offset int) []models.S
 		Preload("Product").
 		Preload("Profile.User")
 	query.Find(&stocks)
+
 	return stocks
 }

@@ -1,13 +1,15 @@
 package repositories
 
 import (
+	"github.com/gofiber/fiber/v2/log"
+	"time"
+
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
-	"time"
 )
 
 type DashboardRepository interface {
-	GetInfo(lastNDays int) *models.Dashboard
+	GetInfo(lastNDays int) models.Dashboard
 }
 
 type dashboardRepository struct {
@@ -20,39 +22,49 @@ func NewDashboardRepository(database *gorm.DB) DashboardRepository {
 	}
 }
 
-func (r *dashboardRepository) GetInfo(lastNDays int) *models.Dashboard {
+func (r *dashboardRepository) GetInfo(lastNDays int) models.Dashboard {
 	const dateFormat = "2006-01-02"
-	var dashboard models.Dashboard
-
 	lastDays := time.Now().AddDate(0, 0, -lastNDays).Format(dateFormat)
 
-	dashboard.NewOrders = r.countOrderStatusInLastDays(lastDays, []models.ShoppingCartStatus{
-		models.ActiveStatus,
-		models.AwaitingPaymentStatus,
-	})
-	dashboard.Sales = r.countOrderStatusInLastDays(lastDays, []models.ShoppingCartStatus{
-		models.PaymentApprovedStatus,
-		models.DeliveredStatusDelivered,
-		models.DeliveredStatusAwaiting,
-		models.ProcessingStatus,
-	})
-	dashboard.Users = r.countRecords(&models.User{})
-	dashboard.Products = r.countRecords(&models.Product{})
+	dashboard := models.Dashboard{
+		NewOrders: r.countOrderStatusInLastDays(lastDays, []models.ShoppingCartStatus{
+			models.ActiveStatus,
+			models.AwaitingPaymentStatus,
+			models.DeliveredStatusAwaiting,
+			models.DeliveredStatusDelivered,
+			models.PaymentApprovedStatus,
+			models.ProcessingStatus,
+		}),
+		Sales: r.countOrderStatusInLastDays(lastDays, []models.ShoppingCartStatus{
+			models.DeliveredStatusAwaiting,
+			models.DeliveredStatusDelivered,
+			models.PaymentApprovedStatus,
+		}),
+		Users:    r.countRecords(&models.User{}),
+		Products: r.countRecords(&models.Product{}),
+	}
 
-	return &dashboard
+	return dashboard
 }
 
 func (r *dashboardRepository) countOrderStatusInLastDays(lastDays string, statuses []models.ShoppingCartStatus) int64 {
 	var count int64
-	r.db.Model(&models.Order{}).
-		Where("status IN ?", statuses).
-		Where("DATE(created_at) >= ?", lastDays).
-		Count(&count)
+
+	if err := r.db.Model(&models.Order{}).Where("status IN ?", statuses).Where("DATE(created_at) >= ?", lastDays).Count(&count).Error; err != nil {
+		log.Errorf("DashboardRepository countOrderStatusInLastDays: %s", err.Error())
+		return 0
+	}
+
 	return count
 }
 
 func (r *dashboardRepository) countRecords(model interface{}) int64 {
 	var count int64
-	r.db.Model(model).Count(&count)
+
+	if err := r.db.Model(model).Count(&count).Error; err != nil {
+		log.Errorf("DashboardRepository countRecords: %s", err.Error())
+		return 0
+	}
+
 	return count
 }

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/bitebait/cupcakestore/models"
@@ -28,7 +29,12 @@ func NewUserService(userRepository repositories.UserRepository) UserService {
 
 func (s *userService) Create(user *models.User) error {
 	s.normalizeUser(user)
-	return s.userRepository.Create(user)
+
+	if err := s.userRepository.Create(user); err != nil {
+		return errors.New("falha ao cadastrar o usuário, verifique os dados ou tente um e-mail diferente")
+	}
+
+	return nil
 }
 
 func (s *userService) FindAll(filter *models.UserFilter) []models.User {
@@ -36,24 +42,47 @@ func (s *userService) FindAll(filter *models.UserFilter) []models.User {
 }
 
 func (s *userService) FindById(id uint) (models.User, error) {
-	return s.userRepository.FindById(id)
+	user, err := s.userRepository.FindById(id)
+
+	if err != nil {
+		err = errors.New("falha ao encontrar o usuário com o id informado")
+	}
+
+	return user, err
 }
 
 func (s *userService) FindByEmail(email string) (models.User, error) {
-	return s.userRepository.FindByEmail(email)
+	user, err := s.userRepository.FindByEmail(email)
+
+	if err != nil {
+		err = errors.New("falha ao encontrar o usuário com o email informado")
+	}
+
+	return user, err
 }
 
 func (s *userService) Update(user *models.User) error {
 	s.normalizeUser(user)
-	return s.userRepository.Update(user)
+
+	if err := s.userRepository.Update(user); err != nil {
+		return errors.New("falha ao atualizar o usuário")
+	}
+
+	return nil
 }
 
 func (s *userService) Delete(id uint) error {
 	user, err := s.FindById(id)
+
 	if err != nil {
-		return err
+		return errors.New("falha ao encontrar o usuário com o id informado")
 	}
-	return s.userRepository.Delete(&user)
+
+	if err := s.userRepository.Delete(&user); err != nil {
+		return errors.New("falha ao deletar o usuário")
+	}
+
+	return nil
 }
 
 func (s *userService) normalizeUser(user *models.User) {

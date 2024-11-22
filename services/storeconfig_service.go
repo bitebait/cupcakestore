@@ -1,13 +1,14 @@
 package services
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 	"strings"
 )
 
 type StoreConfigService interface {
-	GetStoreConfig() (*models.StoreConfig, error)
+	GetStoreConfig() (models.StoreConfig, error)
 	Update(storeConfig *models.StoreConfig) error
 }
 
@@ -21,13 +22,24 @@ func NewStoreConfigService(storeConfigRepository repositories.StoreConfigReposit
 	}
 }
 
-func (s *storeConfigService) GetStoreConfig() (*models.StoreConfig, error) {
-	return s.storeConfigRepository.GetStoreConfig()
+func (s *storeConfigService) GetStoreConfig() (models.StoreConfig, error) {
+	config, err := s.storeConfigRepository.GetStoreConfig()
+
+	if err != nil {
+		err = errors.New("falha ao obter a configuração da loja")
+	}
+
+	return config, err
 }
 
 func (s *storeConfigService) Update(storeConfig *models.StoreConfig) error {
 	s.normalizeStoreConfig(storeConfig)
-	return s.storeConfigRepository.Update(storeConfig)
+
+	if err := s.storeConfigRepository.Update(storeConfig); err != nil {
+		return errors.New("falha ao atualizar a configuração da loja")
+	}
+
+	return nil
 }
 
 func (s *storeConfigService) normalizeStoreConfig(storeConfig *models.StoreConfig) {

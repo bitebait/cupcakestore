@@ -1,16 +1,12 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
-)
-
-const (
-	CreateProductPage = "products/create"
-	ProductPage       = "products/product"
 )
 
 type ProductController interface {
@@ -36,73 +32,97 @@ func NewProductController(s services.ProductService) ProductController {
 }
 
 func (c *productController) RenderCreate(ctx *fiber.Ctx) error {
-	return views.Render(ctx, CreateProductPage, nil, views.BaseLayout)
+	return ctx.Render("products/create", fiber.Map{}, views.BaseLayout)
 }
 
 func (c *productController) Create(ctx *fiber.Ctx) error {
-	product := &models.Product{}
-	if err := ctx.BodyParser(product); err != nil {
-		return views.RenderError(ctx, CreateProductPage, product, "Dados do produto inválidos: "+err.Error(), views.BaseLayout)
+	var product models.Product
+
+	if err := ctx.BodyParser(&product); err != nil {
+		messages.SetErrorMessage(ctx, "erro ao processar os dados do produto")
+		return ctx.Redirect("/products/create")
 	}
-	if err := c.saveProductImage(ctx, product); err != nil {
-		return views.RenderError(ctx, ProductPage, product, err.Error(), views.BaseLayout)
+
+	if err := c.saveProductImage(ctx, &product); err != nil {
+		messages.SetErrorMessage(ctx, "erro ao processar a imagem do produto")
+		return ctx.Redirect("/products/create")
 	}
-	if err := c.productService.Create(product); err != nil {
-		return views.RenderError(ctx, CreateProductPage, product, "Falha ao criar produto: "+err.Error(), views.BaseLayout)
+
+	if err := c.productService.Create(&product); err != nil {
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/products/create")
 	}
+
+	messages.SetSuccessMessage(ctx, "produto criado com sucesso")
 	return ctx.Redirect("/products")
 }
 
 func (c *productController) RenderDetails(ctx *fiber.Ctx) error {
 	product, err := c.getProductByID(ctx)
 	if err != nil {
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/store")
 	}
-	return views.Render(ctx, "products/details", product, views.StoreLayout)
+
+	return ctx.Render("products/details", fiber.Map{"Object": product}, views.StoreLayout)
 }
 
 func (c *productController) RenderProducts(ctx *fiber.Ctx) error {
 	filter := c.getProductFilterFromQueryParams(ctx)
 	products := c.productService.FindAll(filter)
-	return views.Render(ctx, "products/products", fiber.Map{"Products": products, "Filter": filter}, views.BaseLayout)
+	data := fiber.Map{"Products": products, "Filter": filter}
+
+	return ctx.Render("products/products", fiber.Map{"Object": data}, views.BaseLayout)
 }
 
 func (c *productController) RenderProduct(ctx *fiber.Ctx) error {
 	product, err := c.getProductByID(ctx)
 	if err != nil {
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/products")
 	}
-	return views.Render(ctx, ProductPage, product, views.BaseLayout)
+	return ctx.Render("products/product", fiber.Map{"Object": product}, views.BaseLayout)
 }
 
 func (c *productController) RenderDelete(ctx *fiber.Ctx) error {
 	product, err := c.getProductByID(ctx)
 	if err != nil {
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/products")
 	}
-	return views.Render(ctx, "products/delete", product, views.BaseLayout)
+	return ctx.Render("products/delete", fiber.Map{"Object": product}, views.BaseLayout)
 }
 
 func (c *productController) Update(ctx *fiber.Ctx) error {
 	product, err := c.getProductByID(ctx)
 	if err != nil {
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/products")
 	}
+
 	err = c.updateProductFromRequest(ctx, &product)
 	if err != nil {
-		return views.RenderError(ctx, ProductPage, &product, err.Error(), views.BaseLayout)
+		messages.SetErrorMessage(ctx, "falha ao atualizar produto")
+		return ctx.Render("products/product", fiber.Map{"Object": product}, views.BaseLayout)
 	}
+
+	messages.SetSuccessMessage(ctx, "produto atualizado com sucesso")
 	return ctx.Redirect("/products")
 }
 
 func (c *productController) Delete(ctx *fiber.Ctx) error {
 	productID, err := c.getProductIdFromParam(ctx)
 	if err != nil {
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/products")
 	}
+
 	if err := c.productService.Delete(productID); err != nil {
+		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/products")
 	}
+
+	messages.SetSuccessMessage(ctx, "produto deletado com sucesso")
 	return ctx.Redirect("/products")
 }
 
@@ -120,13 +140,16 @@ func (c *productController) updateProductFromRequest(ctx *fiber.Ctx, product *mo
 	if err := ctx.BodyParser(product); err != nil {
 		return err
 	}
+
 	product.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.saveProductImage(ctx, product); err != nil {
 		product.Image = oldImage
 	}
+
 	if err := c.productService.Update(product); err != nil {
-		return views.RenderError(ctx, ProductPage, product, "Falha ao atualizar produto.", views.BaseLayout)
+		return err
 	}
+
 	return nil
 }
 
@@ -152,7 +175,7 @@ func (c *productController) getProductFilterFromQueryParams(ctx *fiber.Ctx) *mod
 }
 
 func (c *productController) getProductByID(ctx *fiber.Ctx) (models.Product, error) {
-	productID, err := c.getProductIdFromParam(ctx)
+	productID, err := utils.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return models.Product{}, err
 	}

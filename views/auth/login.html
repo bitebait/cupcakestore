@@ -28,11 +28,6 @@
 <body class="hold-transition login-page">
 <div class="login-box">
     <!-- /.login-logo -->
-    <div class="row">
-        <div class="col-12 mb-2">
-            {{template "snippets/message" .}}
-        </div>
-    </div>
     <div class="card card-outline card-primary">
         <div class="card-header text-center">
             <a class="h1" href="/auth/login">
@@ -71,6 +66,7 @@
             </form>
         </div>
     </div>
+    {{template "snippets/message" .}}
 </div>
 <script src="/plugins/jquery/jquery.min.js"></script>
 <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>

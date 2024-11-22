@@ -25,7 +25,6 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6 mx-auto">
-                {{template "snippets/message" .}}
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Dados do Usuário</h3>
@@ -97,7 +96,7 @@
                             <a href="/users/delete/{{.Object.ID}}" class="btn btn-outline-danger">
                                 <i class="fa fa-trash"></i> Deletar </a>
                             {{else}}
-                            <a href="javascript:history.back()" class="btn btn-default">
+                            <a href="{{ if .Profile.User.IsStaff }}/users{{ else }}/{{end}}" class="btn btn-default">
                                 <i class="fas fa-undo-alt"></i> Cancelar </a>
                             {{end}}
                             <button type="submit" class="btn btn-primary float-right">Atualizar</button>

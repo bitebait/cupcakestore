@@ -85,7 +85,7 @@ func (u *User) CheckPassword(inputPassword string) error {
 
 func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 	if err := u.CheckPassword(oldPassword); err != nil {
-		return err
+		return errors.New("senha antiga incorreta")
 	}
 
 	if newPassword == "" {

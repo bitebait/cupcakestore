@@ -57,6 +57,7 @@ func registerMiddlewares(fiberApp *fiber.App) {
 	fiberApp.Use(cors.New(cors.Config{AllowOrigins: "*"}))
 	fiberApp.Use(favicon.New(favicon.Config{File: faviconPath, URL: faviconURL}))
 	fiberApp.Use(minifier.New(minifier.Config{MinifyHTML: true, MinifyCSS: true, MinifyJS: true}))
+	fiberApp.Use(middlewares.Message())
 }
 
 func serveStaticFiles(fiberApp *fiber.App) {

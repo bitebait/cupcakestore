@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 	"math"
@@ -29,13 +30,25 @@ func (s shoppingCartItemService) Create(cartID uint, productID uint, quantity in
 		Quantity:       int(math.Abs(float64(quantity))),
 	}
 
-	return s.shoppingCartRepository.Create(item)
+	if err := s.shoppingCartRepository.Create(item); err != nil {
+		return errors.New("falha ao criar o item do carrinho")
+	}
+
+	return nil
 }
 
 func (s shoppingCartItemService) Update(item *models.ShoppingCartItem) error {
-	return s.shoppingCartRepository.Update(item)
+	if err := s.shoppingCartRepository.Update(item); err != nil {
+		return errors.New("falha ao atualizar o item do carrinho")
+	}
+
+	return nil
 }
 
 func (s shoppingCartItemService) Delete(cartID uint, productID uint) error {
-	return s.shoppingCartRepository.Delete(cartID, productID)
+	if err := s.shoppingCartRepository.Delete(cartID, productID); err != nil {
+		return errors.New("falha ao deletar o item do carrinho")
+	}
+
+	return nil
 }

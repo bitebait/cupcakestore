@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
@@ -27,54 +28,67 @@ func NewShoppingCartController(shoppingCartService services.ShoppingCartService)
 
 func (c *shoppingCartController) RenderShoppingCart(ctx *fiber.Ctx) error {
 	userID := getUserID(ctx)
-	cart, err := c.shoppingCartService.FindByUserId(userID)
+	cart, err := c.shoppingCartService.FindOrCreateByUserId(userID)
 	if err != nil {
-		return renderErrorMessage(err, "obter o carrinho de compras.")
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/")
 	}
-	return views.Render(ctx, "shoppingcart/shoppingcart", cart, views.StoreLayout)
+	return ctx.Render("shoppingcart/shoppingcart", fiber.Map{"Object": cart}, views.StoreLayout)
 }
 
 func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
-	productID, err := utils.ParseStringToID(ctx.FormValue("id"))
+	productIDStr := ctx.FormValue("id")
+	quantityStr := ctx.FormValue("quantity", "1")
+
+	productID, err := utils.ParseStringToID(productIDStr)
 	if err != nil {
-		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
+		return ctx.Redirect("/cart")
 	}
-	quantity, err := strconv.Atoi(ctx.FormValue("quantity", "1"))
+
+	quantity, err := strconv.Atoi(quantityStr)
 	if err != nil {
-		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
+		messages.SetErrorMessage(ctx, "falha ao identificar a quantidade: "+err.Error())
+		return ctx.Redirect("/cart")
 	}
 
 	userID := getUserID(ctx)
-
 	if err = c.shoppingCartService.AddItemToCart(userID, productID, quantity); err != nil {
-		return renderErrorMessage(err, "adicionar o item ao carrinho de compras")
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/cart")
 	}
 
+	messages.SetSuccessMessage(ctx, "produto adicionado ao carrinho")
 	return ctx.Redirect("/cart")
 }
 
 func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
-	productID, err := utils.ParseStringToID(ctx.Params("id"))
+	productIDStr := ctx.Params("id")
+
+	productID, err := utils.ParseStringToID(productIDStr)
 	if err != nil {
-		return renderErrorMessage(err, "remover o item do carrinho de compras")
+		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
+		return ctx.Redirect("/cart")
 	}
 
 	userID := getUserID(ctx)
-
 	if err = c.shoppingCartService.RemoveFromCart(userID, productID); err != nil {
-		return renderErrorMessage(err, "remover o item do carrinho de compras")
+
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/cart")
 	}
 
+	messages.SetSuccessMessage(ctx, "produto removido do carrinho")
 	return ctx.Redirect("/cart")
 }
 
 func (c *shoppingCartController) CountShoppingCart(ctx *fiber.Ctx) error {
 	userID := getUserID(ctx)
-	cart, err := c.shoppingCartService.FindByUserId(userID)
+	cart, err := c.shoppingCartService.FindOrCreateByUserId(userID)
 	if err != nil {
-		return err
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect("/cart")
 	}
-
 	itemCount := cart.CountItems()
 	return ctx.JSON(fiber.Map{"itemCount": itemCount})
 }

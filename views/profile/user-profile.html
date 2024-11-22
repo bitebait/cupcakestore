@@ -25,82 +25,81 @@
     <div class="container">
         <div class="row">
             <div class="col-md-8 mx-auto">
-                {{template "snippets/message" .}}
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Perfil do Usuário</h3>
-                        <a href="/users/user/{{.Object.UserID}}" class="btn float-right">
+                        <a class="btn float-right" href="/users/user/{{.Object.UserID}}">
                             <i class="fas fa-eye"></i> <u>Conta de Usuário</u>
                         </a>
                     </div>
-                    <form method="Post" action="/profile/update/{{.Object.UserID}}">
+                    <form action="/profile/update/{{.Object.UserID}}" method="Post">
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-12">
                                     <label for="mail">E-mail</label>
-                                    <input type="mail" class="form-control" id="mail" value="{{.Object.User.Email}}"
-                                           disabled>
+                                    <input class="form-control" disabled id="mail" type="mail"
+                                           value="{{.Object.User.Email}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="firstname">Nome</label>
-                                    <input type="text" class="form-control" id="firstname" name="firstname"
+                                    <input class="form-control" id="firstname" minlength="4" name="firstname"
                                            placeholder="Nome"
-                                           minlength="4" value="{{.Object.FirstName}}">
+                                           type="text" value="{{.Object.FirstName}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="lastname">Sobrenome</label>
-                                    <input type="text" class="form-control" id="lastname" name="lastname"
-                                           placeholder="Sobrenome"
+                                    <input class="form-control" id="lastname" name="lastname" placeholder="Sobrenome"
+                                           type="text"
                                            value="{{.Object.LastName}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-12">
                                     <label for="address">Endereço</label>
-                                    <input type="text" class="form-control" id="address" name="address"
+                                    <input class="form-control" id="address" minlength="4" name="address"
                                            placeholder="Endereço"
-                                           minlength="4" value="{{.Object.Address}}">
+                                           type="text" value="{{.Object.Address}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="phonenumber">Telefone</label>
-                                    <input type="text" class="form-control phone-number" id="phonenumber"
-                                           name="phonenumber"
-                                           placeholder="Telefone" value="{{.Object.PhoneNumber}}">
+                                    <input class="form-control phone-number" id="phonenumber" name="phonenumber"
+                                           placeholder="Telefone"
+                                           type="text" value="{{.Object.PhoneNumber}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="postalcode">Código postal</label>
-                                    <input type="text" class="form-control postal-code" id="postalcode"
-                                           name="postalcode"
-                                           placeholder="Código postal" value="{{.Object.PostalCode}}">
+                                    <input class="form-control postal-code" id="postalcode" name="postalcode"
+                                           placeholder="Código postal"
+                                           type="text" value="{{.Object.PostalCode}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="state">Estado</label>
-                                    <input type="text" class="form-control" id="state" name="state" placeholder="Estado"
-                                           minlength="4"
+                                    <input class="form-control" id="state" minlength="4" name="state" placeholder="Estado"
+                                           type="text"
                                            value="{{.Object.State}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="city">Cidade</label>
-                                    <input type="text" class="form-control" id="city" name="city" placeholder="Cidade"
+                                    <input class="form-control" id="city" name="city" placeholder="Cidade" type="text"
                                            value="{{.Object.City}}">
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
-                            {{ if.Profile.User.IsStaff }}
-                            <a href="/users/user/{{.Object.UserID}}" class="btn btn-default">
+                            {{if .Profile.User.IsStaff }}
+                            <a class="btn btn-default" href="/users/user/{{.Object.UserID}}">
                                 <i class="fas fa-undo-alt"></i> Cancelar </a>
                             {{else}}
-                            <a href="javascript:history.back()" class="btn btn-default">
+                            <a class="btn btn-default" href="{{ if .Profile.User.IsStaff }}/users{{ else }}/{{end}}">
                                 <i class="fas fa-undo-alt"></i> Cancelar </a>
                             {{end}}
-                            <button type="submit" class="btn btn-primary float-right">Atualizar perfil</button>
+                            <button class="btn btn-primary float-right" type="submit">Atualizar perfil</button>
                         </div>
                     </form>
                 </div>
