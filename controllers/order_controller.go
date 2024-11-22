@@ -93,12 +93,14 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 
 	switch ctx.Method() {
 	case fiber.MethodPost:
-		return c.processPaymentPost(ctx, &order)
+		if err := c.processPaymentPost(ctx, &order); err != nil {
+			messages.SetErrorMessage(ctx, err.Error())
+		}
 	case fiber.MethodGet:
 		return c.processPaymentGet(ctx, &order)
-	default:
-		return ctx.Redirect("/orders")
 	}
+
+	return ctx.Redirect("/orders")
 }
 
 func (c *orderController) isAuthorizedUser(user *models.Profile, order *models.Order, profileID uint) bool {
