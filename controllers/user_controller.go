@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -99,7 +99,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) getUser(ctx *fiber.Ctx) (models.User, error) {
-	userID, err := utils.ParseStringToID(ctx.Params("id"))
+	userID, err := helpers.ParseStringToID(ctx.Params("id"))
 
 	if err != nil {
 		return models.User{}, err
@@ -153,7 +153,7 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) getUserAndCheckAccess(ctx *fiber.Ctx) (*models.User, error) {
-	id, err := utils.ParseStringToID(ctx.Params("id"))
+	id, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) Delete(ctx *fiber.Ctx) error {
-	id, err := utils.ParseStringToID(ctx.Params("id"))
+	id, err := helpers.ParseStringToID(ctx.Params("id"))
 
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())

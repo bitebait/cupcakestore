@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -169,7 +169,7 @@ func (c *productController) saveProductImage(ctx *fiber.Ctx, product *models.Pro
 }
 
 func (c *productController) getProductIdFromParam(ctx *fiber.Ctx) (uint, error) {
-	return utils.ParseStringToID(ctx.Params("id"))
+	return helpers.ParseStringToID(ctx.Params("id"))
 }
 
 func (c *productController) getProductFilterFromQueryParams(ctx *fiber.Ctx) *models.ProductFilter {
@@ -177,7 +177,7 @@ func (c *productController) getProductFilterFromQueryParams(ctx *fiber.Ctx) *mod
 }
 
 func (c *productController) getProductByID(ctx *fiber.Ctx) (models.Product, error) {
-	productID, err := utils.ParseStringToID(ctx.Params("id"))
+	productID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return models.Product{}, err
 	}

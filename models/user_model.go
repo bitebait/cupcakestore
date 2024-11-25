@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bitebait/cupcakestore/utils"
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -69,7 +69,7 @@ func (u *User) AfterDelete(tx *gorm.DB) error {
 }
 
 func (u *User) HashPassword() error {
-	hash, err := utils.HashPassword(u.Password)
+	hash, err := helpers.HashPassword(u.Password)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 		return errors.New("nova senha não pode estar vazia")
 	}
 
-	hash, err := utils.HashPassword(newPassword)
+	hash, err := helpers.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}

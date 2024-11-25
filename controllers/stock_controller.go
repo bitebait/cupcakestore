@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 )
@@ -66,7 +66,7 @@ func (c *stockController) RenderStocks(ctx *fiber.Ctx) error {
 }
 
 func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
-	productID, err := utils.ParseStringToID(ctx.Params("id"))
+	productID, err := helpers.ParseStringToID(ctx.Params("id"))
 
 	if err != nil {
 		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())

@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/utils"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
@@ -75,7 +75,7 @@ func (c *profileController) getAuthorizedProfileAndUser(ctx *fiber.Ctx) (models.
 }
 
 func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
-	userID, err := utils.ParseStringToID(ctx.Params("id"))
+	userID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return models.Profile{}, errors.New("usuário não autorizado, por favor, efetue o login e tente novamente")
 	}

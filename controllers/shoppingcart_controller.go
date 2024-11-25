@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -40,7 +40,7 @@ func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 	productIDStr := ctx.FormValue("id")
 	quantityStr := ctx.FormValue("quantity", "1")
 
-	productID, err := utils.ParseStringToID(productIDStr)
+	productID, err := helpers.ParseStringToID(productIDStr)
 	if err != nil {
 		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/cart")
@@ -65,7 +65,7 @@ func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
 	productIDStr := ctx.Params("id")
 
-	productID, err := utils.ParseStringToID(productIDStr)
+	productID, err := helpers.ParseStringToID(productIDStr)
 	if err != nil {
 		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
 		return ctx.Redirect("/cart")

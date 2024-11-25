@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"github.com/bitebait/cupcakestore/utils"
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/disintegration/imaging"
 	"image"
 	"mime/multipart"
@@ -63,7 +63,7 @@ func (i *ProductImage) saveCroppedImage(imageName string, thumbnail image.Image)
 }
 
 func (i *ProductImage) generateRandomImageFileName(filename string) (string, error) {
-	rand := utils.NewRandomizer()
+	rand := helpers.NewRandomizer()
 	randString, err := rand.GenerateString(22)
 	if err != nil {
 		return "", err

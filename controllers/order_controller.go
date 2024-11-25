@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
+	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/bitebait/cupcakestore/utils"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -42,7 +42,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/profile")
 	}
 
-	cartID, err := utils.ParseStringToID(ctx.Params("id"))
+	cartID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		messages.SetErrorMessage(ctx, "erro ao processar o ID do carrinho")
 		return ctx.Redirect("/orders")
@@ -74,7 +74,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 
 func (c *orderController) Payment(ctx *fiber.Ctx) error {
 	profileID := getUserID(ctx)
-	cartID, err := utils.ParseStringToID(ctx.Params("id"))
+	cartID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		messages.SetErrorMessage(ctx, "erro ao processar o ID do carrinho")
 		return ctx.Redirect("/orders")
@@ -144,7 +144,7 @@ func (c *orderController) processPaymentGet(ctx *fiber.Ctx, order *models.Order)
 }
 
 func (c *orderController) RenderOrder(ctx *fiber.Ctx) error {
-	orderID, err := utils.ParseStringToID(ctx.Params("id"))
+	orderID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/orders")
@@ -199,7 +199,7 @@ func (c *orderController) RenderAllOrders(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
-	orderID, err := utils.ParseStringToID(ctx.Params("id"))
+	orderID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		messages.SetErrorMessage(ctx, "ID do pedido é inválido")
 		return ctx.Redirect("/orders")
@@ -220,7 +220,7 @@ func (c *orderController) RenderCancel(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Cancel(ctx *fiber.Ctx) error {
-	orderID, err := utils.ParseStringToID(ctx.Params("id"))
+	orderID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/orders")
@@ -245,7 +245,7 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Update(ctx *fiber.Ctx) error {
-	orderID, parseErr := utils.ParseStringToID(ctx.Params("id"))
+	orderID, parseErr := helpers.ParseStringToID(ctx.Params("id"))
 	if parseErr != nil {
 		messages.SetErrorMessage(ctx, "ID do pedido é inválido")
 		return ctx.Redirect("/orders")
