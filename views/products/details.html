@@ -11,6 +11,7 @@
             <!-- Default box -->
             <div class="card card-solid">
                 <div class="card-body">
+                    <input type="hidden" id="csrf" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
                     <div class="row row-eq-height">
                         <div class="col-12 col-sm-6">
                             <img src="{{.Object.Image}}"
@@ -25,7 +26,6 @@
                             <hr>
                             <h4><strong>Preço:</strong> R$ {{ printf "%.2f" .Object.Price}}</h4>
                             <div class="row">
-                                <input type="hidden" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
                                 <div class="col-md-7">
                                     <div class="input-group mb-3">
                                         <button class="btn btn-outline-secondary" type="button"
