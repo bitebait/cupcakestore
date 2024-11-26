@@ -85,7 +85,7 @@
                             <div class="col-md-6">
                                 <form method="post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}"
                                       id="payment" class="form-row">
-                                    <input type="hidden" name="csrf" hx-boost="false" autocomplete="off"
+                                    <input type="hidden" name="csrf" autocomplete="off"
                                            value="{{ .csrfToken }}"/>
                                     <div class="row">
                                         <div class="col-12">

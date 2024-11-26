@@ -20,6 +20,12 @@
         inputId.name = 'id';
         inputId.value = id;
 
+        // Criar um campo oculto para o CSRFToken
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrf';
+        csrfToken.value = document.getElementById('csrf').value;
+
         // Criar um campo oculto para a quantidade do produto
         const inputQuantity = document.createElement('input');
         inputQuantity.type = 'hidden';
@@ -29,6 +35,7 @@
         // Adicionar os campos ocultos ao formulário
         form.appendChild(inputId);
         form.appendChild(inputQuantity);
+        form.appendChild(csrfToken);
 
         // Adicionar o formulário ao corpo da página
         document.body.appendChild(form);

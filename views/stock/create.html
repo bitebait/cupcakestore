@@ -32,7 +32,7 @@
                                            placeholder="Nome do produto" required="required">
                                 </div>
                                 <form method="post" action="/stock/create" id="stockForm">
-                                    <input type="hidden" name="csrf" hx-boost="false" autocomplete="off"
+                                    <input type="hidden" name="csrf" autocomplete="off"
                                            value="{{ .csrfToken }}"/>
                                     <div class="form-group">
                                         <label for="type">Selecione Entra/Saída</label>

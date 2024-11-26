@@ -27,7 +27,7 @@
                         </a>
                     </div>
                     <form method="post" action="/products/update/{{.Object.ID}}" enctype="multipart/form-data">
-                        <input type="hidden" name="csrf" hx-boost="false" autocomplete="off" value="{{ .csrfToken }}"/>
+                        <input type="hidden" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="col-md-6">

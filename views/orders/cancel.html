@@ -22,7 +22,7 @@
                                 pedidos.
                             </p>
                             <form method="post" action="/orders/cancel/{{.Object.ID}}">
-                                <input type="hidden" name="csrf" hx-boost="false" autocomplete="off"
+                                <input type="hidden" name="csrf" autocomplete="off"
                                        value="{{ .csrfToken }}"/>
                                 <a href="/orders" class="btn btn-default">
                                     <i class="fas fa-undo-alt"></i> Cancelar </a>

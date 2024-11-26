@@ -33,7 +33,7 @@
                         </a>
                     </div>
                     <form method="post" action="/users/user/update/{{.Object.ID}}">
-                        <input type="hidden" name="csrf" hx-boost="false" autocomplete="off" value="{{ .csrfToken }}"/>
+                        <input type="hidden" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-12">

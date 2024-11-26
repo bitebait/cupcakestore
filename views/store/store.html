@@ -23,6 +23,7 @@
     <div class="container">
         <div class="row row-eq-height">
             {{ if .Object.Products}}
+            <input type="hidden" id="csrf" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
             {{range .Object.Products}}
             <div class="col-md-3">
                 <div class="card card-produto  text-center">
