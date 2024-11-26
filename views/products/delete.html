@@ -28,7 +28,9 @@
                         <p> Essa operação é irreversível e não poderemos recuperar os dados do produto deletado. Caso
                             não queira continuar, clique <a href="/products">aqui</a> para retornar à lista de produtos
                             cadastrados. </p>
-                        <form method="POST" action="/products/delete/{{.Object.ID}}">
+                        <form method="post" action="/products/delete/{{.Object.ID}}">
+                            <input type="hidden" name="csrf" hx-boost="false" autocomplete="off"
+                                   value="{{ .csrfToken }}"/>
                             <a href="/products" class="btn btn-default">
                                 <i class="fas fa-undo-alt"></i> Cancelar </a>
                             <div class="float-right">

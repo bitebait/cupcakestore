@@ -36,6 +36,7 @@
         <div class="card-body">
             <p class="login-box-msg">Acesse sua conta para iniciar a sessão</p>
             <form method="post">
+                <input type="hidden" name="csrf" hx-boost="false" autocomplete="off" value="{{ .csrfToken }}"/>
                 <div class="input-group mb-3">
                     <input class="form-control" id="email" name="email" placeholder="E-mail do usuário"
                            required="required"

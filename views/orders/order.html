@@ -16,7 +16,9 @@
                                 </h4>
                             </div>
                             {{if and .Profile.User.IsStaff (ne .Object.Order.Status "Cancelado")}}
-                            <form method="Post" action="/orders/order/{{.Object.Order.ID}}">
+                            <form method="post" action="/orders/order/{{.Object.Order.ID}}">
+                                <input type="hidden" name="csrf" hx-boost="false" autocomplete="off"
+                                       value="{{ .csrfToken }}"/>
                                 <div class="form-row mt-3">
                                     <div class="col-9">
                                         <select class="form-control" id="status" name="status">

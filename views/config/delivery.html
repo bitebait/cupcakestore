@@ -24,7 +24,8 @@
                     <div class="card-header">
                         <h3 class="card-title">Gerenciar as Configurações de Entrega</h3>
                     </div>
-                    <form method="Post" action="/config">
+                    <form method="post" action="/config">
+                        <input type="hidden" name="csrf" hx-boost="false" autocomplete="off" value="{{ .csrfToken }}"/>
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="deliveryPrice">Valor da Taxa de Entrega (R$)</label>

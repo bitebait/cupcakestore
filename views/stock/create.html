@@ -31,7 +31,9 @@
                                     <input type="text" class="form-control" id="productName" name="productName"
                                            placeholder="Nome do produto" required="required">
                                 </div>
-                                <form method="POST" action="/stock/create" id="stockForm">
+                                <form method="post" action="/stock/create" id="stockForm">
+                                    <input type="hidden" name="csrf" hx-boost="false" autocomplete="off"
+                                           value="{{ .csrfToken }}"/>
                                     <div class="form-group">
                                         <label for="type">Selecione Entra/Saída</label>
                                         <select class="form-control" id="type" name="type">

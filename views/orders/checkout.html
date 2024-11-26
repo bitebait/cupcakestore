@@ -83,8 +83,10 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-md-6">
-                                <form method="Post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}"
+                                <form method="post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}"
                                       id="payment" class="form-row">
+                                    <input type="hidden" name="csrf" hx-boost="false" autocomplete="off"
+                                           value="{{ .csrfToken }}"/>
                                     <div class="row">
                                         <div class="col-12">
                                             <p class="lead">Formas de Pagamento:</p>

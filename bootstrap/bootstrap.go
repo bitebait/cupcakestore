@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"encoding/json"
 	"github.com/Masterminds/sprig/v3"
 	minifier "github.com/beyer-stefan/gofiber-minifier"
 	"github.com/bitebait/cupcakestore/config"
@@ -11,10 +12,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
+	"github.com/gofiber/fiber/v2/middleware/idempotency"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
+	"time"
 )
 
 const (
@@ -40,6 +44,8 @@ func createFiberApp() *fiber.App {
 	return fiber.New(fiber.Config{
 		Views:             engine,
 		PassLocalsToViews: true,
+		JSONEncoder:       json.Marshal,
+		JSONDecoder:       json.Unmarshal,
 	})
 }
 
@@ -51,9 +57,20 @@ func setupTemplateEngine() *html.Engine {
 }
 
 func registerMiddlewares(fiberApp *fiber.App) {
-	fiberApp.Use(recover.New())
 	fiberApp.Use(logger.New())
-	fiberApp.Use(compress.New(compress.Config{Level: compress.LevelBestCompression}))
+	fiberApp.Use(recover.New())
+	fiberApp.Use(idempotency.New())
+	fiberApp.Use(csrf.New(csrf.Config{
+		CookieHTTPOnly:    true,
+		Expiration:        time.Hour,
+		KeyLookup:         "form:csrf",
+		ContextKey:        "csrfToken",
+		SessionKey:        "fiber.csrf.token",
+		HandlerContextKey: "fiber.csrf.handler",
+	}))
+	fiberApp.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
+	}))
 	fiberApp.Use(cors.New(cors.Config{AllowOrigins: "*"}))
 	fiberApp.Use(favicon.New(favicon.Config{File: faviconPath, URL: faviconURL}))
 	fiberApp.Use(minifier.New(minifier.Config{MinifyHTML: true, MinifyCSS: true, MinifyJS: true}))

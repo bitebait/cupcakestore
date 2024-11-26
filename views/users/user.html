@@ -32,7 +32,8 @@
                             <i class="fas fa-eye"></i> <u>Perfil do Usuário</u>
                         </a>
                     </div>
-                    <form method="Post" action="/users/user/update/{{.Object.ID}}">
+                    <form method="post" action="/users/user/update/{{.Object.ID}}">
+                        <input type="hidden" name="csrf" hx-boost="false" autocomplete="off" value="{{ .csrfToken }}"/>
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-12">

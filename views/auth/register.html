@@ -38,7 +38,8 @@
     <div class="card">
         <div class="card-body register-card-body">
             <p class="login-box-msg">Formulário de Registro de Conta</p>
-            <form action="/auth/register" id="registrationForm" method="Post">
+            <form action="/auth/register" id="registrationForm" method="post">
+                <input type="hidden" name="csrf" hx-boost="false" autocomplete="off" value="{{ .csrfToken }}"/>
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <input class="form-control" id="firstname" minlength="4" name="firstname"
