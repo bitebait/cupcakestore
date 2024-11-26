@@ -25,6 +25,7 @@
                             <hr>
                             <h4><strong>Preço:</strong> R$ {{ printf "%.2f" .Object.Price}}</h4>
                             <div class="row">
+                                <input type="hidden" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
                                 <div class="col-md-7">
                                     <div class="input-group mb-3">
                                         <button class="btn btn-outline-secondary" type="button"
