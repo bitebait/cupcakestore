@@ -13,8 +13,8 @@ const (
 	envAppHost      = "APP_HOST"
 	envAppPort      = "APP_PORT"
 	envDevMode      = "DEV_MODE"
-	defaultHost     = "localhost"
-	defaultPort     = "4000"
+	defaultHost     = "0.0.0.0"
+	defaultPort     = "8000"
 	defaultDevMode  = "true"
 )
 
