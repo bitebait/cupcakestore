@@ -21,6 +21,5 @@
 # Go workspace file
 go.work
 /web/images/*.jpeg
-/web/images/*.png
 /web/images/*.jpg
 /web/images/*.webp
