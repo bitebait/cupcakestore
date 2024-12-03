@@ -6,19 +6,21 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/beyer-stefan/gofiber-minifier v0.1.0
 	github.com/go-playground/validator/v10 v10.15.5
-	github.com/gofiber/session/v2 v2.0.2
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.19.0
-	gorm.io/gorm v1.25.5
+	gorm.io/driver/postgres v1.5.11
+	gorm.io/gorm v1.25.10
 )
 
 require (
-	github.com/fasthttp/session/v2 v2.2.4 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/pgx/v5 v5.5.5 // indirect
+	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
-	github.com/savsgio/dictpool v0.0.0-20200914121634-61efc2e36e16 // indirect
-	github.com/savsgio/gotils v0.0.0-20200909101946-939aa3fc74fb // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
+	golang.org/x/sync v0.1.0 // indirect
 )
 
 require (
