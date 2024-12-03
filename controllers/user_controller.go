@@ -85,6 +85,7 @@ func (c *userController) RenderUser(ctx *fiber.Ctx) error {
 	}
 
 	if user.IsStaff && user.ID != userSess.ID {
+		err := errors.New("você não tem as permissões necessárias para editar esse usuário")
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/users")
 	}
