@@ -49,13 +49,6 @@
             font-weight: 700;
             src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdr.ttf) format("truetype");
         }
-
-        #darkModeToggle {
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 24px; /* Adjust size as needed */
-        }
     </style>
     <!-- Font Awesome Icons -->
     <link href="/plugins/fontawesome-free/css/all.min.css" rel="stylesheet"/>
@@ -74,10 +67,6 @@
                          style="opacity: 0.8;"/>
                     <span class="brand-text font-weight-light">CupcakeStore</span>
                 </a>
-
-                <button id="darkModeToggle" title="Toggle Dark Mode">
-                    <i class="fas fa-sun text-secondary" id="toggleIcon"></i>
-                </button>
             </div>
 
             <button aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation"
@@ -181,27 +170,5 @@
     });
 </script>
 {{end}}
-<script>
-    $(document).ready(function () {
-        // Check for saved user preference in localStorage
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            $('body').addClass('dark-mode');
-            $('#toggleIcon').removeClass('fa-sun').addClass('fa-moon');
-        }
-
-        $('#darkModeToggle').click(function () {
-            $('body').toggleClass('dark-mode');
-
-            // Change icon based on the current mode
-            if ($('body').hasClass('dark-mode')) {
-                $('#toggleIcon').removeClass('fa-sun').addClass('fa-moon');
-                localStorage.setItem('darkMode', 'enabled');
-            } else {
-                $('#toggleIcon').removeClass('fa-moon').addClass('fa-sun');
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        });
-    });
-</script>
 </body>
 </html>
