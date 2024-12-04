@@ -7,39 +7,14 @@ import (
 	"log"
 )
 
-const (
-	envCertFilePath = "CERT_FILE_PATH"
-	envKeyFilePath  = "KEY_FILE_PATH"
-	envAppHost      = "APP_HOST"
-	envAppPort      = "APP_PORT"
-	envDevMode      = "DEV_MODE"
-	defaultHost     = "0.0.0.0"
-	defaultPort     = "8000"
-	defaultDevMode  = "true"
-)
-
-// Extracted function to get configuration values for better readability
-func getConfigValue(cfg *config.Config, key, def string) string {
-	return cfg.GetEnvVar(key, def)
-}
-
 func main() {
 	app := bootstrap.NewApplication()
-	cfg := config.Instance()
+	cfg := config.Get()
+	addr := fmt.Sprintf("%s:%s", cfg.AppHost, cfg.AppPort)
 
-	certFilePath := getConfigValue(cfg, envCertFilePath, "")
-	keyFilePath := getConfigValue(cfg, envKeyFilePath, "")
-	host := getConfigValue(cfg, envAppHost, defaultHost)
-	port := getConfigValue(cfg, envAppPort, defaultPort)
-	addr := fmt.Sprintf("%s:%s", host, port)
-
-	if isDevelopmentMode(cfg) {
+	if cfg.DevMode {
 		log.Fatal(app.Listen(addr))
 	} else {
-		log.Fatal(app.ListenTLS(addr, certFilePath, keyFilePath))
+		log.Fatal(app.ListenTLS(addr, cfg.CertFilePath, cfg.KeyFilePath))
 	}
-}
-
-func isDevelopmentMode(cfg *config.Config) bool {
-	return getConfigValue(cfg, envDevMode, defaultDevMode) == "true"
 }

@@ -19,7 +19,7 @@ var (
 )
 
 func SetupDatabase() {
-	dbType := config.Instance().GetEnvVar("DB_TYPE", "sqlite")
+	dbType := config.Get().DBType
 	switch dbType {
 	case "sqlite":
 		setupSQLiteDatabase()
@@ -31,8 +31,7 @@ func SetupDatabase() {
 }
 
 func setupSQLiteDatabase() {
-	dbPath := config.Instance().GetEnvVar("DB_PATH", "gorm.db")
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(config.Get().DBPath), &gorm.Config{})
 	handleError("Falha ao conectar ao banco de dados SQLite", err)
 
 	handleError("Falha ao migrar os modelos", migrateModels(db))

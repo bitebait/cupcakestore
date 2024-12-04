@@ -74,13 +74,11 @@ func (c *authController) Login(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/auth/login")
 	}
 
-	redirectPath := config.Instance().GetEnvVar("REDIRECT_AFTER_LOGIN", "/store")
-
-	return ctx.Redirect(redirectPath)
+	return ctx.Redirect(config.Get().RedirectAfterLogin)
 }
 
 func (c *authController) Logout(ctx *fiber.Ctx) error {
-	redirectPath := config.Instance().GetEnvVar("REDIRECT_AFTER_LOGOUT", "/store")
+	redirectPath := config.Get().RedirectAfterLogout
 	sess, err := session.Store.Get(ctx)
 
 	if err != nil {

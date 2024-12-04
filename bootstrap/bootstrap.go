@@ -82,7 +82,7 @@ func serveStaticFiles(fiberApp *fiber.App) {
 }
 
 func configureHTTPS(fiberApp *fiber.App) {
-	if !isDevMode() {
+	if !config.Get().DevMode {
 		fiberApp.Use(redirectToHTTPS)
 	}
 }
@@ -90,10 +90,6 @@ func configureHTTPS(fiberApp *fiber.App) {
 func registerRoutes(fiberApp *fiber.App) {
 	fiberApp.Use(middlewares.Auth())
 	routers.InstallRouters(fiberApp)
-}
-
-func isDevMode() bool {
-	return config.Instance().GetEnvVar("DEV_MODE", "true") == "true"
 }
 
 func redirectToHTTPS(c *fiber.Ctx) error {
