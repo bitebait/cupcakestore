@@ -37,8 +37,6 @@ go run .
 
 ### Informações Adicionais
 
-- **Link da Solução em Funcionamento:** [Cupcake Store](https://cupcakestore.schwaab.me/store)
-- **Usuário DEMO ADMIN**: `admin@admin.com` / `admin@admin.com`
 - **Linguagem Back-end**: Golang
 - **Front-end**: HTML+CSS+JS ([AdminLTE Bootstrap Admin Dashboard](https://adminlte.io/))
 - **Banco de Dados**: Sqlite3 (usando gorm – Golang ORM)
