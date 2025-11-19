@@ -2,13 +2,15 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+
 	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type OrderController interface {
@@ -93,11 +95,21 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 
 	switch ctx.Method() {
 	case fiber.MethodPost:
-		if err := c.processPaymentPost(ctx, &order); err != nil {
+		pixURL, err := c.processPaymentPost(ctx, &order)
+		if err != nil {
 			messages.SetErrorMessage(ctx, err.Error())
+			return c.processPaymentGet(ctx, &order)
 		}
+
+		if pixURL != "" {
+			return ctx.Redirect(pixURL, fiber.StatusSeeOther)
+		}
+
 	case fiber.MethodGet:
 		return c.processPaymentGet(ctx, &order)
+
+	default:
+		return ctx.Status(fiber.StatusMethodNotAllowed).SendString("Método não permitido")
 	}
 
 	return ctx.Redirect("/orders")
@@ -107,31 +119,34 @@ func (c *orderController) isAuthorizedUser(user *models.Profile, order *models.O
 	return user.User.IsStaff || order.IsCurrentUserOrder(profileID)
 }
 
-func (c *orderController) processPaymentPost(ctx *fiber.Ctx, order *models.Order) error {
+func (c *orderController) processPaymentPost(ctx *fiber.Ctx, order *models.Order) (string, error) {
 	if err := ctx.BodyParser(order); err != nil {
-		return errors.New("erro ao processar o pedido, verifique os dados e tente novamente")
+		return "", fiber.NewError(fiber.StatusBadRequest, "Erro ao processar os dados do pedido. Verifique os campos e tente novamente.")
 	}
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
-		return err
+		return "", fmt.Errorf("falha ao carregar configuração da loja: %w", err)
 	}
-
 	order.IsDelivery = storeConfig.DeliveryIsActive
 
 	if err := c.orderService.Update(order); err != nil {
-		return err
+		return "", fmt.Errorf("falha ao atualizar pedido: %w", err)
 	}
 
 	if err := c.orderService.Payment(order); err != nil {
-		return err
+		return "", fmt.Errorf("falha ao processar pagamento: %w", err)
 	}
 
 	if order.PaymentMethod == models.PixPaymentMethod {
-		return ctx.Redirect("https://pix.ae" + order.PixURL)
+		if order.PixURL == "" {
+			return "", errors.New("QR Code PIX não foi gerado corretamente")
+		}
+		pixURL := "https://pix.ae" + order.PixURL
+		return pixURL, nil
 	}
 
-	return ctx.Redirect("/orders")
+	return "", errors.New("método de pagamento não suportado ou resposta não implementada")
 }
 
 func (c *orderController) processPaymentGet(ctx *fiber.Ctx, order *models.Order) error {

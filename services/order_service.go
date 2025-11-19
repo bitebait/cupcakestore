@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 )
@@ -102,11 +103,13 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 		return err
 	}
 
+	orderTotalPrice := fmt.Sprintf("%.2f", order.Total)
+
 	pixData := &models.PixPaymentData{
 		Tipo:  string(storeConfig.PixKeyType),
 		Chave: storeConfig.PixKey,
-		Valor: fmt.Sprintf("%.2f", order.Total),
-		Info:  fmt.Sprintf("CupCake Store R$ %v - ID#%v", order.Total, order.ID),
+		Valor: orderTotalPrice,
+		Info:  fmt.Sprintf("CupCake Store R$ %v - ID#%v", orderTotalPrice, order.ID),
 		Nome:  "Cupcake Store",
 	}
 
