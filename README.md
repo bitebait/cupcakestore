@@ -8,7 +8,17 @@ Tenha em mente que este é um projeto acadêmico e não atende aos requisitos pa
 
  #### 🔥 Sinta-se à vontade para contribuir com o código (; 🔥
 
-## Como rodar o projeto *local*?
+## Iniciar com Docker Compose
+
+Com Docker e o plugin oficial Compose instalados:
+
+```sh
+docker compose up --build -d --wait
+```
+
+Abra `http://localhost:8080`. Banco e fotos ficam em volumes persistentes. Para criar o primeiro administrador, preencha `ADMIN_EMAIL` e `ADMIN_PASSWORD` no `.env` antes de iniciar; não há credencial padrão. Consulte o [guia de implantação](docs/DEPLOYMENT.md) para HTTPS, backups e importação de uma instalação existente.
+
+## Como rodar o projeto *local* com Go?
 
 Clone o repositório:
 ~~~sh
@@ -53,7 +63,7 @@ go vet ./...
 go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 ```
 
-Os testes usam bancos temporários e servidores HTTP locais. Há cobertura de autorização, CSRF, cadastro, carrinho, checkout, concorrência no estoque, cancelamento e renderização de templates. A CI executa build, testes com detector de corrida, vet, verificação de formatação e `govulncheck`.
+Os testes usam bancos temporários e servidores HTTP locais. Há cobertura de autorização, CSRF, cadastro, carrinho, checkout, concorrência no estoque, cancelamento e renderização de templates. A CI executa build, testes com detector de corrida, vet, verificação de formatação e `govulncheck`, além de construir e iniciar a aplicação com Docker Compose.
 
 O backend usa **Fiber 3.5**, com validação integrada ao binding, sessões por middleware, renovação de sessão/CSRF no login e APIs atuais de contexto, redirecionamento e arquivos estáticos. Sessões expiram após uma hora de inatividade ou 24 horas no total; permanecem em memória e são encerradas ao reiniciar.
 
@@ -62,6 +72,8 @@ Consulte a [auditoria e plano de evolução](docs/AUDIT.md) para decisões de ar
 ### Frontend
 
 A loja, o checkout, a autenticação e o painel compartilham uma interface responsiva. Formulários funcionam em HTML e os comportamentos ficam em três arquivos JavaScript próprios, sem jQuery ou build frontend. Veja o [guia de manutenção](docs/FRONTEND.md) e as [capturas atuais](docs/screenshots/).
+
+O carrinho permite editar quantidades diretamente. O painel oferece apenas etapas válidas para cada pedido e preserva a taxa de entrega registrada ao atualizar seu andamento. Um Pix já emitido é reutilizado ao reabrir o pagamento; a aprovação exige conferência bancária pelo administrador. Cancelar o pedido localmente não cancela a cobrança no provedor nem devolve dinheiro automaticamente.
 
 ### Informações Adicionais
 
