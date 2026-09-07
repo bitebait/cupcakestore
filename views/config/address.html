@@ -19,6 +19,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto">
+                {{template "snippets/store-readiness" .Object}}
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Gerenciar as Configurações de Endereço</h3>
@@ -26,6 +27,7 @@
                     <form method="post" action="/config">
                         <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
                         <div class="card-body">
+                            <p class="text-muted">Endereço, cidade e UF habilitam a retirada. Esses dados serão mostrados ao cliente antes do pagamento.</p>
                             <div class="form-row">
                                 <div class="form-group col-12">
                                     <label for="physicalStoreEmail">E-mail</label>
@@ -60,11 +62,8 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="physicalStoreState">Estado</label>
-                                    <input type="text" class="form-control" id="physicalStoreState"
-                                           name="physicalStoreState" placeholder="Estado"
-                                           minlength="2" maxlength="100" autocomplete="address-level1"
-                                           value="{{.Object.PhysicalStoreState}}">
+                                    <label for="physicalStoreState">Estado (UF)</label>
+                                    <select class="form-control" id="physicalStoreState" name="physicalStoreState" autocomplete="address-level1">{{template "snippets/state-options" .Object.PhysicalStoreState}}</select>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="physicalStoreCity">Cidade</label>

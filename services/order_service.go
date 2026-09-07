@@ -1,9 +1,11 @@
 package services
 
 import (
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
@@ -16,8 +18,10 @@ type OrderService interface {
 	FindAll(filter *models.OrderFilter) []models.Order
 	FindAllByUser(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
-	Payment(order *models.Order) error
+	Payment(order *models.Order, expectedConfigVersion time.Time) error
 	Cancel(id uint) error
+	CancelForCustomer(id, profileID uint) error
+	ConfirmPayment(id, staffProfileID uint) error
 }
 
 type orderService struct {
@@ -30,7 +34,7 @@ func NewOrderService(orderRepository repositories.OrderRepository, storeConfigSe
 	return &orderService{
 		orderRepository:    orderRepository,
 		storeConfigService: storeConfigService,
-		generatePix:        generatePixPayment,
+		generatePix:        generateLocalPixPayment,
 	}
 }
 
@@ -58,6 +62,9 @@ func (s *orderService) FindOrCreate(profileID, cartID uint) (models.Order, error
 	order, err := s.orderRepository.FindOrCreate(profileID, cartID)
 
 	if err != nil {
+		if errors.Is(err, models.ErrContactIncomplete) || errors.Is(err, models.ErrDeliveryAddressIncomplete) || errors.Is(err, models.ErrFulfillmentUnavailable) || errors.Is(err, models.ErrPaymentUnavailable) {
+			return order, err
+		}
 		err = errors.New("falha ao criar ou encontrar o pedido")
 	}
 
@@ -80,7 +87,7 @@ func (s *orderService) Update(order *models.Order) error {
 	return nil
 }
 
-func (s *orderService) Payment(order *models.Order) error {
+func (s *orderService) Payment(order *models.Order, expectedConfigVersion time.Time) error {
 	if order == nil {
 		return errors.New("pedido inválido")
 	}
@@ -95,7 +102,7 @@ func (s *orderService) Payment(order *models.Order) error {
 		if current.PaymentMethod != paymentMethod || current.IsDelivery != isDelivery {
 			return errors.New("este pedido já possui um Pix emitido; entre em contato com a loja para alterar o pagamento ou a entrega")
 		}
-		if _, err := PixPaymentURL(current.PixURL); err != nil || current.PixString == "" {
+		if err := ValidateOrderPix(&current); err != nil {
 			return errors.New("os dados do Pix deste pedido estão inválidos; entre em contato com a loja")
 		}
 		*order = current
@@ -110,8 +117,11 @@ func (s *orderService) Payment(order *models.Order) error {
 	if err != nil {
 		return errors.New("falha ao carregar as formas de pagamento")
 	}
-	if isDelivery && !storeConfig.DeliveryIsActive {
-		return errors.New("a entrega está indisponível; escolha retirada na loja para continuar")
+	if expectedConfigVersion.IsZero() || !storeConfig.UpdatedAt.Equal(expectedConfigVersion) {
+		return errors.New("as condições da loja mudaram; confira o valor e a forma de recebimento antes de continuar")
+	}
+	if err := storeConfig.ValidateFulfillment(current.Profile, isDelivery); err != nil {
+		return err
 	}
 	order.IsDelivery = isDelivery
 	order.DeliveryPrice = 0
@@ -133,7 +143,7 @@ func (s *orderService) Payment(order *models.Order) error {
 		order.PixQR, order.PixString, order.PixTransactionID, order.PixURL = "", "", "", ""
 		order.Status = models.ProcessingStatus
 	case models.PixPaymentMethod:
-		if !storeConfig.PaymentPixIsActive {
+		if !storeConfig.IsPixAvailable() {
 			return errors.New("pagamento com Pix indisponível")
 		}
 		if err := s.processPixPayment(order, storeConfig); err != nil {
@@ -141,7 +151,7 @@ func (s *orderService) Payment(order *models.Order) error {
 		}
 		order.Status = models.AwaitingPaymentStatus
 	}
-	if err := s.orderRepository.UpdatePayment(order); err != nil {
+	if err := s.orderRepository.UpdatePayment(order, storeConfig.UpdatedAt); err != nil {
 		return errors.New("falha ao atualizar o status do pedido")
 	}
 	return nil
@@ -149,13 +159,15 @@ func (s *orderService) Payment(order *models.Order) error {
 
 func (s *orderService) processPixPayment(order *models.Order, storeConfig models.StoreConfig) error {
 	orderTotalPrice := fmt.Sprintf("%.2f", order.Total)
+	transactionHash := sha256.Sum256([]byte(fmt.Sprintf("%d:%s", order.ID, order.CreatedAt.UTC().Format("20060102T150405.000000000"))))
 
 	pixData := &models.PixPaymentData{
 		Tipo:  string(storeConfig.PixKeyType),
 		Chave: storeConfig.PixKey,
 		Valor: orderTotalPrice,
-		Info:  fmt.Sprintf("CupCake Store R$ %v - ID#%v", orderTotalPrice, order.ID),
-		Nome:  "Cupcake Store",
+		Nome:  storeConfig.PixReceiverName,
+		City:  storeConfig.PhysicalStoreCity,
+		Txid:  fmt.Sprintf("C%X", transactionHash[:12]),
 	}
 
 	payment, err := s.generatePix(pixData)
@@ -166,17 +178,13 @@ func (s *orderService) processPixPayment(order *models.Order, storeConfig models
 	if payment == nil || payment.PixString == "" {
 		return errors.New("dados do Pix ausentes")
 	}
-	if _, err := PixPaymentURL(payment.PixURL); err != nil {
-		return err
-	}
 
 	order.PaymentMethod = models.PixPaymentMethod
 	order.PixQR = payment.PixQR
 	order.PixString = payment.PixString
 	order.PixTransactionID = payment.PixTransactionID
 	order.PixURL = payment.PixURL
-
-	return nil
+	return ValidateOrderPix(order)
 }
 
 func (s *orderService) Cancel(id uint) error {
@@ -184,5 +192,23 @@ func (s *orderService) Cancel(id uint) error {
 		return errors.New("falha ao cancelar o pedido")
 	}
 
+	return nil
+}
+
+func (s *orderService) CancelForCustomer(id, profileID uint) error {
+	return s.orderRepository.CancelForCustomer(id, profileID)
+}
+
+func (s *orderService) ConfirmPayment(id, staffProfileID uint) error {
+	order, err := s.orderRepository.FindById(id)
+	if err != nil {
+		return errors.New("pedido não encontrado")
+	}
+	if err := ValidateOrderPix(&order); err != nil {
+		return errors.New("o Pix deste pedido é inválido; confira os dados antes de confirmar")
+	}
+	if err := s.orderRepository.ConfirmPayment(id, staffProfileID); err != nil {
+		return errors.New("não foi possível confirmar o recebimento; recarregue o pedido")
+	}
 	return nil
 }

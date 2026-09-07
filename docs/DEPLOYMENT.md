@@ -93,7 +93,7 @@ O serviço executa como usuário não privilegiado, com raiz somente leitura, ca
 
 `GET /livez` verifica o processo HTTP. `GET /readyz` verifica a conexão com o banco com timeout de dois segundos. Os endpoints não criam sessões nem expõem mensagens internas. O healthcheck do Compose usa `/readyz`; o estado `unhealthy` é diagnóstico, não substitui monitoramento externo nem reinicia automaticamente um contêiner ainda em execução.
 
-Após iniciar, confira loja, login, inclusão de foto no painel, checkout em dinheiro e persistência após recriação do contêiner. O Pix exige configuração real da loja e validação operacional própria; o Compose não cria uma conta de provedor de pagamento. Mantenha uma única réplica enquanto SQLite e sessões em memória forem utilizados.
+Após iniciar, confira loja, login, inclusão de foto no painel, checkout em dinheiro e persistência após recriação do contêiner. O Pix é gerado localmente: configure chave registrada, nome do recebedor e cidade no painel; a confirmação de recebimento é manual pelo extrato, sem credenciais de gateway no Compose. Confira os [limites operacionais do Pix](PIX.md), inclusive pagamentos repetidos/tardios e devoluções. Mantenha uma única réplica enquanto SQLite e sessões em memória forem utilizados.
 
 Validação realizada em 07/09/2026 com Docker Engine 29.7.2 e Compose oficial 5.5.1: build CGO, probes HTTP/HTTPS sem sessão, loja/login/assets comprimidos em raiz somente leitura, processo UID 10001, upload pelo painel e preservação do hash da foto após recriação. O teste HTTPS usou certificado descartável com nome DNS verificado e confirmou cookies `Secure`/`HttpOnly`; não valida DNS público, emissão ou renovação de certificados da implantação real.
 

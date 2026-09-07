@@ -6,7 +6,16 @@
     <section class="store-panel store-admin-status" aria-labelledby="status-title">
         <h2 id="status-title">Atualizar andamento</h2>
         <p class="store-help">Escolha a próxima etapa. Alterar o andamento não muda o valor nem a entrega combinados.</p>
-        {{if and (eq $order.PaymentMethod "Pix") (eq $order.Status "Processando Pagamento")}}<p class="store-notice">Confira o recebimento no banco antes de aprovar o pagamento ou iniciar o preparo.</p>{{end}}
+        {{if and (eq $order.PaymentMethod "Pix") (eq $order.Status "Processando Pagamento")}}
+        <form method="post" action="/orders/order/{{$order.ID}}/confirm-payment" class="store-form">
+            <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+            <label class="store-payment-confirmation"><input type="checkbox" name="payment_received" value="on" required> Conferi no extrato do banco o recebimento de {{money $order.Total}} referente a este pedido.</label>
+            <button type="submit" class="store-button store-button-primary">Confirmar recebimento do Pix</button>
+        </form>
+        {{else}}
+        {{$hasStatusChoice := false}}
+        {{range $order.AvailableTransitions}}{{if ne . "Cancelado"}}{{$hasStatusChoice = true}}{{end}}{{end}}
+        {{if $hasStatusChoice}}
         <form method="post" action="/orders/order/{{$order.ID}}" class="store-inline-form">
             <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
             <label class="store-sr-only" for="status">Status do pedido</label>
@@ -18,11 +27,16 @@
             </select>
             <button type="submit" class="store-button store-button-primary">Atualizar</button>
         </form>
+        {{else}}<p class="store-notice">O cliente precisa concluir a escolha de pagamento antes de avançar com o pedido.</p>{{end}}
+        {{end}}
         {{range $order.AvailableTransitions}}{{if eq . "Cancelado"}}<a href="/orders/cancel/{{$order.ID}}" class="store-back-link">Cancelar pedido…</a>{{end}}{{end}}
     </section>
     {{end}}
     <div class="store-checkout-grid">
         <div class="store-panel-stack">
+            {{if and (eq $order.Status "Processando Pagamento") (eq $order.PaymentMethod "Pix")}}
+                {{if .Object.PixError}}<section class="store-panel" aria-labelledby="pix-title"><h2 id="pix-title">Pagamento Pix</h2><p class="store-notice" role="alert">O código Pix deste pedido está indisponível. Entre em contato com a loja antes de pagar.</p></section>{{else}}{{template "snippets/pix-payment" $order}}{{end}}
+            {{end}}
             <section class="store-panel" aria-label="Itens do pedido">
                 <h2>Os sabores escolhidos</h2>
                 <ul class="store-line-items">
@@ -32,6 +46,10 @@
                 </ul>
             </section>
             <section class="store-panel">
+                {{if eq $order.Status "Em Aberto"}}
+                <h2>Recebimento a definir</h2>
+                <p>Conclua a escolha de entrega ou retirada antes de finalizar o pedido.</p>
+                {{else}}
                 <p class="store-eyebrow">{{if $order.IsDelivery}}Endereço de entrega{{else}}Retirada na loja{{end}}</p>
                 {{if $order.IsDelivery}}
                 <h2>{{$order.DeliveryDetail.UserFirstName}} {{$order.DeliveryDetail.UserLastName}}</h2>
@@ -44,15 +62,20 @@
                 <p class="store-notice">O endereço de retirada ainda não foi informado pela loja.</p>
                 {{end}}
                 {{end}}
+                {{end}}
                 {{if $order.DeliveryDetail.StorePhoneNumber}}<p class="store-help">Contato da loja: {{$order.DeliveryDetail.StorePhoneNumber}}</p>{{end}}
             </section>
         </div>
         <aside class="store-panel store-summary" aria-labelledby="order-summary-title">
             <p class="store-eyebrow">Tudo em um lugar</p><h2 id="order-summary-title">Resumo do pedido</h2>
-            <dl class="store-totals"><div><dt>Produtos</dt><dd>{{money $order.ShoppingCart.Total}}</dd></div>{{if $order.IsDelivery}}<div><dt>Entrega</dt><dd>{{money $order.DeliveryPrice}}</dd></div>{{end}}<div class="store-total"><dt>Total</dt><dd>{{money $order.Total}}</dd></div></dl>
-            <p class="store-help">Forma de pagamento: <strong>{{$order.PaymentMethod}}</strong></p>
+            <dl class="store-totals"><div><dt>Produtos</dt><dd>{{money $order.ShoppingCart.Total}}</dd></div>{{if $order.IsDelivery}}<div><dt>Entrega</dt><dd>{{money $order.DeliveryPrice}}</dd></div>{{end}}<div class="store-total"><dt>{{if eq $order.Status "Em Aberto"}}Estimativa{{else}}Total{{end}}</dt><dd>{{money $order.Total}}</dd></div></dl>
+            <p class="store-help">Forma de pagamento: <strong>{{if eq $order.Status "Em Aberto"}}A escolher{{else}}{{$order.PaymentMethod}}{{end}}</strong></p>
+            {{if $order.PaymentConfirmedAt}}<p class="store-notice">Recebimento confirmado pela loja em {{$order.PaymentConfirmedAt | date "02/01/2006 às 15:04"}}.</p>{{end}}
             {{if eq $order.Status "Em Aberto"}}<a href="/orders/checkout/{{$order.ShoppingCartID}}" class="store-button store-button-primary store-button-wide">Continuar pedido →</a>{{end}}
-            {{if and (eq $order.Status "Processando Pagamento") (eq $order.PaymentMethod "Pix")}}<a href="/orders/payment/{{$order.ShoppingCartID}}" class="store-button store-button-primary store-button-wide">Abrir pagamento Pix ↗</a>{{end}}
+            {{if and (eq $order.Status "Processando Pagamento") (eq $order.PaymentMethod "Pix")}}<a href="#pix-title" class="store-button store-button-primary store-button-wide">Ver código Pix</a>{{end}}
+            {{if not .Profile.User.IsStaff}}
+                {{if $order.CanCustomerCancel}}<a href="/orders/cancel/{{$order.ID}}" class="store-back-link">Cancelar pedido</a>{{else if and (ne $order.Status "Cancelado") (eq $order.PaymentMethod "Pix")}}<p class="store-help">Para solicitar cancelamento ou devolução, entre em contato com a loja.</p>{{end}}
+            {{end}}
             <a href="/orders" class="store-back-link">← {{if .Profile.User.IsStaff}}Voltar aos pedidos da loja{{else}}Voltar aos meus pedidos{{end}}</a>
         </aside>
     </div>

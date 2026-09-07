@@ -186,3 +186,8 @@ button, a, input, select, textarea, summary { -webkit-tap-highlight-color: trans
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+.ui-setup-notice { margin-bottom: 1rem; padding: 1rem 1.2rem; border: 1px solid var(--line); border-left: 4px solid var(--berry); border-radius: .65rem; background: white; font-size: var(--ui-text); }
+.ui-setup-notice p { margin: .35rem 0 0; }
+
+.ui-setup-notice a { text-decoration: underline; text-underline-offset: .15em; }

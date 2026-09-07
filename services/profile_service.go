@@ -56,9 +56,11 @@ func (s *profileService) Update(profile *models.Profile) error {
 func (s *profileService) normalizeProfile(profile *models.Profile) {
 	profile.FirstName = normalizeString(profile.FirstName)
 	profile.LastName = normalizeString(profile.LastName)
-	profile.State = normalizeString(profile.State)
+	profile.State = strings.ToUpper(strings.TrimSpace(profile.State))
 	profile.City = normalizeString(profile.City)
 	profile.Address = normalizeString(profile.Address)
+	profile.PostalCode = strings.TrimSpace(profile.PostalCode)
+	profile.PhoneNumber = strings.TrimSpace(profile.PhoneNumber)
 }
 
 func normalizeString(s string) string {

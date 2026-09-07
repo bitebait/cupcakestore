@@ -3,19 +3,11 @@
         <div class="row mb-2">
             <div class="col-sm-6">
                 <h1 class="m-0">{{if eq .Profile.UserID .Object.UserID}}Meu perfil{{else}}Dados do perfil{{end}}</h1>
-                <p class="ui-form-intro">Mantenha seus dados de contato e entrega atualizados.</p>
+                <p class="ui-form-intro">Contato para seus pedidos e endereço para quando quiser receber em casa.</p>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    {{ if.Profile.User.IsStaff }}
-                    <li class="breadcrumb-item">
-                        <a href="/users">Usuários Registrados</a>
-                    </li>
-                    {{else}}
-                    <li class="breadcrumb-item">
-                        <a href="/store">Loja</a>
-                    </li>
-                    {{end}}
+                    <li class="breadcrumb-item"><a href="{{if .Profile.User.IsStaff}}/users{{else}}/store{{end}}">{{if .Profile.User.IsStaff}}Usuários{{else}}Loja{{end}}</a></li>
                     <li class="breadcrumb-item active">Dados do perfil</li>
                 </ol>
             </div>
@@ -25,83 +17,64 @@
 <section class="content ui-form-page">
     <div class="container">
         <div class="row">
-            <div class="col-md-8 mx-auto">
+            <div class="col-lg-8 mx-auto">
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h3 class="card-title">Dados do perfil</h3>
-                        <a class="btn float-right" href="/users/user/{{.Object.UserID}}">
-                            <i class="fas fa-eye"></i> E-mail e senha
-                        </a>
+                        <h2 class="card-title">Dados do perfil</h2>
+                        <a class="btn float-right" href="/users/user/{{.Object.UserID}}">E-mail e senha</a>
                     </div>
                     <form action="/profile/update/{{.Object.UserID}}" method="post">
-                        <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
+                        <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
                         <div class="card-body">
-                            <div class="form-row">
-                                <div class="form-group col-md-12">
+                            <fieldset>
+                                <legend class="h5">Contato</legend>
+                                <p class="text-muted">Nome, sobrenome e telefone são necessários para finalizar pedidos, inclusive para retirada.</p>
+                                <div class="form-group">
                                     <label for="mail">E-mail</label>
-                                    <input class="form-control" disabled id="mail" type="email"
-                                           value="{{.Object.User.Email}}">
+                                    <input class="form-control" disabled id="mail" type="email" value="{{.Object.User.Email}}">
                                 </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="firstname">Nome</label>
-                                    <input class="form-control" id="firstname" name="firstname" maxlength="100" autocomplete="given-name"
-                                           placeholder="Nome"
-                                           type="text" value="{{.Object.FirstName}}">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="firstname">Nome</label>
+                                        <input class="form-control" id="firstname" name="firstname" maxlength="100" autocomplete="given-name" required value="{{.Object.FirstName}}">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="lastname">Sobrenome</label>
+                                        <input class="form-control" id="lastname" name="lastname" maxlength="100" autocomplete="family-name" required value="{{.Object.LastName}}">
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label for="lastname">Sobrenome</label>
-                                    <input class="form-control" id="lastname" name="lastname" maxlength="100" autocomplete="family-name" placeholder="Sobrenome"
-                                           type="text"
-                                           value="{{.Object.LastName}}">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-12">
-                                    <label for="address">Endereço</label>
-                                    <input class="form-control" id="address" name="address" maxlength="200" autocomplete="street-address"
-                                           placeholder="Endereço"
-                                           type="text" value="{{.Object.Address}}">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
+                                <div class="form-group">
                                     <label for="phonenumber">Telefone</label>
-                                    <input class="form-control phone-number" id="phonenumber" name="phonenumber" inputmode="tel" autocomplete="tel" maxlength="20"
-                                           placeholder="Telefone"
-                                           type="tel" value="{{.Object.PhoneNumber}}">
+                                    <input class="form-control phone-number" id="phonenumber" name="phonenumber" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required aria-describedby="phone-help" placeholder="(11) 99999-9999" value="{{.Object.PhoneNumber}}">
+                                    <small id="phone-help" class="form-text text-muted">Informe um telefone brasileiro com DDD.</small>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label for="postalcode">Código postal</label>
-                                    <input class="form-control postal-code" id="postalcode" name="postalcode" inputmode="numeric" autocomplete="postal-code" maxlength="9"
-                                           placeholder="Código postal"
-                                           type="text" value="{{.Object.PostalCode}}">
+                            </fieldset>
+                            <fieldset class="mt-4">
+                                <legend class="h5">Endereço de entrega <span class="ui-optional">Opcional para retirada</span></legend>
+                                <p class="text-muted">Para receber em casa, preencha endereço completo, cidade, UF e CEP.</p>
+                                <div class="form-group">
+                                    <label for="address">Rua, número e complemento</label>
+                                    <input class="form-control" id="address" name="address" maxlength="200" autocomplete="street-address" value="{{.Object.Address}}">
                                 </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="state">Estado</label>
-                                    <input class="form-control" id="state" name="state" maxlength="100" autocomplete="address-level1" placeholder="Estado"
-                                           type="text"
-                                           value="{{.Object.State}}">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="city">Cidade</label>
+                                        <input class="form-control" id="city" name="city" maxlength="100" autocomplete="address-level2" value="{{.Object.City}}">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="state">Estado (UF)</label>
+                                        <select class="form-control" id="state" name="state" autocomplete="address-level1">{{template "snippets/state-options" .Object.State}}</select>
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label for="city">Cidade</label>
-                                    <input class="form-control" id="city" name="city" maxlength="100" autocomplete="address-level2" placeholder="Cidade" type="text"
-                                           value="{{.Object.City}}">
+                                <div class="form-group">
+                                    <label for="postalcode">CEP</label>
+                                    <input class="form-control postal-code" id="postalcode" name="postalcode" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" title="Informe um CEP com 8 números" placeholder="00000-000" value="{{.Object.PostalCode}}">
                                 </div>
-                            </div>
+                            </fieldset>
                         </div>
                         <div class="card-footer">
-                            {{if .Profile.User.IsStaff }}
-                            <a class="btn btn-default" href="/users/user/{{.Object.UserID}}">
-                                <i class="fas fa-undo-alt"></i> Cancelar </a>
-                            {{else}}
-                            <a class="btn btn-default" href="{{ if .Profile.User.IsStaff }}/users{{ else }}/{{end}}">
-                                <i class="fas fa-undo-alt"></i> Cancelar </a>
-                            {{end}}
-                            <button class="btn btn-primary float-right" type="submit">Atualizar perfil</button>
+                            <a class="btn btn-default" href="{{if .Profile.User.IsStaff}}/users/user/{{.Object.UserID}}{{else}}/orders{{end}}">{{if .Profile.User.IsStaff}}Voltar à conta{{else}}Meus pedidos{{end}}</a>
+                            <button class="btn btn-primary float-right" type="submit">Salvar perfil</button>
                         </div>
                     </form>
                 </div>

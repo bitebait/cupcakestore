@@ -1,11 +1,15 @@
 package repositories
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"log/slog"
 	"time"
 )
+
+var ErrLastAdministrator = errors.New("mantenha pelo menos um administrador ativo antes de alterar esta conta")
 
 type UserRepository interface {
 	Create(user *models.User) error
@@ -96,23 +100,46 @@ func (r *userRepository) Update(user *models.User) error {
 	if user.Password != "" {
 		fields = append(fields, "Password")
 	}
-	result := r.db.Model(user).Where("updated_at = ?", user.UpdatedAt).Select(fields).Updates(user)
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected != 1 {
-		return gorm.ErrRecordNotFound
-	}
-
-	return nil
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if !user.IsActive || !user.IsStaff {
+			if err := protectLastAdministrator(tx, user.ID); err != nil {
+				return err
+			}
+		}
+		result := tx.Model(user).Where("updated_at = ?", user.UpdatedAt).Select(fields).Updates(user)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected != 1 {
+			return gorm.ErrRecordNotFound
+		}
+		return nil
+	})
 }
 
 func (r *userRepository) Delete(user *models.User) error {
-	if err := r.db.Select("Profile").Delete(user).Error; err != nil {
-		slog.Error("UserRepository Delete", "error", err)
+	if user == nil || user.ID == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := protectLastAdministrator(tx, user.ID); err != nil {
+			return err
+		}
+		return tx.Select("Profile").Delete(user).Error
+	})
+}
+
+// Lock administrators in a stable order so concurrent changes cannot remove all of them.
+func protectLastAdministrator(tx *gorm.DB, userID uint) error {
+	var administrators []models.User
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("is_active = ? AND is_staff = ?", true, true).
+		Order("id").Find(&administrators).Error; err != nil {
 		return err
 	}
-
+	if len(administrators) == 1 && administrators[0].ID == userID {
+		return ErrLastAdministrator
+	}
 	return nil
 }
 

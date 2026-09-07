@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"math"
+	"time"
 
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
@@ -17,8 +18,10 @@ type OrderRepository interface {
 	FindAll(filter *models.OrderFilter) []models.Order
 	FindAllByUser(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
-	UpdatePayment(order *models.Order) error
+	UpdatePayment(order *models.Order, configVersion time.Time) error
 	Cancel(id uint) error
+	CancelForCustomer(id, profileID uint) error
+	ConfirmPayment(id, staffProfileID uint) error
 }
 
 type orderRepository struct {
@@ -88,6 +91,17 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (models.Order, er
 		if len(cart.Items) == 0 {
 			return errors.New("o carrinho está vazio")
 		}
+		var store models.StoreConfig
+		if err := tx.First(&store).Error; err != nil {
+			return err
+		}
+		var profile models.Profile
+		if err := tx.Preload("User").First(&profile, profileID).Error; err != nil {
+			return err
+		}
+		if err := store.ValidateCheckout(profile); err != nil {
+			return err
+		}
 		var total float64
 		for i := range cart.Items {
 			item := &cart.Items[i]
@@ -111,11 +125,7 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (models.Order, er
 		if err := tx.Model(&cart).UpdateColumn("total", cart.Total).Error; err != nil {
 			return err
 		}
-		var store models.StoreConfig
-		if err := tx.First(&store).Error; err != nil {
-			return err
-		}
-		order = models.Order{ProfileID: profileID, ShoppingCartID: cartID, Status: models.ActiveStatus, PaymentMethod: models.PixPaymentMethod, IsDelivery: store.DeliveryIsActive, Total: cart.Total, StockReserved: true}
+		order = models.Order{ProfileID: profileID, ShoppingCartID: cartID, Status: models.ActiveStatus, PaymentMethod: models.PixPaymentMethod, IsDelivery: store.DeliveryIsActive && profile.HasDeliveryAddress(), Total: cart.Total, StockReserved: true}
 		if order.IsDelivery {
 			order.DeliveryPrice = store.DeliveryPrice
 		}
@@ -132,19 +142,9 @@ func (r *orderRepository) FindOrCreate(profileID, cartID uint) (models.Order, er
 		if err := tx.Model(&cart).UpdateColumn("order_id", order.ID).Error; err != nil {
 			return err
 		}
-		// Preserve the delivery information as it was when the order was placed.
-		var profile models.Profile
-		if err := tx.Preload("User").First(&profile, profileID).Error; err != nil {
-			return err
-		}
-		detail := models.OrderDeliveryDetail{
-			OrderID: order.ID, UserFirstName: profile.FirstName, UserLastName: profile.LastName,
-			UserEmail: profile.User.Email, UserAddress: profile.Address, UserCity: profile.City,
-			UserState: profile.State, UserPostalCode: profile.PostalCode, UserPhoneNumber: profile.PhoneNumber,
-			StoreEmail: store.PhysicalStoreEmail, StoreAddress: store.PhysicalStoreAddress,
-			StoreCity: store.PhysicalStoreCity, StoreState: store.PhysicalStoreState,
-			StorePostalCode: store.PhysicalStorePostalCode, StorePhoneNumber: store.PhysicalStorePhoneNumber,
-		}
+		// Checkout begins a draft snapshot. Payment validates and records the
+		// final contact/address so the customer can correct details beforehand.
+		detail := models.NewOrderDeliveryDetail(order.ID, profile, store)
 		if err := tx.Create(&detail).Error; err != nil {
 			return err
 		}
@@ -209,15 +209,15 @@ func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Ord
 
 // Update changes only fulfillment status, preserving the agreed payment and delivery terms.
 func (r *orderRepository) Update(order *models.Order) error {
-	return r.update(order, false)
+	return r.update(order, false, time.Time{})
 }
 
 // UpdatePayment validates a payment choice against current store settings before saving it.
-func (r *orderRepository) UpdatePayment(order *models.Order) error {
-	return r.update(order, true)
+func (r *orderRepository) UpdatePayment(order *models.Order, configVersion time.Time) error {
+	return r.update(order, true, configVersion)
 }
 
-func (r *orderRepository) update(order *models.Order, paymentChoice bool) error {
+func (r *orderRepository) update(order *models.Order, paymentChoice bool, configVersion time.Time) error {
 	if order == nil || order.ID == 0 {
 		return errors.New("pedido inválido")
 	}
@@ -241,12 +241,12 @@ func (r *orderRepository) update(order *models.Order, paymentChoice bool) error 
 		if existing.Status == models.CancelledStatus || existing.Status == models.DeliveredStatusDelivered {
 			return errors.New("o pedido já foi finalizado")
 		}
-		if !existing.CanTransitionTo(order.Status) {
+		if (paymentChoice && !existing.CanTransitionTo(order.Status)) || (!paymentChoice && !existing.CanUpdateStatus(order.Status)) {
 			return errors.New("transição de status do pedido inválida")
 		}
 		updates := map[string]any{"status": order.Status}
 		if paymentChoice {
-			if !existing.IsActiveOrAwaitingPayment() ||
+			if existing.Status != models.ActiveStatus ||
 				(order.PaymentMethod == models.CashPaymentMethod && order.Status != models.ProcessingStatus) ||
 				(order.PaymentMethod == models.PixPaymentMethod && order.Status != models.AwaitingPaymentStatus) {
 				return errors.New("o pedido não aceita uma nova escolha de pagamento")
@@ -258,12 +258,22 @@ func (r *orderRepository) update(order *models.Order, paymentChoice bool) error 
 			if err := tx.First(&store).Error; err != nil {
 				return err
 			}
+			if !store.UpdatedAt.Equal(configVersion) {
+				return errors.New("a configuração da loja foi alterada; recarregue o pagamento")
+			}
+			if (order.PaymentMethod == models.CashPaymentMethod && !store.PaymentCashIsActive) || (order.PaymentMethod == models.PixPaymentMethod && !store.IsPixAvailable()) {
+				return models.ErrPaymentUnavailable
+			}
 			var cart models.ShoppingCart
 			if err := tx.First(&cart, existing.ShoppingCartID).Error; err != nil {
 				return err
 			}
-			if order.IsDelivery && !store.DeliveryIsActive {
-				return errors.New("a entrega está indisponível; revise a forma de recebimento")
+			var profile models.Profile
+			if err := tx.Preload("User").First(&profile, existing.ProfileID).Error; err != nil {
+				return err
+			}
+			if err := store.ValidateFulfillment(profile, order.IsDelivery); err != nil {
+				return err
 			}
 			isDelivery := order.IsDelivery
 			deliveryPrice := 0.0
@@ -275,6 +285,15 @@ func (r *orderRepository) update(order *models.Order, paymentChoice bool) error 
 				return errors.New("o valor do pedido foi alterado; tente novamente")
 			}
 			updates["is_delivery"], updates["delivery_price"], updates["total"] = isDelivery, deliveryPrice, total
+			var previousDetail models.OrderDeliveryDetail
+			if err := tx.Where("order_id = ?", existing.ID).First(&previousDetail).Error; err != nil {
+				return err
+			}
+			detail := models.NewOrderDeliveryDetail(existing.ID, profile, store)
+			detail.Model = previousDetail.Model
+			if err := tx.Select("*").Omit("id", "created_at", "deleted_at").Updates(&detail).Error; err != nil {
+				return err
+			}
 		}
 		result := tx.Model(&models.Order{}).Where("id = ? AND status = ? AND updated_at = ?", existing.ID, existing.Status, order.UpdatedAt).Updates(updates)
 		if result.Error != nil {
@@ -288,10 +307,29 @@ func (r *orderRepository) update(order *models.Order, paymentChoice bool) error 
 }
 
 func (r *orderRepository) Cancel(id uint) error {
+	return r.cancel(id, 0)
+}
+
+func (r *orderRepository) CancelForCustomer(id, profileID uint) error {
+	if profileID == 0 {
+		return errors.New("cliente inválido")
+	}
+	return r.cancel(id, profileID)
+}
+
+func (r *orderRepository) cancel(id, customerProfileID uint) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var order models.Order
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&order, id).Error; err != nil {
 			return err
+		}
+		if customerProfileID != 0 {
+			if order.ProfileID != customerProfileID {
+				return errors.New("pedido não pertence ao cliente")
+			}
+			if order.Status != models.CancelledStatus && !order.CanCustomerCancel() {
+				return errors.New("entre em contato com a loja para solicitar o cancelamento deste pedido")
+			}
 		}
 		if order.Status == models.CancelledStatus {
 			return nil
@@ -318,6 +356,44 @@ func (r *orderRepository) Cancel(id uint) error {
 			if err := tx.Create(&movement).Error; err != nil {
 				return err
 			}
+		}
+		return nil
+	})
+}
+
+func (r *orderRepository) ConfirmPayment(id, staffProfileID uint) error {
+	if id == 0 || staffProfileID == 0 {
+		return errors.New("pedido e responsável devem ser informados")
+	}
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		var staff models.Profile
+		if err := tx.Preload("User").First(&staff, staffProfileID).Error; err != nil {
+			return err
+		}
+		if !staff.User.IsActive || !staff.User.IsStaff {
+			return errors.New("somente a equipe ativa pode confirmar pagamentos")
+		}
+		var order models.Order
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&order, id).Error; err != nil {
+			return err
+		}
+		if order.PaymentMethod != models.PixPaymentMethod {
+			return errors.New("este pedido não possui um pagamento Pix")
+		}
+		if order.PaymentConfirmedAt != nil {
+			return nil
+		}
+		if order.Status != models.AwaitingPaymentStatus || order.PixString == "" {
+			return errors.New("este pedido não aguarda confirmação de Pix")
+		}
+		now := time.Now()
+		result := tx.Model(&models.Order{}).Where("id = ? AND status = ? AND payment_confirmed_at IS NULL", id, models.AwaitingPaymentStatus).
+			UpdateColumns(map[string]any{"status": models.PaymentApprovedStatus, "payment_confirmed_at": now, "payment_confirmed_by_id": staffProfileID, "updated_at": now})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected != 1 {
+			return errors.New("o pedido foi alterado; recarregue a página")
 		}
 		return nil
 	})

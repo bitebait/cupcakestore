@@ -34,8 +34,14 @@ func (s *storeConfigService) GetStoreConfig() (models.StoreConfig, error) {
 
 func (s *storeConfigService) Update(storeConfig *models.StoreConfig) error {
 	s.normalizeStoreConfig(storeConfig)
+	if err := storeConfig.Validate(); err != nil {
+		return err
+	}
 
 	if err := s.storeConfigRepository.Update(storeConfig); err != nil {
+		if errors.Is(err, repositories.ErrStoreConfigChanged) {
+			return err
+		}
 		return errors.New("falha ao atualizar a configuração da loja")
 	}
 
@@ -43,8 +49,9 @@ func (s *storeConfigService) Update(storeConfig *models.StoreConfig) error {
 }
 
 func (s *storeConfigService) normalizeStoreConfig(storeConfig *models.StoreConfig) {
-	storeConfig.PhysicalStoreAddress = strings.Title(storeConfig.PhysicalStoreAddress)
-	storeConfig.PhysicalStoreEmail = strings.ToLower(storeConfig.PhysicalStoreEmail)
-	storeConfig.PhysicalStoreCity = strings.Title(storeConfig.PhysicalStoreCity)
-	storeConfig.PhysicalStoreState = strings.Title(storeConfig.PhysicalStoreState)
+	storeConfig.PhysicalStoreAddress = strings.TrimSpace(storeConfig.PhysicalStoreAddress)
+	storeConfig.PhysicalStoreEmail = strings.ToLower(strings.TrimSpace(storeConfig.PhysicalStoreEmail))
+	storeConfig.PhysicalStoreCity = strings.TrimSpace(storeConfig.PhysicalStoreCity)
+	storeConfig.PhysicalStoreState = strings.ToUpper(strings.TrimSpace(storeConfig.PhysicalStoreState))
+	storeConfig.PixReceiverName = strings.TrimSpace(storeConfig.PixReceiverName)
 }

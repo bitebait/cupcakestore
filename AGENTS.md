@@ -34,7 +34,7 @@ Preserve Portuguese user-facing text. Match the four-space indentation in HTML, 
 
 Tests use Go's `testing` package beside the relevant code and isolated databases or local HTTP servers. They do not require a `.env` file. Run checks appropriate to the change; add meaningful regressions for authorization, business invariants and concurrent writes. For UI changes, verify the affected storefront/admin flows at desktop and mobile sizes.
 
-Preserve stock and order invariants: checkout and cancellation are transactional, finalized carts cannot be edited, and status-only order updates do not reprice delivery or overwrite payment terms. Pix confirmation is manual; local cancellation does not revoke a remote QR or issue a refund. Do not use real customer databases or payment services in automated tests.
+Preserve stock and order invariants: checkout and cancellation are transactional, finalized carts cannot be edited, and status-only order updates do not reprice delivery or overwrite payment terms. Pix instructions are generated locally and confirmation is manual; local cancellation does not revoke a saved QR or issue a refund. Use the explicit payment-confirmation operation to record the responsible administrator and time. Do not use real customer databases or payment services in automated tests.
 
 ## Repository Hygiene, Commits and Pull Requests
 

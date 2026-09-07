@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"math"
+	"strings"
 )
 
 type pixType string
@@ -30,19 +31,55 @@ type StoreConfig struct {
 	PaymentPixIsActive       bool    `gorm:"not null;default:false"`
 	PixKey                   string  `gorm:"default:''"`
 	PixKeyType               pixType
+	PixReceiverName          string `gorm:"type:varchar(100);default:''"`
 }
 
 func (s *StoreConfig) BeforeSave(tx *gorm.DB) error {
+	s.PhysicalStoreAddress = strings.TrimSpace(s.PhysicalStoreAddress)
+	s.PhysicalStoreCity = strings.TrimSpace(s.PhysicalStoreCity)
+	s.PhysicalStoreState = strings.ToUpper(strings.TrimSpace(s.PhysicalStoreState))
+	s.PixReceiverName = strings.TrimSpace(s.PixReceiverName)
+	if err := s.Validate(); err != nil {
+		return err
+	}
+	if s.PaymentPixIsActive {
+		s.PixKey, _ = NormalizePixKey(string(s.PixKeyType), s.PixKey)
+	}
+	return nil
+}
+
+func (s StoreConfig) Validate() error {
 	if s.DeliveryPrice < 0 || math.IsNaN(s.DeliveryPrice) || math.IsInf(s.DeliveryPrice, 0) {
 		return errors.New("a taxa de entrega deve ser um valor não negativo")
 	}
-	if s.PaymentPixIsActive && s.PixKey == "" {
-		return errors.New("informe a chave Pix antes de ativar o pagamento")
+	if s.PaymentPixIsActive {
+		_, err := NormalizePixKey(string(s.PixKeyType), s.PixKey)
+		if err != nil {
+			return err
+		}
+		if _, _, err := NormalizePixMerchant(s.PixReceiverName, s.PhysicalStoreCity); err != nil {
+			return err
+		}
 	}
 	if !s.PaymentPixIsActive && s.PixKeyType == "" {
 		return nil
 	}
 	return s.validatePixType()
+}
+
+func (s StoreConfig) IsPickupAvailable() bool {
+	return validAddress(s.PhysicalStoreAddress, s.PhysicalStoreCity, s.PhysicalStoreState)
+}
+
+func (s StoreConfig) IsPixAvailable() bool {
+	if !s.PaymentPixIsActive {
+		return false
+	}
+	if _, err := NormalizePixKey(string(s.PixKeyType), s.PixKey); err != nil {
+		return false
+	}
+	_, _, err := NormalizePixMerchant(s.PixReceiverName, s.PhysicalStoreCity)
+	return err == nil
 }
 
 func (s *StoreConfig) validatePixType() error {

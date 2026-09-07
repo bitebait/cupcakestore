@@ -17,4 +17,5 @@ func RegisterOrderRoutes(app *fiber.App, controller controllers.OrderController)
 	order.Get("/", controller.RenderAllOrders)
 	order.Get("/order/:id", controller.RenderOrder)
 	order.Post("/order/:id", middlewares.LoginAndStaffRequired(), controller.Update)
+	order.Post("/order/:id/confirm-payment", middlewares.LoginAndStaffRequired(), controller.ConfirmPayment)
 }

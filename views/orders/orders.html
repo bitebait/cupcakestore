@@ -4,10 +4,10 @@
         {{range .Object.Orders}}
         <article class="store-panel store-order-card">
             <div class="store-order-card-heading"><div><p class="store-eyebrow">{{.CreatedAt | date "02/01/2006 · 15:04"}}</p><h2>Pedido #{{.ID}}</h2></div><span class="store-status{{if eq .Status "Cancelado"}} store-status-cancelled{{end}}">{{template "snippets/order-status" .}}</span></div>
-            <dl class="store-order-facts"><div><dt>Total</dt><dd>{{money .Total}}</dd></div><div><dt>Pagamento</dt><dd>{{.PaymentMethod}}</dd></div><div><dt>Recebimento</dt><dd>{{if .IsDelivery}}Entrega no endereço{{else}}Retirada na loja{{end}}</dd></div></dl>
+            <dl class="store-order-facts"><div><dt>{{if eq .Status "Em Aberto"}}Estimativa{{else}}Total{{end}}</dt><dd>{{money .Total}}</dd></div><div><dt>Pagamento</dt><dd>{{if eq .Status "Em Aberto"}}A escolher{{else}}{{.PaymentMethod}}{{end}}</dd></div><div><dt>Recebimento</dt><dd>{{if eq .Status "Em Aberto"}}A definir{{else if .IsDelivery}}Entrega no endereço{{else}}Retirada na loja{{end}}</dd></div></dl>
             <div class="store-actions">
                 {{if eq .Status "Em Aberto"}}<a href="/orders/checkout/{{.ShoppingCartID}}" class="store-button store-button-primary">Continuar pedido →</a>{{else}}<a href="/orders/order/{{.ID}}" class="store-button store-button-secondary">Ver detalhes →</a>{{end}}
-                {{if and (ne .Status "Cancelado") (ne .Status "Enviado") (ne .Status "Entregue")}}<a href="/orders/cancel/{{.ID}}" class="store-text-button">Cancelar pedido</a>{{end}}
+                {{if .CanCustomerCancel}}<a href="/orders/cancel/{{.ID}}" class="store-text-button">Cancelar pedido</a>{{else if and (ne .Status "Cancelado") (eq .PaymentMethod "Pix")}}<p class="store-help">Para solicitar cancelamento ou devolução, entre em contato com a loja.</p>{{end}}
             </div>
         </article>
         {{else}}

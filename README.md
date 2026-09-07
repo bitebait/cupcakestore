@@ -53,7 +53,7 @@ O arquivo `.env` é opcional. Variáveis já definidas no ambiente têm precedê
 
 Não há senha administrativa padrão. Para criar o primeiro administrador, defina `ADMIN_EMAIL` e `ADMIN_PASSWORD` (12 a 72 bytes) antes de iniciar. Uma conta existente não é promovida nem tem a senha sobrescrita pelo seed. Após a criação, remova essas variáveis do ambiente. Em bancos antigos, revise as contas criadas com a antiga senha pública.
 
-O Pix começa desativado: configure a chave e habilite a forma de pagamento no painel. O pagamento em dinheiro permite testar a compra sem acessar um provedor externo.
+O Pix começa desativado. No painel, configure tipo/chave, nome do recebedor e cidade da loja para habilitá-lo. O QR Code e o Pix Copia e Cola são gerados localmente, sem cadastro em gateway ou envio de dados a um gerador externo. A loja confirma o recebimento manualmente após conferir o extrato bancário. Veja o [guia do Pix](docs/PIX.md).
 
 ```sh
 go build ./...
@@ -73,7 +73,7 @@ Consulte a [auditoria e plano de evolução](docs/AUDIT.md) para decisões de ar
 
 A loja, o checkout, a autenticação e o painel compartilham uma interface responsiva. Formulários funcionam em HTML e os comportamentos ficam em três arquivos JavaScript próprios, sem jQuery ou build frontend. Veja o [guia de manutenção](docs/FRONTEND.md) e as [capturas atuais](docs/screenshots/).
 
-O carrinho permite editar quantidades diretamente. O painel oferece apenas etapas válidas para cada pedido e preserva a taxa de entrega registrada ao atualizar seu andamento. Um Pix já emitido é reutilizado ao reabrir o pagamento; a aprovação exige conferência bancária pelo administrador. Cancelar o pedido localmente não cancela a cobrança no provedor nem devolve dinheiro automaticamente.
+O carrinho permite editar quantidades diretamente. O painel oferece apenas etapas válidas para cada pedido e preserva a taxa de entrega registrada ao atualizar seu andamento. Um Pix já emitido é reutilizado ao reabrir o pagamento; a aprovação exige conferência bancária pelo administrador. Cancelar o pedido localmente não revoga um QR Code já copiado nem devolve dinheiro automaticamente.
 
 ### Informações Adicionais
 

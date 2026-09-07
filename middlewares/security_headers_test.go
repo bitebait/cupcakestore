@@ -21,7 +21,7 @@ func TestBrowserSecurityHeadersPreserveAssetCaching(t *testing.T) {
 		}
 		response.Body.Close()
 		policy := response.Header.Get("Content-Security-Policy")
-		for _, directive := range []string{"script-src 'self'", "frame-ancestors 'none'", "form-action 'self' https://pix.ae"} {
+		for _, directive := range []string{"script-src 'self'", "frame-ancestors 'none'", "form-action 'self'"} {
 			if !strings.Contains(policy, directive) {
 				t.Errorf("%s: missing %s", path, directive)
 			}

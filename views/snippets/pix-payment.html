@@ -1,0 +1,19 @@
+<section class="store-panel store-pix-payment" aria-labelledby="pix-title">
+    <p class="store-eyebrow">Pedido #{{.ID}}</p>
+    <h2 id="pix-title">Pague com Pix</h2>
+    {{if .PixString}}
+    <p>Abra o aplicativo do seu banco e escaneie o QR Code ou use o Pix Copia e Cola.</p>
+    <p class="store-pix-amount">Valor: <strong>{{money .Total}}</strong></p>
+    {{if .PixQR}}<img class="store-pix-qr" src="data:image/png;base64,{{.PixQR}}" alt="QR Code Pix do pedido {{.ID}}, no valor de {{money .Total}}" width="256" height="256">{{end}}
+    <div class="store-field">
+        <label for="pix-code">Pix Copia e Cola</label>
+        <textarea id="pix-code" class="store-pix-code" rows="4" readonly spellcheck="false" aria-describedby="pix-help" data-pix-code>{{.PixString}}</textarea>
+    </div>
+    <button type="button" class="store-button store-button-primary" data-pix-copy hidden>Copiar código Pix</button>
+    <p class="store-help" data-pix-copy-status role="status"></p>
+    <p id="pix-help" class="store-help">Confira os dados do recebedor e o valor no aplicativo do banco antes de confirmar. A loja confere o recebimento para atualizar o pedido.</p>
+    <p class="store-notice">Já pagou? Aguarde a confirmação da loja. Não pague novamente.</p>
+    {{else}}
+    <p class="store-notice" role="alert">O código Pix deste pedido não está disponível. Entre em contato com a loja antes de fazer o pagamento.</p>
+    {{end}}
+</section>

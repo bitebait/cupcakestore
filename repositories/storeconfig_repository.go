@@ -1,10 +1,13 @@
 package repositories
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
 	"log/slog"
 )
+
+var ErrStoreConfigChanged = errors.New("a configuração mudou enquanto você editava; recarregue a página e tente novamente")
 
 type StoreConfigRepository interface {
 	GetStoreConfig() (models.StoreConfig, error)
@@ -33,9 +36,18 @@ func (r *storeConfigRepository) GetStoreConfig() (models.StoreConfig, error) {
 }
 
 func (r *storeConfigRepository) Update(storeConfig *models.StoreConfig) error {
-	if err := r.db.Save(storeConfig).Error; err != nil {
-		slog.Error("StoreConfigRepository Update", "error", err)
-		return err
+	if storeConfig == nil || storeConfig.ID == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	result := r.db.Model(storeConfig).Where("updated_at = ?", storeConfig.UpdatedAt).
+		Select("DeliveryPrice", "DeliveryIsActive", "PhysicalStoreEmail", "PhysicalStoreAddress",
+			"PhysicalStoreCity", "PhysicalStoreState", "PhysicalStorePostalCode", "PhysicalStorePhoneNumber",
+			"PaymentCashIsActive", "PaymentPixIsActive", "PixKey", "PixKeyType", "PixReceiverName").Updates(storeConfig)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected != 1 {
+		return ErrStoreConfigChanged
 	}
 
 	return nil

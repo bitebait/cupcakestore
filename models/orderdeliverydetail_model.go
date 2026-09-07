@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 type OrderDeliveryDetail struct {
 	gorm.Model
@@ -19,4 +23,15 @@ type OrderDeliveryDetail struct {
 	StoreState       string `gorm:"type:varchar(100)"`
 	StorePostalCode  string `gorm:"type:varchar(20)"`
 	StorePhoneNumber string `gorm:"type:varchar(20)"`
+}
+
+func NewOrderDeliveryDetail(orderID uint, profile Profile, store StoreConfig) OrderDeliveryDetail {
+	return OrderDeliveryDetail{
+		OrderID: orderID, UserFirstName: strings.TrimSpace(profile.FirstName), UserLastName: strings.TrimSpace(profile.LastName),
+		UserEmail: profile.User.Email, UserAddress: strings.TrimSpace(profile.Address), UserCity: strings.TrimSpace(profile.City),
+		UserState: strings.ToUpper(strings.TrimSpace(profile.State)), UserPostalCode: strings.TrimSpace(profile.PostalCode), UserPhoneNumber: strings.TrimSpace(profile.PhoneNumber),
+		StoreEmail: store.PhysicalStoreEmail, StoreAddress: strings.TrimSpace(store.PhysicalStoreAddress),
+		StoreCity: strings.TrimSpace(store.PhysicalStoreCity), StoreState: strings.ToUpper(strings.TrimSpace(store.PhysicalStoreState)),
+		StorePostalCode: strings.TrimSpace(store.PhysicalStorePostalCode), StorePhoneNumber: strings.TrimSpace(store.PhysicalStorePhoneNumber),
+	}
 }

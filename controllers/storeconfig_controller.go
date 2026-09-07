@@ -42,7 +42,7 @@ func (c *storeConfigController) Update(ctx fiber.Ctx) error {
 		PhysicalStoreCity: input.PhysicalStoreCity, PhysicalStoreState: input.PhysicalStoreState,
 		PhysicalStorePostalCode: input.PhysicalStorePostalCode, PhysicalStorePhoneNumber: input.PhysicalStorePhoneNumber,
 		PaymentCashIsActive: input.PaymentCashIsActive, PaymentPixIsActive: input.PaymentPixIsActive,
-		PixKey: input.PixKey, PixKeyType: input.PixKeyType,
+		PixKey: input.PixKey, PixKeyType: input.PixKeyType, PixReceiverName: input.PixReceiverName,
 	}
 
 	if err = c.storeConfigService.Update(&storeConfig); err != nil {

@@ -158,7 +158,6 @@ func TestOrderManagementOffersOnlyValidNextSteps(t *testing.T) {
 	}{
 		{"pickup ready", models.Order{Status: models.DeliveredStatusAwaiting}, "Entregue", "Enviado"},
 		{"delivery ready", models.Order{Status: models.DeliveredStatusAwaiting, IsDelivery: true}, "Enviado", "Entregue"},
-		{"pix awaiting", models.Order{Status: models.AwaitingPaymentStatus, PaymentMethod: models.PixPaymentMethod}, "Pagamento Aprovado", "Entregue"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			test.order.ID = 7
@@ -174,5 +173,122 @@ func TestOrderManagementOffersOnlyValidNextSteps(t *testing.T) {
 				t.Fatal("cancellation must go through the confirmation page")
 			}
 		})
+	}
+}
+
+func TestCheckoutOffersOnlyUsableFulfillmentAndPayment(t *testing.T) {
+	for _, test := range []struct {
+		name                               string
+		delivery, pickup, address, payment bool
+		options                            string
+		blocked                            bool
+	}{
+		{"delivery only", true, false, true, true, "1", false},
+		{"pickup without customer address", false, true, false, true, "0", false},
+		{"pickup while delivery address missing", true, true, false, true, "0", false},
+		{"no receiving option", false, false, true, true, "", true},
+		{"no payment option", true, true, true, false, "1,0", true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			customer := models.Profile{UserID: 5, FirstName: "Ana", LastName: "Silva", PhoneNumber: "11999999999"}
+			if test.address {
+				customer.Address, customer.City, customer.State, customer.PostalCode = "Rua Atual, 10", "São Paulo", "SP", "01000-000"
+			}
+			store := models.StoreConfig{DeliveryIsActive: test.delivery, DeliveryPrice: 5, PaymentCashIsActive: test.payment}
+			if test.pickup {
+				store.PhysicalStoreAddress, store.PhysicalStoreCity, store.PhysicalStoreState = "Rua da Loja, 20", "São Paulo", "SP"
+			}
+			order := models.Order{Profile: customer, IsDelivery: test.delivery, ShoppingCart: models.ShoppingCart{Total: 10}, DeliveryDetail: models.OrderDeliveryDetail{UserAddress: "Endereço anterior"}}
+			output := renderTemplate(t, "orders/checkout", map[string]any{"Object": map[string]any{"Order": order, "StoreConfig": store}, "CSRFToken": "checkout-token"})
+			document, err := html.Parse(strings.NewReader(output))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var options []string
+			blocked := false
+			var inspect func(*html.Node, bool)
+			inspect = func(node *html.Node, receiving bool) {
+				attrs := map[string]string{}
+				for _, attr := range node.Attr {
+					attrs[attr.Key] = attr.Val
+				}
+				if node.Data == "select" && attrs["name"] == "isDelivery" {
+					receiving = true
+				}
+				if receiving && node.Data == "option" {
+					options = append(options, attrs["value"])
+				}
+				if node.Data == "button" && attrs["form"] == "payment" {
+					_, blocked = attrs["disabled"]
+				}
+				for child := node.FirstChild; child != nil; child = child.NextSibling {
+					inspect(child, receiving)
+				}
+			}
+			inspect(document, false)
+			if strings.Join(options, ",") != test.options || blocked != test.blocked {
+				t.Fatalf("options=%v blocked=%v; want %q blocked=%v", options, blocked, test.options, test.blocked)
+			}
+			if !strings.Contains(output, `name="storeVersion"`) {
+				t.Fatal("checkout does not carry the reviewed store configuration version")
+			}
+			if strings.Contains(output, "Endereço anterior") {
+				t.Fatal("unpaid checkout displayed an outdated address snapshot")
+			}
+		})
+	}
+}
+
+func TestPendingPixUsesLocalCodeAndExplicitStaffConfirmation(t *testing.T) {
+	order := models.Order{Model: gorm.Model{ID: 9}, Status: models.AwaitingPaymentStatus, PaymentMethod: models.PixPaymentMethod, Total: 25, PixQR: "a+b/c==", PixString: "000201-payload", PixURL: "/legacy-provider-url"}
+	for _, staff := range []bool{false, true} {
+		output := renderTemplate(t, "orders/order", map[string]any{
+			"Object": map[string]any{"Order": order}, "Profile": &models.Profile{User: models.User{IsStaff: staff}}, "CSRFToken": "pix-token",
+		})
+		if !strings.Contains(output, `src="data:image/png;base64,`) || strings.Contains(output, "ZgotmplZ") || !strings.Contains(output, "000201-payload") || !strings.Contains(output, "readonly") {
+			t.Fatal("local Pix code or accessible copy field missing")
+		}
+		if strings.Contains(output, "legacy-provider-url") || strings.Contains(output, "https://pix.ae") {
+			t.Fatal("payment still points to an external provider")
+		}
+		confirmation := strings.Contains(output, `action="/orders/order/9/confirm-payment"`)
+		if confirmation != staff {
+			t.Fatalf("staff=%v confirmation=%v", staff, confirmation)
+		}
+		if staff && (!strings.Contains(output, `name="payment_received" value="on" required`) || strings.Contains(output, `name="status"`)) {
+			t.Fatal("Pix confirmation can bypass explicit receipt acknowledgement")
+		}
+	}
+}
+
+func TestInvalidPixPayloadIsNotShownToCustomer(t *testing.T) {
+	output := renderTemplate(t, "orders/order", map[string]any{
+		"Object": map[string]any{
+			"Order":    models.Order{Status: models.AwaitingPaymentStatus, PaymentMethod: models.PixPaymentMethod, PixString: "unsafe-invalid-code", PixQR: "invalid-qr"},
+			"PixError": true,
+		},
+		"Profile": &models.Profile{},
+	})
+	if strings.Contains(output, "unsafe-invalid-code") || strings.Contains(output, "invalid-qr") || !strings.Contains(output, "Entre em contato com a loja antes de pagar") {
+		t.Fatal("invalid Pix code was shown or recovery guidance is absent")
+	}
+}
+
+func TestApprovedPixCancellationRequiresStoreContact(t *testing.T) {
+	order := models.Order{Model: gorm.Model{ID: 8}, Status: models.PaymentApprovedStatus, PaymentMethod: models.PixPaymentMethod}
+	for _, staff := range []bool{false, true} {
+		output := renderTemplate(t, "orders/order", map[string]any{
+			"Object": map[string]any{"Order": order}, "Profile": &models.Profile{User: models.User{IsStaff: staff}},
+		})
+		if strings.Contains(output, `href="/orders/cancel/8"`) != staff {
+			t.Fatalf("approved Pix cancellation visibility is wrong for staff=%v", staff)
+		}
+		if !staff && !strings.Contains(output, "entre em contato com a loja") {
+			t.Fatal("customer has no guidance to request cancellation or refund")
+		}
+	}
+	output := renderTemplate(t, "orders/cancel", map[string]any{"Object": order, "Profile": &models.Profile{}})
+	if strings.Contains(output, `<form`) {
+		t.Fatal("customer cancellation page still offers a form for an approved Pix")
 	}
 }
