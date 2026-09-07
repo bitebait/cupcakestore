@@ -31,14 +31,13 @@ func (r *dashboardRepository) GetInfo(lastNDays int) models.Dashboard {
 			models.ActiveStatus,
 			models.AwaitingPaymentStatus,
 			models.DeliveredStatusAwaiting,
+			models.DeliveredStatusSent,
 			models.DeliveredStatusDelivered,
 			models.PaymentApprovedStatus,
 			models.ProcessingStatus,
 		}),
-		Sales: r.countOrderStatusInLastDays(lastDays, []models.ShoppingCartStatus{
-			models.DeliveredStatusAwaiting,
+		CompletedOrders: r.countOrderStatusInLastDays(lastDays, []models.ShoppingCartStatus{
 			models.DeliveredStatusDelivered,
-			models.PaymentApprovedStatus,
 		}),
 		Users:    r.countRecords(&models.User{}),
 		Products: r.countRecords(&models.Product{}),

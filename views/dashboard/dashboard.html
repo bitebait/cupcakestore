@@ -19,9 +19,9 @@
             <div class="col-sm-6 col-lg-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h2 class="h6 text-muted">Vendas efetuadas</h2>
-                        <p class="h2">{{.Object.Sales}}</p>
-                        <a href="/orders">Acompanhar vendas →</a>
+                        <h2 class="h6 text-muted">Pedidos concluídos</h2>
+                        <p class="h2">{{.Object.CompletedOrders}}</p>
+                        <a href="/orders">Ver entregas e retiradas →</a>
                     </div>
                 </div>
             </div>
@@ -44,7 +44,7 @@
                 </div>
             </div>
         </div>
-        <p class="text-muted mt-3">Os indicadores de pedidos e vendas consideram os últimos 30 dias.</p>
+        <p class="text-muted mt-3">Pedidos criados nos últimos 30 dias, exceto cancelados. Concluídos são os que já foram entregues ou retirados.</p>
         <div class="card mt-4">
             <div class="card-body">
                 <h2 class="h5">Gerenciar a loja</h2>

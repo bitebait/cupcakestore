@@ -72,6 +72,9 @@ func (s *userService) Update(user *models.User) error {
 	}
 
 	if err := s.userRepository.Update(user); err != nil {
+		if errors.Is(err, repositories.ErrLastAdministrator) {
+			return err
+		}
 		return errors.New("falha ao atualizar o usuário")
 	}
 
@@ -86,6 +89,9 @@ func (s *userService) Delete(id uint) error {
 	}
 
 	if err := s.userRepository.Delete(&user); err != nil {
+		if errors.Is(err, repositories.ErrLastAdministrator) {
+			return err
+		}
 		return errors.New("falha ao deletar o usuário")
 	}
 
