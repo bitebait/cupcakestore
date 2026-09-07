@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+
 	"gorm.io/gorm"
 )
 
@@ -50,10 +51,11 @@ type Order struct {
 	PixString        string              `gorm:"default:''"`
 	PixTransactionID string              `gorm:"default:''"`
 	PixURL           string              `gorm:"default:''"`
-	IsDelivery       bool                `gorm:"not null;default:true"`
+	IsDelivery       bool                `gorm:"not null"`
 	DeliveryPrice    float64             `gorm:"default:0"`
 	DeliveryDetailD  uint                `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
 	DeliveryDetail   OrderDeliveryDetail `validate:"-"`
+	StockReserved    bool                `gorm:"not null;default:false"`
 	Total            float64             `gorm:"default:0"`
 }
 
@@ -73,102 +75,12 @@ func (o *Order) CanProceedToCheckout() bool {
 	return o.ShoppingCart.Total > 0 && o.IsActiveOrAwaitingPayment()
 }
 
-func (o *Order) AfterCreate(tx *gorm.DB) (err error) {
-	if err = tx.Preload("Profile.User").Preload("ShoppingCart.Items").First(&o).Error; err != nil {
+// Validate checks the persisted state on both creation and updates.
+func (o *Order) Validate() error {
+	if err := o.validateStatus(); err != nil {
 		return err
 	}
-	for _, item := range o.ShoppingCart.Items {
-		stock := &Stock{
-			ProfileID: o.ProfileID,
-			ProductID: item.ProductID,
-			Quantity:  item.Quantity,
-			Type:      StockSaida,
-		}
-		if err = tx.Model(&Stock{}).Create(stock).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (o *Order) AfterUpdate(tx *gorm.DB) (err error) {
-	if err = tx.Preload("Profile.User").Preload("ShoppingCart.Items").First(&o).Error; err != nil {
-		return err
-	}
-	if o.Status == CancelledStatus {
-		for _, item := range o.ShoppingCart.Items {
-			stock := &Stock{
-				ProfileID: o.ProfileID,
-				ProductID: item.ProductID,
-				Quantity:  item.Quantity,
-				Type:      StockEntrada,
-			}
-			if err = tx.Model(&Stock{}).Create(stock).Error; err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func (o *Order) AfterSave(tx *gorm.DB) (err error) {
-	storeConfig := &StoreConfig{}
-	if err = tx.First(storeConfig).Error; err != nil {
-		return err
-	}
-
-	if o.Status == ActiveStatus && o.ShoppingCartID > 0 {
-		orderDeliveryDetail := &OrderDeliveryDetail{}
-		if err = tx.Where("order_id", o.ID).FirstOrInit(&orderDeliveryDetail).Error; err == nil || errors.Is(err, gorm.ErrRecordNotFound) {
-			if err = tx.Preload("Profile.User").Preload("ShoppingCart.Items").First(&o).Error; err != nil {
-				return err
-			}
-			orderDeliveryDetail.OrderID = o.ID
-			orderDeliveryDetail.UserFirstName = o.Profile.FirstName
-			orderDeliveryDetail.UserLastName = o.Profile.LastName
-			orderDeliveryDetail.UserEmail = o.Profile.User.Email
-			orderDeliveryDetail.UserAddress = o.Profile.Address
-			orderDeliveryDetail.UserCity = o.Profile.City
-			orderDeliveryDetail.UserState = o.Profile.State
-			orderDeliveryDetail.UserPostalCode = o.Profile.PostalCode
-			orderDeliveryDetail.UserPhoneNumber = o.Profile.PhoneNumber
-			orderDeliveryDetail.StoreEmail = storeConfig.PhysicalStoreEmail
-			orderDeliveryDetail.StoreAddress = storeConfig.PhysicalStoreAddress
-			orderDeliveryDetail.StoreCity = storeConfig.PhysicalStoreCity
-			orderDeliveryDetail.StoreState = storeConfig.PhysicalStoreState
-			orderDeliveryDetail.StorePostalCode = storeConfig.PhysicalStorePostalCode
-			orderDeliveryDetail.StorePhoneNumber = storeConfig.PhysicalStorePhoneNumber
-			tx.Save(orderDeliveryDetail)
-			o.DeliveryDetailD = orderDeliveryDetail.ID
-		}
-	}
-	return err
-}
-
-func (o *Order) BeforeSave(tx *gorm.DB) (err error) {
-	storeConfig := &StoreConfig{}
-
-	if o.IsDelivery {
-		if err = tx.First(storeConfig).Error; err == nil {
-			o.DeliveryPrice = storeConfig.DeliveryPrice
-		}
-	} else {
-		o.DeliveryPrice = 0
-	}
-
-	o.Total = o.ShoppingCart.Total + o.DeliveryPrice
-	return err
-}
-
-func (o *Order) BeforeCreate(tx *gorm.DB) (err error) {
-	if err = o.validateStatus(); err != nil {
-		return err
-	}
-
-	if err = o.validatePaymentMethod(); err != nil {
-		return err
-	}
-	return nil
+	return o.validatePaymentMethod()
 }
 
 func (o *Order) IsActiveOrAwaitingPayment() bool {
@@ -190,5 +102,28 @@ func (o *Order) validatePaymentMethod() error {
 		return nil
 	default:
 		return errors.New("invalid payment method")
+	}
+}
+
+// CanTransitionTo prevents stale requests from reopening or moving orders backwards.
+func (o *Order) CanTransitionTo(status ShoppingCartStatus) bool {
+	if o.Status == status {
+		return true
+	}
+	switch o.Status {
+	case ActiveStatus:
+		return status == AwaitingPaymentStatus || status == ProcessingStatus || status == CancelledStatus
+	case AwaitingPaymentStatus:
+		return status == PaymentApprovedStatus || status == ProcessingStatus || status == CancelledStatus
+	case PaymentApprovedStatus:
+		return status == ProcessingStatus || status == CancelledStatus
+	case ProcessingStatus:
+		return status == DeliveredStatusAwaiting || status == CancelledStatus
+	case DeliveredStatusAwaiting:
+		return status == DeliveredStatusSent || status == CancelledStatus
+	case DeliveredStatusSent:
+		return status == DeliveredStatusDelivered
+	default:
+		return false
 	}
 }

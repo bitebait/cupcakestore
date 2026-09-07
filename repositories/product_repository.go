@@ -37,7 +37,7 @@ func (r *productRepository) FindAll(filter *models.ProductFilter) []models.Produ
 }
 
 func (r *productRepository) FindActiveWithStock(filter *models.ProductFilter) []models.Product {
-	return r.findProducts(filter, "is_active = 1 AND current_stock > 0")
+	return r.findProducts(filter, "is_active = TRUE AND current_stock > 0")
 }
 
 func (r *productRepository) findProducts(filter *models.ProductFilter, additionalCondition string) []models.Product {
@@ -49,7 +49,7 @@ func (r *productRepository) findProducts(filter *models.ProductFilter, additiona
 
 	if filter.Product.Name != "" {
 		filterPattern := "%" + filter.Product.Name + "%"
-		query = query.Where("name LIKE ? OR description LIKE ?", filterPattern, filterPattern)
+		query = query.Where("(name LIKE ? OR description LIKE ?)", filterPattern, filterPattern)
 	}
 
 	var total int64
@@ -61,7 +61,10 @@ func (r *productRepository) findProducts(filter *models.ProductFilter, additiona
 
 	var products []models.Product
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
-	query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc").Find(&products)
+	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc").Find(&products).Error; err != nil {
+		log.Errorf("ProductRepository findProducts: %s", err.Error())
+		return nil
+	}
 
 	return products
 }
@@ -78,11 +81,23 @@ func (r *productRepository) FindById(id uint) (models.Product, error) {
 }
 
 func (r *productRepository) Update(product *models.Product) error {
-	if err := r.db.Save(product).Error; err != nil {
+	if product == nil || product.ID == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	if err := product.Validate(); err != nil {
+		return err
+	}
+	result := r.db.Model(product).Where("id = ?", product.ID).
+		Select("Name", "Description", "Price", "Ingredients", "Image", "Thumbnail", "IsActive").
+		Updates(product)
+	if result.Error != nil {
+		err := result.Error
 		log.Errorf("ProductRepository Update: %s", err.Error())
 		return err
 	}
-
+	if result.RowsAffected != 1 {
+		return gorm.ErrRecordNotFound
+	}
 	return nil
 }
 

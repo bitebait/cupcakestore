@@ -1,6 +1,9 @@
 package models
 
 import (
+	"errors"
+	"math"
+
 	"gorm.io/gorm"
 )
 
@@ -29,13 +32,17 @@ type ShoppingCart struct {
 	OrderID   uint               `gorm:"default:null"`
 }
 
-func (c *ShoppingCart) updateTotal() {
+func (c *ShoppingCart) updateTotal() error {
 	var subtotal float64
 	for _, item := range c.Items {
 		subtotal += item.ItemPrice * float64(item.Quantity)
 	}
 
-	c.Total = subtotal
+	if math.IsNaN(subtotal) || math.IsInf(subtotal*100, 0) {
+		return errors.New("valor total do carrinho inválido")
+	}
+	c.Total = math.Round(subtotal*100) / 100
+	return nil
 }
 
 func (c *ShoppingCart) CountItems() int64 {

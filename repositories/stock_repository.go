@@ -33,7 +33,7 @@ func (r *stockRepository) Create(stock *models.Stock) error {
 
 func (r *stockRepository) SumProductStockQuantity(productID uint) (int, error) {
 	var totalQuantity int64
-	err := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("SUM(quantity)").Scan(&totalQuantity).Error
+	err := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("COALESCE(SUM(quantity), 0)").Scan(&totalQuantity).Error
 
 	if err != nil {
 		log.Errorf("StockRepository SumProductStockQuantity: %s", err.Error())

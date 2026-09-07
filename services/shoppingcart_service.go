@@ -2,9 +2,9 @@ package services
 
 import (
 	"errors"
+
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
-	"math"
 )
 
 type ShoppingCartService interface {
@@ -47,21 +47,13 @@ func (s *shoppingCartService) FindOrCreateByUserId(userID uint) (models.Shopping
 }
 
 func (s *shoppingCartService) AddItemToCart(userID, productID uint, quantity int) error {
+	if userID == 0 || productID == 0 || quantity <= 0 {
+		return errors.New("produto, perfil e quantidade válida devem ser informados")
+	}
 	cart, err := s.FindOrCreateByUserId(userID)
 
 	if err != nil {
 		return errors.New("falha ao encontrar o carrinho de compras do usuário")
-	}
-
-	for _, item := range cart.Items {
-		if item.ProductID == productID {
-			item.Quantity += int(math.Abs(float64(quantity)))
-			err := s.shoppingCartItemService.Update(&item)
-			if err != nil {
-				return errors.New("falha ao atualizar o item do carrinho")
-			}
-			return nil
-		}
 	}
 
 	if err := s.shoppingCartItemService.Create(cart.ID, productID, quantity); err != nil {

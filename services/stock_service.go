@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 )
@@ -23,12 +24,11 @@ func NewStockService(stockRepository repositories.StockRepository) StockService 
 }
 
 func (s *stockService) Create(stock *models.Stock) error {
-	if stock.Quantity <= 0 {
-		return errors.New("quantidade deve ser maior que zero")
+	if stock == nil {
+		return errors.New("o estoque deve ser informado")
 	}
-
-	if stock.ProfileID == 0 {
-		return errors.New("o id do perfil deve ser informado")
+	if err := stock.Validate(); err != nil {
+		return err
 	}
 
 	if err := s.stockRepository.Create(stock); err != nil {
