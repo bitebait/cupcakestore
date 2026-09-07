@@ -20,6 +20,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto">
+                {{template "snippets/store-readiness" .Object}}
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Gerenciar as Configurações do Pix</h3>
@@ -27,10 +28,16 @@
                     <form method="Post" action="/config">
                         <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
                         <div class="card-body">
+                            <p class="text-muted">O código Pix é gerado aqui na loja. A confirmação do recebimento é feita pela equipe após conferir a transação no banco.</p>
+                            <div class="form-group">
+                                <label for="pixReceiverName">Nome do recebedor</label>
+                                <input class="form-control" id="pixReceiverName" name="pixReceiverName" maxlength="25" value="{{.Object.PixReceiverName}}" aria-describedby="pixReceiverHelp" required>
+                                <small id="pixReceiverHelp" class="form-text text-muted">Use o nome da pessoa ou empresa que receberá o Pix, com até 25 caracteres.</small>
+                            </div>
                             <div class="form-group">
                                 <label for="pixKey">Chave Pix</label>
                                 <input type="text" class="form-control" id="pixKey" name="pixKey"
-                                       placeholder="Chave Pix" value="{{.Object.PixKey}}"/>
+                                       placeholder="Chave Pix" value="{{.Object.PixKey}}" required/>
                             </div>
                             <div class="form-group">
                                 <label for="pixKeyType">Tipo de Chave</label>
@@ -51,6 +58,9 @@
                                     "cnpj"}}selected{{end}}>CNPJ</option>
                                 </select>
                             </div>
+                            <p class="text-muted">Para chave de celular, informe o código do país: +55 seguido do DDD e número. Para CPF, use somente números. Informe o CNPJ como está cadastrado; ele pode conter letras.</p>
+                            <p class="text-muted">Cidade do recebedor: {{if .Object.PhysicalStoreCity}}<strong>{{.Object.PhysicalStoreCity}}</strong>{{else}}não informada{{end}}. <a href="/config/address">Editar endereço da loja</a>.</p>
+                            <a href="/config/payment">Ativar ou desativar o Pix nas formas de pagamento</a>
                         </div>
                         <div class="card-footer">
                             <a href="/dashboard" class="btn btn-default">

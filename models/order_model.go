@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -41,22 +42,24 @@ const (
 
 type Order struct {
 	gorm.Model
-	ProfileID        uint                `gorm:"not null" validate:"required"`
-	Profile          Profile             `validate:"-"`
-	ShoppingCartID   uint                `gorm:"not null" validate:"required"`
-	ShoppingCart     ShoppingCart        `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
-	Status           ShoppingCartStatus  `gorm:"default:'Em Aberto'"`
-	PaymentMethod    PaymentMethod       `gorm:"default:'Pix'"`
-	PixQR            string              `gorm:"default:''"`
-	PixString        string              `gorm:"default:''"`
-	PixTransactionID string              `gorm:"default:''"`
-	PixURL           string              `gorm:"default:''"`
-	IsDelivery       bool                `gorm:"not null"`
-	DeliveryPrice    float64             `gorm:"default:0"`
-	DeliveryDetailD  uint                `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
-	DeliveryDetail   OrderDeliveryDetail `validate:"-"`
-	StockReserved    bool                `gorm:"not null;default:false"`
-	Total            float64             `gorm:"default:0"`
+	ProfileID            uint               `gorm:"not null" validate:"required"`
+	Profile              Profile            `validate:"-"`
+	ShoppingCartID       uint               `gorm:"not null" validate:"required"`
+	ShoppingCart         ShoppingCart       `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
+	Status               ShoppingCartStatus `gorm:"default:'Em Aberto'"`
+	PaymentMethod        PaymentMethod      `gorm:"default:'Pix'"`
+	PixQR                string             `gorm:"default:''"`
+	PixString            string             `gorm:"default:''"`
+	PixTransactionID     string             `gorm:"default:''"`
+	PixURL               string             `gorm:"default:''"`
+	PaymentConfirmedAt   *time.Time
+	PaymentConfirmedByID *uint
+	IsDelivery           bool                `gorm:"not null"`
+	DeliveryPrice        float64             `gorm:"default:0"`
+	DeliveryDetailD      uint                `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
+	DeliveryDetail       OrderDeliveryDetail `validate:"-"`
+	StockReserved        bool                `gorm:"not null;default:false"`
+	Total                float64             `gorm:"default:0"`
 }
 
 func (o *Order) IsCurrentUserOrder(profileID uint) bool {
@@ -128,6 +131,28 @@ func (o *Order) CanTransitionTo(status ShoppingCartStatus) bool {
 	}
 }
 
+// CanUpdateStatus excludes checkout and bank confirmation from routine fulfillment.
+func (o *Order) CanUpdateStatus(status ShoppingCartStatus) bool {
+	if o.Status == status {
+		return true
+	}
+	if o.Status == ActiveStatus || o.Status == AwaitingPaymentStatus {
+		return status == CancelledStatus
+	}
+	return o.CanTransitionTo(status)
+}
+
+func (o Order) CanCustomerCancel() bool {
+	if o.PaymentConfirmedAt != nil || (o.PaymentMethod == PixPaymentMethod && o.Status != ActiveStatus && o.Status != AwaitingPaymentStatus) {
+		return false
+	}
+	switch o.Status {
+	case ActiveStatus, AwaitingPaymentStatus, ProcessingStatus, DeliveredStatusAwaiting:
+		return true
+	}
+	return false
+}
+
 // AvailableTransitions exposes the same rules used by persistence to order management.
 // A value receiver also makes the choices available to server-rendered templates.
 func (o Order) AvailableTransitions() []ShoppingCartStatus {
@@ -136,7 +161,7 @@ func (o Order) AvailableTransitions() []ShoppingCartStatus {
 		AwaitingPaymentStatus, PaymentApprovedStatus, ProcessingStatus,
 		DeliveredStatusAwaiting, DeliveredStatusSent, DeliveredStatusDelivered, CancelledStatus,
 	} {
-		if status != o.Status && o.CanTransitionTo(status) {
+		if status != o.Status && o.CanUpdateStatus(status) {
 			statuses = append(statuses, status)
 		}
 	}

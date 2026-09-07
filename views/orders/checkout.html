@@ -1,59 +1,81 @@
-<div class="store-container store-page" data-checkout data-subtotal="{{.Object.Order.ShoppingCart.Total}}" data-delivery-price="{{.Object.StoreConfig.DeliveryPrice}}">
+{{$order := .Object.Order}}
+{{$config := .Object.StoreConfig}}
+{{$customer := $order.Profile}}
+{{$delivery := and $config.DeliveryIsActive $customer.HasDeliveryAddress}}
+{{$pickup := $config.IsPickupAvailable}}
+{{$canReceive := or $delivery $pickup}}
+{{$canPay := or $config.IsPixAvailable $config.PaymentCashIsActive}}
+{{$selectedDelivery := and $delivery (or $order.IsDelivery (not $pickup))}}
+<div class="store-container store-page" data-checkout data-subtotal="{{$order.ShoppingCart.Total}}" data-delivery-price="{{$config.DeliveryPrice}}">
     <nav class="store-breadcrumb" aria-label="Etapas do pedido"><span>Sua seleção</span><span aria-hidden="true">/</span><span aria-current="step">Entrega e pagamento</span></nav>
-    <div class="store-page-heading"><div><p class="store-eyebrow">Pedido #{{.Object.Order.ID}}</p><h1>Vamos finalizar?</h1><p>Escolha como receber e pagar pelos seus doces.</p></div></div>
+    <div class="store-page-heading"><div><p class="store-eyebrow">Pedido #{{$order.ID}}</p><h1>Vamos finalizar?</h1><p>Escolha como receber e pagar pelos seus doces.</p></div></div>
     <div class="store-checkout-grid">
         <div class="store-panel-stack">
             <section class="store-panel">
                 <h2>Entrega e pagamento</h2>
-                <form method="post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}" id="payment" class="store-form">
+                {{if and $config.DeliveryIsActive (not $customer.HasDeliveryAddress)}}
+                <div class="store-notice">
+                    <p>Para receber em casa, complete seu endereço, cidade, UF e CEP.</p>
+                    <a href="/profile/{{$customer.UserID}}">Completar endereço</a>
+                    <p class="store-help">Depois de salvar, retome o pedido #{{$order.ID}} em Meus pedidos.{{if $pickup}} Você também pode escolher retirada na loja.{{end}}</p>
+                </div>
+                {{end}}
+                {{if not $canReceive}}<p class="store-notice" role="alert">Nenhuma opção de recebimento está disponível para este pedido.{{if not $config.DeliveryIsActive}} A loja precisa informar um endereço de retirada ou ativar a entrega.{{end}}</p>{{end}}
+                {{if not $canPay}}<p class="store-notice" role="alert">A loja não está recebendo novos pagamentos. Entre em contato para continuar seu pedido.</p>{{end}}
+                <form method="post" action="/orders/payment/{{$order.ShoppingCartID}}" id="payment" class="store-form">
                     <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                    <input type="hidden" name="storeVersion" value="{{$config.UpdatedAt.Format "2006-01-02T15:04:05.999999999Z07:00"}}">
+                    {{if $canReceive}}
                     <div class="store-field">
                         <label for="isDelivery">Como você quer receber?</label>
-                        <select id="isDelivery" name="isDelivery" data-delivery-select>
-                            {{if .Object.StoreConfig.DeliveryIsActive}}<option value="1">Entrega no endereço (+ {{money .Object.StoreConfig.DeliveryPrice}})</option>{{end}}
-                            <option value="0">Retirada na loja</option>
+                        <select id="isDelivery" name="isDelivery" data-delivery-select required>
+                            {{if $delivery}}<option value="1" {{if $selectedDelivery}}selected{{end}}>Entrega no endereço (+ {{money $config.DeliveryPrice}})</option>{{end}}
+                            {{if $pickup}}<option value="0" {{if not $selectedDelivery}}selected{{end}}>Retirada na loja</option>{{end}}
                         </select>
                     </div>
+                    {{end}}
+                    {{if $canPay}}
                     <div class="store-field">
                         <label for="paymentMethod">Forma de pagamento</label>
                         <select id="paymentMethod" name="paymentMethod" required>
-                            {{if .Object.StoreConfig.PaymentPixIsActive}}<option value="Pix">Pix</option>{{end}}
-                            {{if .Object.StoreConfig.PaymentCashIsActive}}<option value="Dinheiro">Dinheiro</option>{{end}}
+                            {{if $config.IsPixAvailable}}<option value="Pix" {{if eq $order.PaymentMethod "Pix"}}selected{{end}}>Pix</option>{{end}}
+                            {{if $config.PaymentCashIsActive}}<option value="Dinheiro" {{if eq $order.PaymentMethod "Dinheiro"}}selected{{end}}>Dinheiro ao receber</option>{{end}}
                         </select>
                     </div>
+                    {{end}}
                 </form>
             </section>
-            <section class="store-panel" data-delivery-address {{if not .Object.StoreConfig.DeliveryIsActive}}hidden{{end}}>
-                <p class="store-eyebrow">Endereço de entrega</p><h2>{{.Object.Order.DeliveryDetail.UserFirstName}} {{.Object.Order.DeliveryDetail.UserLastName}}</h2>
-                <address>{{.Object.Order.DeliveryDetail.UserAddress}}<br>{{.Object.Order.DeliveryDetail.UserCity}}{{if and .Object.Order.DeliveryDetail.UserCity .Object.Order.DeliveryDetail.UserState}} · {{end}}{{.Object.Order.DeliveryDetail.UserState}}<br>{{.Object.Order.DeliveryDetail.UserPostalCode}}<br>{{.Object.Order.DeliveryDetail.UserPhoneNumber}}</address>
+            {{if $delivery}}
+            <section class="store-panel" data-delivery-address>
+                <p class="store-eyebrow">Endereço de entrega</p><h2>{{$customer.FirstName}} {{$customer.LastName}}</h2>
+                <address>{{$customer.Address}}<br>{{$customer.City}} · {{$customer.State}}<br>{{$customer.PostalCode}}<br>{{$customer.PhoneNumber}}</address>
+                <a href="/profile/{{$customer.UserID}}" class="store-back-link">Corrigir endereço antes de pagar</a>
             </section>
-            <section class="store-panel" data-pickup-address {{if .Object.StoreConfig.DeliveryIsActive}}hidden{{end}}>
+            {{end}}
+            {{if $pickup}}
+            <section class="store-panel" data-pickup-address>
                 <p class="store-eyebrow">Retirada na loja</p><h2>Cupcake Store</h2>
-                {{if .Object.StoreConfig.PhysicalStoreAddress}}
-                <address>{{.Object.StoreConfig.PhysicalStoreAddress}}{{if or .Object.StoreConfig.PhysicalStoreCity .Object.StoreConfig.PhysicalStoreState}}<br>{{.Object.StoreConfig.PhysicalStoreCity}}{{if and .Object.StoreConfig.PhysicalStoreCity .Object.StoreConfig.PhysicalStoreState}} · {{end}}{{.Object.StoreConfig.PhysicalStoreState}}{{end}}{{if .Object.StoreConfig.PhysicalStorePostalCode}}<br>{{.Object.StoreConfig.PhysicalStorePostalCode}}{{end}}</address>
-                {{else}}
-                <p class="store-notice">O endereço de retirada ainda não foi informado pela loja.</p>
-                {{end}}
-                {{if .Object.StoreConfig.PhysicalStorePhoneNumber}}<p class="store-help">Contato: {{.Object.StoreConfig.PhysicalStorePhoneNumber}}</p>{{end}}
+                <address>{{$config.PhysicalStoreAddress}}<br>{{$config.PhysicalStoreCity}} · {{$config.PhysicalStoreState}}{{if $config.PhysicalStorePostalCode}}<br>{{$config.PhysicalStorePostalCode}}{{end}}</address>
+                {{if $config.PhysicalStorePhoneNumber}}<p class="store-help">Contato: {{$config.PhysicalStorePhoneNumber}}</p>{{end}}
+                <p class="store-help">Acompanhe em Meus pedidos e retire quando o pedido estiver pronto.</p>
             </section>
+            {{end}}
         </div>
         <aside class="store-panel store-summary" aria-labelledby="checkout-summary-title">
             <p class="store-eyebrow">Sua seleção</p><h2 id="checkout-summary-title">Resumo do pedido</h2>
             <ul class="store-mini-items">
-                {{range .Object.Order.ShoppingCart.Items}}
+                {{range $order.ShoppingCart.Items}}
                 <li><div><strong>{{.Product.Name}}</strong><small>{{.Quantity}} unidade(s)</small></div><span>{{money (mulf .Quantity .ItemPrice)}}</span></li>
                 {{end}}
             </ul>
             <dl class="store-totals">
-                <div><dt>Subtotal</dt><dd>{{money .Object.Order.ShoppingCart.Total}}</dd></div>
-                <div data-delivery-row {{if not .Object.StoreConfig.DeliveryIsActive}}hidden{{end}}><dt>Entrega</dt><dd>{{money .Object.StoreConfig.DeliveryPrice}}</dd></div>
-                <div class="store-total"><dt>Total</dt><dd data-checkout-total aria-live="polite">{{if .Object.StoreConfig.DeliveryIsActive}}{{money (addf .Object.Order.ShoppingCart.Total .Object.StoreConfig.DeliveryPrice)}}{{else}}{{money .Object.Order.ShoppingCart.Total}}{{end}}</dd></div>
+                <div><dt>Subtotal</dt><dd>{{money $order.ShoppingCart.Total}}</dd></div>
+                <div data-delivery-row {{if not $selectedDelivery}}hidden{{end}}><dt>Entrega</dt><dd>{{money $config.DeliveryPrice}}</dd></div>
+                <div class="store-total"><dt>Total</dt><dd data-checkout-total aria-live="polite">{{if $selectedDelivery}}{{money (addf $order.ShoppingCart.Total $config.DeliveryPrice)}}{{else}}{{money $order.ShoppingCart.Total}}{{end}}</dd></div>
             </dl>
-            {{if not (or .Object.StoreConfig.PaymentPixIsActive .Object.StoreConfig.PaymentCashIsActive)}}
-            <p class="store-notice" role="alert">Nenhuma forma de pagamento está disponível. Entre em contato com a loja.</p>
-            {{end}}
-            <noscript><p class="store-help">Para retirada na loja, o total é {{money .Object.Order.ShoppingCart.Total}}, sem taxa de entrega.</p></noscript>
-            <button type="submit" form="payment" class="store-button store-button-primary store-button-wide" {{if not (or .Object.StoreConfig.PaymentPixIsActive .Object.StoreConfig.PaymentCashIsActive)}}disabled{{end}}>Finalizar pedido →</button>
+            {{if and $delivery $pickup}}<noscript><p class="store-help">Entrega: {{money (addf $order.ShoppingCart.Total $config.DeliveryPrice)}}. Retirada: {{money $order.ShoppingCart.Total}}. O valor final segue a opção escolhida acima.</p></noscript>{{end}}
+            <button type="submit" form="payment" class="store-button store-button-primary store-button-wide" {{if not (and $canReceive $canPay)}}disabled{{end}}>Finalizar pedido →</button>
+            {{if $config.PhysicalStorePhoneNumber}}<p class="store-help">Precisa de ajuda? Contato da loja: {{$config.PhysicalStorePhoneNumber}}</p>{{end}}
             <a href="/orders" class="store-back-link">Continuar depois</a>
         </aside>
     </div>

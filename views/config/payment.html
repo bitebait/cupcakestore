@@ -20,6 +20,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto">
+                {{template "snippets/store-readiness" .Object}}
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Gerenciar as Configurações de Pagamento</h3>
@@ -27,6 +28,7 @@
                     <form method="post" action="/config">
                         <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
                         <div class="card-body">
+                            <p class="text-muted">Mantenha pelo menos uma opção ativa para receber novos pedidos. Desativar ambas pausa novas compras e mantém os pedidos existentes.</p>
                             <div class="form-group">
                                 <label for="paymentCashIsActive">Aceitar Pagamento em Dinheiro?</label>
                                 <select class="form-control" id="paymentCashIsActive" name="paymentCashIsActive">
@@ -35,6 +37,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <p class="text-muted"><a href="/config/pix">Configure os dados do recebedor</a> antes de ativar o Pix.</p>
                                 <label for="paymentPixIsActive">Aceitar Pagamento em Pix?</label>
                                 <select class="form-control" id="paymentPixIsActive" name="paymentPixIsActive">
                                     <option value="1" {{if .Object.PaymentPixIsActive}}selected{{end}}>Sim</option>

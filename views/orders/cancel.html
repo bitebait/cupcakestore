@@ -3,6 +3,7 @@
     <section class="store-panel store-confirmation">
         <span class="store-empty-symbol" aria-hidden="true">×</span>
         <p class="store-eyebrow">Pedido #{{.Object.ID}}</p>
+        {{if or .Profile.User.IsStaff .Object.CanCustomerCancel}}
         <h1>Cancelar este pedido?</h1>
         <p>O pedido de <strong>{{money .Object.Total}}</strong> será cancelado. Para comprar esses produtos depois, você precisará fazer um novo pedido.</p>
         {{if eq .Object.PaymentMethod "Pix"}}<p class="store-notice">Se o Pix já foi pago, o cancelamento não devolve o dinheiro automaticamente. Combine a devolução com a loja.</p>{{end}}
@@ -11,5 +12,10 @@
             <a href="/orders/order/{{.Object.ID}}" class="store-button store-button-secondary">Manter meu pedido</a>
             <button type="submit" class="store-button store-button-primary">Confirmar cancelamento</button>
         </form>
+        {{else}}
+        <h1>Fale com a loja.</h1>
+        <p>Este pedido não pode ser cancelado diretamente. Entre em contato com a loja para tratar de cancelamento ou devolução.</p>
+        <a href="/orders/order/{{.Object.ID}}" class="store-button store-button-secondary">Voltar ao pedido</a>
+        {{end}}
     </section>
 </div>

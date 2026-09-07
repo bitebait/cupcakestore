@@ -1,0 +1,5 @@
+{{$state := upper (trim .)}}
+{{$states := list "AC" "AL" "AP" "AM" "BA" "CE" "DF" "ES" "GO" "MA" "MT" "MS" "MG" "PA" "PB" "PR" "PE" "PI" "RJ" "RN" "RS" "RO" "RR" "SC" "SP" "SE" "TO"}}
+<option value="" {{if not $state}}selected{{end}}>Selecione a UF</option>
+{{if and $state (not (has $state $states))}}<option value="{{.}}" selected>{{.}} — selecione uma UF válida</option>{{end}}
+{{range $states}}<option value="{{.}}" {{if eq . $state}}selected{{end}}>{{.}}</option>{{end}}

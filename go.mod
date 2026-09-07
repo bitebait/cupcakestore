@@ -10,8 +10,10 @@ require (
 	github.com/gofiber/template/html/v2 v2.1.3
 	github.com/joho/godotenv v1.5.1
 	github.com/valyala/fasthttp v1.74.0
+	github.com/yeqown/go-qrcode/v2 v2.2.5
 	golang.org/x/crypto v0.56.0
 	golang.org/x/net v0.58.0
+	golang.org/x/text v0.41.0
 	gorm.io/driver/postgres v1.6.2
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
@@ -49,8 +51,8 @@ require (
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/yeqown/reedsolomon v1.0.0 // indirect
 	golang.org/x/image v0.45.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
 )

@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
@@ -20,6 +22,7 @@ type OrderController interface {
 	RenderCancel(ctx fiber.Ctx) error
 	Cancel(ctx fiber.Ctx) error
 	Update(ctx fiber.Ctx) error
+	ConfirmPayment(ctx fiber.Ctx) error
 }
 
 type orderController struct {
@@ -38,8 +41,8 @@ func (c *orderController) Checkout(ctx fiber.Ctx) error {
 	profileID := getProfileID(ctx)
 	currentUser := fiber.Locals[*models.Profile](ctx, "Profile")
 
-	if !currentUser.IsProfileComplete() {
-		messages.SetErrorMessage(ctx, "por favor, complete as informações do perfil para prosseguir")
+	if !currentUser.HasContactDetails() {
+		messages.SetErrorMessage(ctx, models.ErrContactIncomplete.Error())
 		return ctx.Redirect().Status(fiber.StatusFound).To("/profile/" + strconv.Itoa(int(currentUser.UserID)))
 	}
 
@@ -57,6 +60,9 @@ func (c *orderController) Checkout(ctx fiber.Ctx) error {
 	}
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
+		if errors.Is(err, models.ErrDeliveryAddressIncomplete) {
+			return ctx.Redirect().Status(fiber.StatusFound).To("/profile/" + strconv.Itoa(int(currentUser.UserID)))
+		}
 		return ctx.Redirect().Status(fiber.StatusFound).To("/orders")
 	}
 
@@ -102,14 +108,14 @@ func (c *orderController) Payment(ctx fiber.Ctx) error {
 
 	switch ctx.Method() {
 	case fiber.MethodPost:
-		pixURL, err := c.processPaymentPost(ctx, &order)
+		destination, err := c.processPaymentPost(ctx, &order)
 		if err != nil {
 			messages.SetErrorMessage(ctx, err.Error())
 			return ctx.Redirect().Status(fiber.StatusFound).To("/orders/checkout/" + strconv.Itoa(int(order.ShoppingCartID)))
 		}
 
-		if pixURL != "" {
-			return ctx.Redirect().Status(fiber.StatusSeeOther).To(pixURL)
+		if destination != "" {
+			return ctx.Redirect().Status(fiber.StatusSeeOther).To(destination)
 		}
 
 	case fiber.MethodGet:
@@ -130,14 +136,21 @@ func (c *orderController) processPaymentPost(ctx fiber.Ctx, order *models.Order)
 	// Ownership, status, totals and Pix data come exclusively from the server.
 	order.PaymentMethod = models.PaymentMethod(ctx.FormValue("paymentMethod"))
 
-	order.IsDelivery = ctx.FormValue("isDelivery") == "1"
-
-	if err := c.orderService.Payment(order); err != nil {
-		return "", fmt.Errorf("falha ao processar pagamento: %w", err)
+	switch ctx.FormValue("isDelivery") {
+	case "1":
+		order.IsDelivery = true
+	case "0":
+		order.IsDelivery = false
+	default:
+		return "", errors.New("escolha entrega ou retirada para continuar")
 	}
 
-	if order.PaymentMethod == models.PixPaymentMethod {
-		return services.PixPaymentURL(order.PixURL)
+	configVersion, err := time.Parse(time.RFC3339Nano, ctx.FormValue("storeVersion"))
+	if err != nil {
+		return "", errors.New("recarregue o checkout para conferir as condições atuais da loja")
+	}
+	if err := c.orderService.Payment(order, configVersion); err != nil {
+		return "", fmt.Errorf("falha ao processar pagamento: %w", err)
 	}
 
 	return "/orders/order/" + strconv.Itoa(int(order.ID)), nil
@@ -145,9 +158,7 @@ func (c *orderController) processPaymentPost(ctx fiber.Ctx, order *models.Order)
 
 func (c *orderController) processPaymentGet(ctx fiber.Ctx, order *models.Order) error {
 	if order.CanRedirectToPixPayment() {
-		if paymentURL, err := services.PixPaymentURL(order.PixURL); err == nil {
-			return ctx.Redirect().Status(fiber.StatusFound).To(paymentURL)
-		}
+		return ctx.Redirect().Status(fiber.StatusFound).To("/orders/order/" + strconv.Itoa(int(order.ID)))
 	}
 
 	messages.SetErrorMessage(ctx, "não foi possível redirecionar para pagamento via Pix")
@@ -181,6 +192,19 @@ func (c *orderController) RenderOrder(ctx fiber.Ctx) error {
 	data := fiber.Map{
 		"Order":       order,
 		"StoreConfig": storeConfig,
+	}
+	if order.CanRedirectToPixPayment() {
+		err := services.ValidateOrderPix(&order)
+		var qr string
+		if err == nil {
+			qr, err = services.PixQRFromPayload(order.PixString)
+		}
+		if err != nil {
+			data["PixError"] = "Os dados deste Pix não podem ser exibidos com segurança. Entre em contato com a loja antes de pagar."
+		} else {
+			order.PixQR = qr
+			data["Order"] = order
+		}
 	}
 
 	return ctx.Render("orders/order", fiber.Map{"Object": data}, views.StoreLayout)
@@ -226,6 +250,14 @@ func (c *orderController) RenderCancel(ctx fiber.Ctx) error {
 	if !c.isAuthorizedUser(currentUser, &order, currentUser.ID) {
 		return ctx.Redirect().Status(fiber.StatusFound).To("/orders")
 	}
+	if !currentUser.User.IsStaff && !order.CanCustomerCancel() {
+		messages.SetErrorMessage(ctx, "entre em contato com a loja para solicitar o cancelamento deste pedido")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/orders/order/" + strconv.Itoa(int(order.ID)))
+	}
+	if order.Status == models.CancelledStatus || !order.CanTransitionTo(models.CancelledStatus) {
+		messages.SetErrorMessage(ctx, "este pedido não está disponível para cancelamento")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/orders/order/" + strconv.Itoa(int(order.ID)))
+	}
 
 	return ctx.Render("orders/cancel", fiber.Map{"Object": order}, views.StoreLayout)
 }
@@ -247,13 +279,40 @@ func (c *orderController) Cancel(ctx fiber.Ctx) error {
 	if !c.isAuthorizedUser(user, &order, user.ID) {
 		return fiber.NewError(fiber.StatusForbidden, "acesso negado")
 	}
-	if err := c.orderService.Cancel(order.ID); err != nil {
+	if user.User.IsStaff {
+		err = c.orderService.Cancel(order.ID)
+	} else {
+		err = c.orderService.CancelForCustomer(order.ID, user.ID)
+	}
+	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect().Status(fiber.StatusFound).To("/orders")
 	}
 
 	messages.SetSuccessMessage(ctx, "pedido cancelado com sucesso")
 	return ctx.Redirect().Status(fiber.StatusFound).To("/orders")
+}
+
+func (c *orderController) ConfirmPayment(ctx fiber.Ctx) error {
+	staff := fiber.Locals[*models.Profile](ctx, "Profile")
+	if staff == nil || !staff.User.IsStaff {
+		return fiber.NewError(fiber.StatusForbidden, "acesso negado")
+	}
+	orderID, err := helpers.ParseStringToID(ctx.Params("id"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "pedido inválido")
+	}
+	location := "/orders/order/" + strconv.Itoa(int(orderID))
+	if ctx.FormValue("payment_received") != "on" {
+		messages.SetErrorMessage(ctx, "confirme que verificou o recebimento no banco antes de continuar")
+		return ctx.Redirect().Status(fiber.StatusSeeOther).To(location)
+	}
+	if err := c.orderService.ConfirmPayment(orderID, staff.ID); err != nil {
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect().Status(fiber.StatusSeeOther).To(location)
+	}
+	messages.SetSuccessMessage(ctx, "recebimento Pix confirmado e registrado")
+	return ctx.Redirect().Status(fiber.StatusSeeOther).To(location)
 }
 
 func (c *orderController) Update(ctx fiber.Ctx) error {

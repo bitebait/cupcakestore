@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
@@ -27,12 +29,14 @@ func (p *Profile) Validate() error {
 	return v.Struct(p)
 }
 
-func (p *Profile) IsProfileComplete() bool {
-	return p.FirstName != "" &&
-		p.LastName != "" &&
-		p.Address != "" &&
-		p.City != "" &&
-		p.State != "" &&
-		p.PostalCode != "" &&
-		p.PhoneNumber != ""
+func (p Profile) HasContactDetails() bool {
+	return strings.TrimSpace(p.FirstName) != "" && strings.TrimSpace(p.LastName) != "" && validPhone(p.PhoneNumber)
+}
+
+func (p Profile) HasDeliveryAddress() bool {
+	return validAddress(p.Address, p.City, p.State) && validPostalCode(p.PostalCode)
+}
+
+func (p Profile) IsProfileComplete() bool {
+	return p.HasContactDetails() && p.HasDeliveryAddress()
 }

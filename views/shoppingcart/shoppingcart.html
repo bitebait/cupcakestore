@@ -28,9 +28,9 @@
             <p class="store-eyebrow">Falta pouco</p><h2 id="summary-title">Resumo da seleção</h2>
             <dl class="store-totals"><div><dt>Produtos</dt><dd>{{money .Object.Total}}</dd></div><div class="store-total"><dt>Subtotal</dt><dd>{{money .Object.Total}}</dd></div></dl>
             <p class="store-help">A opção de entrega e o pagamento são definidos na próxima etapa.</p>
-            {{if not .Profile.IsProfileComplete}}
-            <p class="store-notice">Complete seu perfil para continuar com o pedido.</p>
-            <a href="/profile/{{.Profile.User.ID}}" class="store-button store-button-primary store-button-wide">Completar meu perfil →</a>
+            {{if not .Profile.HasContactDetails}}
+            <p class="store-notice">Informe nome, sobrenome e telefone para continuar. O endereço só é necessário se você escolher entrega.</p>
+            <a href="/profile/{{.Profile.User.ID}}" class="store-button store-button-primary store-button-wide">Completar contato →</a>
             {{else}}
             {{if gt .Object.Total 0.0}}
             <form action="/orders/checkout/{{.Object.ID}}" method="post">

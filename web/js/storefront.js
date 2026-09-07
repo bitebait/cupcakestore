@@ -43,14 +43,16 @@
         const formatter = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'});
         const updateDelivery = () => {
             const isDelivery = delivery.value === '1';
-            checkout.querySelector('[data-delivery-address]').hidden = !isDelivery;
-            checkout.querySelector('[data-pickup-address]').hidden = isDelivery;
+            checkout.querySelectorAll('[data-delivery-address]').forEach(panel => panel.hidden = !isDelivery);
+            checkout.querySelectorAll('[data-pickup-address]').forEach(panel => panel.hidden = isDelivery);
             checkout.querySelector('[data-delivery-row]').hidden = !isDelivery;
             const total = subtotal + (isDelivery ? deliveryPrice : 0);
             if (Number.isFinite(total)) checkout.querySelector('[data-checkout-total]').textContent = formatter.format(total);
         };
-        delivery.addEventListener('change', updateDelivery);
-        updateDelivery();
+        if (delivery) {
+            delivery.addEventListener('change', updateDelivery);
+            updateDelivery();
+        }
     }
 
     document.querySelectorAll('.store-product-image img, .store-detail-image img, .store-line-item > img').forEach(img => {
@@ -58,6 +60,23 @@
         img.addEventListener('error', usePlaceholder, {once: true});
         if (img.complete && img.naturalWidth === 0) usePlaceholder();
     });
+
+    const pixCopy = document.querySelector('[data-pix-copy]');
+    const pixCode = document.querySelector('[data-pix-code]');
+    const pixStatus = document.querySelector('[data-pix-copy-status]');
+    if (pixCopy && pixCode && pixStatus && navigator.clipboard?.writeText) {
+        pixCopy.hidden = false;
+        pixCopy.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(pixCode.value);
+                pixStatus.textContent = 'Código copiado. Cole no aplicativo do seu banco.';
+            } catch {
+                pixCode.focus();
+                pixCode.select();
+                pixStatus.textContent = 'Não foi possível copiar automaticamente. Copie o texto selecionado e cole no seu banco.';
+            }
+        });
+    }
 
     const count = document.getElementById('cart-count');
     if (count && document.body.dataset.authenticated === 'true') {

@@ -1,0 +1,24 @@
+{{if not .IsPickupAvailable}}
+<div class="ui-setup-notice">
+    <strong>Retirada indisponível</strong>
+    <p>Informe o endereço, a cidade e a UF da loja para oferecer retirada. <a href="/config/address">Configurar endereço</a>.</p>
+</div>
+{{end}}
+{{if not (or .DeliveryIsActive .IsPickupAvailable)}}
+<div class="ui-setup-notice" role="alert">
+    <strong>Novos pedidos estão bloqueados</strong>
+    <p>A loja precisa oferecer entrega ou ter um endereço de retirada válido. <a href="/config/delivery">Configurar entrega</a>.</p>
+</div>
+{{end}}
+{{if not (or .PaymentCashIsActive .IsPixAvailable)}}
+<div class="ui-setup-notice" role="alert">
+    <strong>Pagamentos desativados</strong>
+    <p>Ative uma forma de pagamento para receber novos pedidos. <a href="/config/payment">Configurar pagamento</a>.</p>
+</div>
+{{end}}
+{{if and .PaymentPixIsActive (not .IsPixAvailable)}}
+<div class="ui-setup-notice" role="alert">
+    <strong>Pix indisponível</strong>
+    <p>Revise a chave, o tipo de chave, o nome do recebedor e a cidade da loja. <a href="/config/pix">Configurar Pix</a>.</p>
+</div>
+{{end}}

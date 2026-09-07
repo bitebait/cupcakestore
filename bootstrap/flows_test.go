@@ -42,6 +42,11 @@ func TestStoreFlowRegistrationLoginCheckoutAndCancellation(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = sqlDB.Close() })
 	database.DB = db
+	if err := db.Model(&models.StoreConfig{}).Where("id > 0").Updates(map[string]any{
+		"physical_store_address": "Rua da Loja, 123", "physical_store_city": "São Paulo", "physical_store_state": "SP",
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
 	session.SetupSession()
 	app := createFiberApp()
 	registerMiddlewares(app)
@@ -135,8 +140,8 @@ func TestStoreFlowRegistrationLoginCheckoutAndCancellation(t *testing.T) {
 		t.Fatalf("GET created order: %d %v", count, err)
 	}
 	request("GET", "/cart", nil, 200)
-	request("POST", "/orders/checkout/"+cartID, nil, 200)
-	request("POST", "/orders/payment/"+cartID, url.Values{"paymentMethod": {"Dinheiro"}, "isDelivery": {"0"}, "Total": {"0.01"}, "ProfileID": {"999"}, "Status": {"Entregue"}}, 303)
+	checkoutBody := request("POST", "/orders/checkout/"+cartID, nil, 200)
+	request("POST", "/orders/payment/"+cartID, url.Values{"paymentMethod": {"Dinheiro"}, "isDelivery": {"0"}, "storeVersion": {checkoutVersion(t, checkoutBody)}, "Total": {"0.01"}, "ProfileID": {"999"}, "Status": {"Entregue"}}, 303)
 	var order models.Order
 	if err := db.Where("shopping_cart_id = ?", cart.ID).First(&order).Error; err != nil {
 		t.Fatal(err)
@@ -156,7 +161,71 @@ func TestStoreFlowRegistrationLoginCheckoutAndCancellation(t *testing.T) {
 	if product.CurrentStock != 5 {
 		t.Fatalf("stock after cancellation = %d", product.CurrentStock)
 	}
+	// A Pix order stays local and requires a separate, authorized bank confirmation.
+	if err := db.Model(&models.StoreConfig{}).Where("id > 0").UpdateColumns(map[string]any{
+		"payment_pix_is_active": true, "pix_key": "pix@example.com", "pix_key_type": "email", "pix_receiver_name": "Loja Teste", "delivery_price": 3,
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
+	request("GET", "/cart", nil, 200)
+	request("POST", "/cart", url.Values{"id": {productID}, "quantity": {"1"}}, 302)
+	var pixCart models.ShoppingCart
+	if err := db.Where("profile_id = ? AND order_id IS NULL", profile.ID).First(&pixCart).Error; err != nil {
+		t.Fatal(err)
+	}
+	pixCartID := strconv.Itoa(int(pixCart.ID))
+	pixCheckoutBody := request("POST", "/orders/checkout/"+pixCartID, nil, 200)
+	request("POST", "/orders/payment/"+pixCartID, url.Values{"paymentMethod": {"Pix"}, "isDelivery": {"1"}, "storeVersion": {checkoutVersion(t, pixCheckoutBody)}}, 303)
+	var pixOrder models.Order
+	if err := db.Where("shopping_cart_id = ?", pixCart.ID).First(&pixOrder).Error; err != nil {
+		t.Fatal(err)
+	}
+	if pixOrder.Status != models.AwaitingPaymentStatus || pixOrder.PixURL != "" || !strings.HasPrefix(pixOrder.PixString, "000201") || pixOrder.Total != 15.5 {
+		t.Fatalf("invalid local Pix order: %+v", pixOrder)
+	}
+	pixOrderPath := "/orders/order/" + strconv.Itoa(int(pixOrder.ID))
+	page := request("GET", pixOrderPath, nil, 200)
+	if !strings.Contains(page, "data:image/png;base64,") || strings.Contains(page, "https://pix.ae") {
+		t.Fatal("Pix payment is not rendered locally")
+	}
+	request("POST", pixOrderPath+"/confirm-payment", url.Values{"payment_received": {"on"}}, 403)
+	if err := db.Model(&models.User{}).Where("id = ?", user.ID).Update("is_staff", true).Error; err != nil {
+		t.Fatal(err)
+	}
+	request("GET", pixOrderPath, nil, 200)
+	request("POST", pixOrderPath+"/confirm-payment", nil, 303)
+	if err := db.First(&pixOrder, pixOrder.ID).Error; err != nil || pixOrder.PaymentConfirmedAt != nil {
+		t.Fatalf("confirmation did not require bank acknowledgement: %v", err)
+	}
+	if err := db.Model(&models.StoreConfig{}).Where("id > 0").UpdateColumns(map[string]any{"delivery_price": 99, "delivery_is_active": false}).Error; err != nil {
+		t.Fatal(err)
+	}
+	request("POST", pixOrderPath+"/confirm-payment", url.Values{"payment_received": {"on"}}, 303)
+	request("POST", pixOrderPath+"/confirm-payment", url.Values{"payment_received": {"on"}}, 303)
+	request("POST", pixOrderPath, url.Values{"status": {string(models.ProcessingStatus)}}, 302)
+	if err := db.First(&pixOrder, pixOrder.ID).Error; err != nil {
+		t.Fatal(err)
+	}
+	if pixOrder.Status != models.ProcessingStatus || pixOrder.Total != 15.5 || pixOrder.DeliveryPrice != 3 || pixOrder.PaymentConfirmedAt == nil || pixOrder.PaymentConfirmedByID == nil || *pixOrder.PaymentConfirmedByID != profile.ID {
+		t.Fatalf("confirmation changed terms or lost audit: %+v", pixOrder)
+	}
+	if err := db.Model(&models.User{}).Where("id = ?", user.ID).Update("is_staff", false).Error; err != nil {
+		t.Fatal(err)
+	}
+	request("POST", "/orders/cancel/"+strconv.Itoa(int(pixOrder.ID)), nil, 302)
+	if err := db.First(&pixOrder, pixOrder.ID).Error; err != nil || pixOrder.Status != models.ProcessingStatus {
+		t.Fatalf("customer cancelled a confirmed Pix: %v", err)
+	}
 	request("GET", "/auth/logout", nil, 405)
 	request("POST", "/auth/logout", nil, 302)
 	request("GET", "/cart", nil, 302)
+}
+
+func checkoutVersion(t *testing.T, body string) string {
+	t.Helper()
+	match := regexp.MustCompile(`name="storeVersion"[^>]*value="([^"]+)"`).FindStringSubmatch(body)
+	if len(match) != 2 {
+		t.Fatal("checkout omitted store configuration version")
+	}
+	return match[1]
 }

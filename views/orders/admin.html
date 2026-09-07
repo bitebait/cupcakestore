@@ -25,7 +25,7 @@
                         <td>{{.DeliveryDetail.UserFirstName}} {{.DeliveryDetail.UserLastName}}</td>
                         <td><span class="badge {{if eq .Status "Cancelado"}}badge-secondary{{else if eq .Status "Entregue"}}badge-success{{else}}badge-primary{{end}}">{{template "snippets/order-status" .}}</span></td>
                         <td class="text-nowrap">{{money .Total}}</td>
-                        <td>{{.PaymentMethod}}<br><small class="text-muted">{{if .IsDelivery}}Entrega no endereço{{else}}Retirada na loja{{end}}</small></td>
+                        <td>{{if eq .Status "Em Aberto"}}A escolher{{else}}{{.PaymentMethod}}{{end}}<br><small class="text-muted">{{if eq .Status "Em Aberto"}}A definir{{else if .IsDelivery}}Entrega no endereço{{else}}Retirada na loja{{end}}</small></td>
                         <td><a href="/orders/order/{{.ID}}" class="btn btn-outline-primary btn-sm" aria-label="Ver pedido {{.ID}}">Ver pedido</a></td>
                     </tr>
                     {{else}}

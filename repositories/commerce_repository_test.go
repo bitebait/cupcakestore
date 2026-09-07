@@ -30,7 +30,7 @@ func commerceDB(t *testing.T) (*gorm.DB, models.Profile, models.Product) {
 	if err := db.Session(&gorm.Session{SkipHooks: true}).Create(&user).Error; err != nil {
 		t.Fatal(err)
 	}
-	profile := models.Profile{UserID: user.ID, FirstName: "Cliente", Address: "Rua original"}
+	profile := models.Profile{UserID: user.ID, FirstName: "Cliente", LastName: "Teste", PhoneNumber: "11999999999", Address: "Rua original", City: "São Paulo", State: "SP", PostalCode: "01001000"}
 	if err := db.Create(&profile).Error; err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func commerceDB(t *testing.T) (*gorm.DB, models.Profile, models.Product) {
 	if err := db.Create(&stock).Error; err != nil {
 		t.Fatal(err)
 	}
-	store := models.StoreConfig{DeliveryPrice: 2.50, DeliveryIsActive: true, PixKeyType: models.PixTypeEmail}
+	store := models.StoreConfig{DeliveryPrice: 2.50, DeliveryIsActive: true, PixKeyType: models.PixTypeEmail, PhysicalStoreAddress: "Rua da Loja, 12", PhysicalStoreCity: "São Paulo", PhysicalStoreState: "SP"}
 	if err := db.Create(&store).Error; err != nil {
 		t.Fatal(err)
 	}
@@ -215,18 +215,23 @@ func TestOrderUpdatePreservesPriceAndDeliverySnapshot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	order.PaymentMethod = models.CashPaymentMethod
 	order.Total = 0.01
 	order.ShoppingCart.Total = 0.01
 	order.DeliveryPrice = 0
 	order.Status = models.ProcessingStatus
-	if err := repo.UpdatePayment(&order); err == nil {
+	if err := repo.UpdatePayment(&order, paymentConfigVersion(t, db)); err == nil {
 		t.Fatal("accepted a manipulated order total")
 	}
 	order, err = repo.FindById(order.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
-	order.Status = models.ProcessingStatus
+	order.Status, order.PaymentMethod = models.ProcessingStatus, models.CashPaymentMethod
+	if err := repo.UpdatePayment(&order, paymentConfigVersion(t, db)); err != nil {
+		t.Fatal(err)
+	}
+	order.Status = models.DeliveredStatusAwaiting
 	if err := repo.Update(&order); err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +258,7 @@ func TestPaymentCanChoosePickup(t *testing.T) {
 	order.Total = 5.25
 	order.Status = models.ProcessingStatus
 	order.PaymentMethod = models.CashPaymentMethod
-	if err := repo.UpdatePayment(&order); err != nil {
+	if err := repo.UpdatePayment(&order, paymentConfigVersion(t, db)); err != nil {
 		t.Fatal(err)
 	}
 	if order.IsDelivery || order.DeliveryPrice != 0 || order.Total != 5.25 {
@@ -487,7 +492,7 @@ func TestStaleOrderStatusUpdateCannotOverwritePayment(t *testing.T) {
 	stale := order
 	order.PaymentMethod = models.CashPaymentMethod
 	order.Status = models.ProcessingStatus
-	if err := repo.UpdatePayment(&order); err != nil {
+	if err := repo.UpdatePayment(&order, paymentConfigVersion(t, db)); err != nil {
 		t.Fatal(err)
 	}
 	stale.Status = models.DeliveredStatusAwaiting
@@ -501,4 +506,13 @@ func TestStaleOrderStatusUpdateCannotOverwritePayment(t *testing.T) {
 	if persisted.PaymentMethod != models.CashPaymentMethod || persisted.Status != models.ProcessingStatus {
 		t.Fatal("stale update overwrote payment")
 	}
+}
+
+func paymentConfigVersion(t *testing.T, db *gorm.DB) time.Time {
+	t.Helper()
+	var config models.StoreConfig
+	if err := db.First(&config).Error; err != nil {
+		t.Fatal(err)
+	}
+	return config.UpdatedAt
 }

@@ -11,7 +11,7 @@ import (
 // Pix is the only external destination allowed after a form submission.
 func SecurityHeaders() fiber.Handler {
 	headers := helmet.New(helmet.Config{
-		ContentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self' https://pix.ae",
+		ContentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
 		XFrameOptions:         "DENY",
 		ReferrerPolicy:        "no-referrer",
 		PermissionPolicy:      "camera=(), microphone=(), geolocation=()",
