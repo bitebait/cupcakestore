@@ -2,9 +2,10 @@ package repositories
 
 import (
 	"errors"
+
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type ShoppingCartRepository interface {
@@ -25,7 +26,7 @@ func NewShoppingCartRepository(database *gorm.DB) ShoppingCartRepository {
 
 func (r *shoppingCartRepository) FindAll(filter *models.ShoppingCartFilter) []models.ShoppingCart {
 	if filter.ShoppingCart.ProfileID <= 0 || filter.Pagination.Page <= 0 || filter.Pagination.Limit <= 0 {
-		log.Error("ShoppingCartRepository FindAll: invalid filter params")
+		slog.Error("ShoppingCartRepository FindAll: invalid filter params")
 		return nil
 	}
 
@@ -39,14 +40,14 @@ func (r *shoppingCartRepository) FindAll(filter *models.ShoppingCartFilter) []mo
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
-		log.Errorf("ShoppingCartRepository FindAll: %s", err.Error())
+		slog.Error("ShoppingCartRepository FindAll", "error", err)
 		return nil
 	}
 	filter.Pagination.Total = total
 
 	var carts []models.ShoppingCart
 	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Find(&carts).Error; err != nil {
-		log.Errorf("ShoppingCartRepository FindAll: %s", err.Error())
+		slog.Error("ShoppingCartRepository FindAll", "error", err)
 		return nil
 	}
 
@@ -61,38 +62,41 @@ func (r *shoppingCartRepository) FindOrCreateById(id uint) (models.ShoppingCart,
 		Where("id = ?", id).
 		First(&cart).Error
 
-	if err == nil {
-		return cart, nil
-	}
-
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Errorf("ShoppingCartRepository FindOrCreateById: %s", err.Error())
-		return cart, err
-	}
-
-	cart.ID = id
-	if err = r.db.Create(&cart).Error; err != nil {
-		log.Errorf("ShoppingCartRepository FindOrCreateById: failed to create new cart: %s", err.Error())
-		return cart, err
-	}
-
-	return cart, nil
+	return cart, err
 }
 
-func (r *shoppingCartRepository) FindOrCreateByUserId(userId uint) (models.ShoppingCart, error) {
+func (r *shoppingCartRepository) FindOrCreateByUserId(userID uint) (models.ShoppingCart, error) {
 	var cart models.ShoppingCart
-	cart.ProfileID = userId
-
-	err := r.db.
-		Preload("Profile").
-		Preload("Items.Product").
-		Where("profile_id = ? AND order_id IS NULL", userId).
-		FirstOrCreate(&cart).Error
-
-	if err != nil {
-		log.Errorf("ShoppingCartRepository FindOrCreateByUserId: %s", err.Error())
-		return models.ShoppingCart{}, err
+	if userID == 0 {
+		return cart, gorm.ErrRecordNotFound
 	}
-
-	return cart, nil
+	find := func(tx *gorm.DB) error {
+		return tx.Preload("Profile").Preload("Items.Product").
+			Where("profile_id = ? AND order_id IS NULL", userID).First(&cart).Error
+	}
+	if err := find(r.db); err == nil {
+		return cart, nil
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return cart, err
+	}
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		// Lock the owner before the second lookup so concurrent requests create
+		// only one open cart. This works with SQLite and PostgreSQL.
+		result := tx.Model(&models.Profile{}).Where("id = ?", userID).
+			UpdateColumn("updated_at", gorm.Expr("updated_at"))
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected != 1 {
+			return gorm.ErrRecordNotFound
+		}
+		if err := find(tx); err == nil {
+			return nil
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		cart = models.ShoppingCart{ProfileID: userID}
+		return tx.Create(&cart).Error
+	})
+	return cart, err
 }

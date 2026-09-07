@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type StockRepository interface {
@@ -24,7 +24,7 @@ func NewStockRepository(database *gorm.DB) StockRepository {
 
 func (r *stockRepository) Create(stock *models.Stock) error {
 	if err := r.db.Create(stock).Error; err != nil {
-		log.Errorf("StockRepository Create: %s", err.Error())
+		slog.Error("StockRepository Create", "error", err)
 		return err
 	}
 
@@ -33,10 +33,10 @@ func (r *stockRepository) Create(stock *models.Stock) error {
 
 func (r *stockRepository) SumProductStockQuantity(productID uint) (int, error) {
 	var totalQuantity int64
-	err := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("SUM(quantity)").Scan(&totalQuantity).Error
+	err := r.db.Model(&models.Stock{}).Where("product_id = ?", productID).Select("COALESCE(SUM(quantity), 0)").Scan(&totalQuantity).Error
 
 	if err != nil {
-		log.Errorf("StockRepository SumProductStockQuantity: %s", err.Error())
+		slog.Error("StockRepository SumProductStockQuantity", "error", err)
 	}
 
 	return int(totalQuantity), err

@@ -1,91 +1,68 @@
-<!-- Cabeçalho do conteúdo (cabeçalho da página) -->
-<div class="content-header">
-    <div class="container">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Vitrine da Loja</h1>
-            </div><!-- /.col -->
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item">
-                        <a href="/">Home</a>
-                    </li>
-                    <li class="breadcrumb-item active">Vitrine da Loja</li>
-                </ol>
-            </div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
-
-<!-- Conteúdo principal -->
-<div class="content">
-    <div class="container">
-        <div class="row row-eq-height">
-            {{ if .Object.Products}}
-            <input type="hidden" id="csrf" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
-            {{range .Object.Products}}
-            <div class="col-md-3">
-                <div class="card card-produto  text-center">
-                    <img alt="{{.Name}}" class="card-img-top" src="{{.Image}}">
-                    <div class="card-body d-flex flex-column">
-                        <a class="card-title font-weight-bold text-dark" href="/products/details/{{.ID}}">
-                            <h5>{{abbrev 40 .Name}}</h5></a>
-                        <a class="link-muted" href="/products/details/{{.ID}}"><u>Ler descrição</u></a>
-                    </div>
-                    <div class="card-footer">
-                        <span class="card-text font-weight-bold" s
-                              style="font-size: 24px;">R$ {{ printf "%.2f" .Price}}<small
-                                class="text-muted">/uni</small></span>
-                        <div class="mt-3">
-                            <div class="input-group mb-3">
-                                <button class="btn btn-outline-secondary" id="{{.ID}}-decrement"
-                                        onclick="decrementQuantity('{{.ID}}')"
-                                        type="button">-
-                                </button>
-                                <input aria-describedby="{{.ID}}-decrement {{.ID}}-increment"
-                                       aria-label="Example text with button addon" class="form-control text-center"
-                                       id="{{.ID}}-quantity" inputmode="numeric" min="1" pattern="[0-9]*"
-                                       type="number"
-                                       value="1">
-                                <button class="btn btn-outline-secondary" id="{{.ID}}-increment"
-                                        onclick="incrementQuantity('{{.ID}}')"
-                                        type="button">+
-                                </button>
-                            </div>
-                        </div>
-                        <a class="adicionar-ao-carrinho btn btn-outline-primary w-100" data-id="{{.ID}}" href="#">
-                            Adicionar ao carrinho</a>
-                    </div>
-                </div>
-            </div>
-            {{end}}
-            {{end}}
+<section class="store-hero">
+    <div class="store-container store-hero-inner">
+        <div class="store-hero-copy">
+            <p class="store-eyebrow">Cupcake Store · A nossa vitrine</p>
+            <h1>Pequenos doces.<br><em>Grandes momentos.</em></h1>
+            <p>Encontre seu sabor favorito e monte uma seleção para deixar o dia mais doce.</p>
+            <a href="#catalogo" class="store-button store-button-primary">Explorar os sabores <span aria-hidden="true">↓</span></a>
         </div>
-        {{ if not .Object.Products}}
-        <div class="row">
-            <div class="col-12 text-center">
-                <p>Nenhum produto disponível no momento.</p>
-                {{if .Profile.User.IsStaff}}
-                <p>
-                    <a href="/products/create">
-                        <button class="btn btn-sm btn-primary">
-                            <i class="fa fa-plus"></i> Cadastrar novo produto
-                        </button>
-                    </a> ou
-                    <a href="/stock/create">
-                        <button class="btn btn-sm btn-success">
-                            <i class="fa fa-plus"></i> Adicionar ao estoque
-                        </button>
-                    </a>
-                </p>
-                {{ end }}
+        <div class="store-hero-art" aria-hidden="true">
+            <span class="store-hero-orbit"></span>
+            <svg viewBox="0 0 260 280" fill="none">
+                <ellipse cx="132" cy="250" rx="87" ry="12" fill="#35241f" opacity=".08"/>
+                <path d="m63 155 15 80q54 20 108 0l15-80" fill="#b87850"/>
+                <path d="m84 167 10 65m20-64 5 70m20-70-2 70m28-70-9 65m29-65-14 62" stroke="#d49b70" stroke-width="9" stroke-linecap="round"/>
+                <path d="M64 163c-28-9-23-42 0-45-18-19-2-44 23-44-5-29 26-40 48-27 30-22 56 7 47 29 31 2 44 32 27 50 26 28 3 49-22 43-22 14-42-1-58 0-31 11-42-8-65-6Z" fill="#f0c6c7"/>
+                <path d="M83 119c17-19 39 11 57-1m-39-42c10 13 24 14 36 7m35 40c-9 14-18 17-33 14" stroke="#d3949d" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="135" cy="38" r="16" fill="#873e56"/>
+                <path d="M135 23q1-16 14-20" stroke="#6d7952" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+            <span class="store-hero-caption">Escolha. Combine. Aproveite.</span>
+        </div>
+    </div>
+</section>
+<section class="store-container store-catalog" id="catalogo" aria-labelledby="catalog-title">
+    <div class="store-section-heading">
+        <div>
+            <p class="store-eyebrow">Escolha o seu favorito</p>
+            <h2 id="catalog-title">Um sabor para cada vontade.</h2>
+        </div>
+        <form action="/store" method="get" class="store-search" role="search">
+            <label class="store-sr-only" for="catalog-search">Buscar cupcakes</label>
+            <input type="search" name="q" id="catalog-search" placeholder="Qual sabor você procura?" value="{{.Object.Filter.Product.Name}}">
+            <button type="submit" aria-label="Buscar cupcakes"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+        </form>
+    </div>
+    {{if .Object.Filter.Product.Name}}
+    <p class="store-search-result">Resultados para <strong>“{{.Object.Filter.Product.Name}}”</strong> <a href="/store">Limpar busca</a></p>
+    {{end}}
+    <div class="store-product-grid">
+        {{range .Object.Products}}
+        <article class="store-product-card">
+            <a href="/products/details/{{.ID}}" class="store-product-image" tabindex="-1" aria-hidden="true">
+                <img src="{{if .Image}}{{.Image}}{{else}}/images/cupcake-placeholder.svg{{end}}" alt="" loading="lazy" width="400" height="400">
+            </a>
+            <div class="store-product-body">
+                <div class="store-product-heading">
+                    <h3><a href="/products/details/{{.ID}}">{{.Name}}</a></h3>
+                    <p class="store-price">{{money .Price}}<small>/ unidade</small></p>
+                </div>
+                <p class="store-product-description">{{.Description}}</p>
+                <a href="/products/details/{{.ID}}" class="store-details-link">Ver ingredientes e detalhes <span aria-hidden="true">↗</span></a>
+                {{template "snippets/cart" (dict "Product" . "CSRFToken" $.CSRFToken "Profile" $.Profile)}}
             </div>
+        </article>
+        {{else}}
+        <div class="store-empty">
+            <span class="store-empty-symbol" aria-hidden="true">✳</span>
+            <h3>{{if .Object.Filter.Product.Name}}Não encontramos esse sabor.{{else}}A vitrine está em pausa.{{end}}</h3>
+            <p>{{if .Object.Filter.Product.Name}}Tente outro nome ou volte para conhecer todos os produtos.{{else}}Nenhum produto disponível no momento. Volte em breve para conferir.{{end}}</p>
+            {{if .Object.Filter.Product.Name}}<a href="/store" class="store-button store-button-secondary">Ver toda a vitrine</a>{{end}}
+            {{if and .Profile .Profile.User.IsStaff}}
+            <div class="store-actions"><a href="/products/create" class="store-button store-button-secondary">Cadastrar produto</a><a href="/stock/create" class="store-button store-button-secondary">Adicionar ao estoque</a></div>
+            {{end}}
         </div>
         {{end}}
-        <div class="mb-5">{{template "snippets/pagination" .Object.Filter.Pagination}}</div>
-
-        <!-- /.row -->
-    </div><!-- /.container-fluid -->
-</div>
-{{template "snippets/cart"}}
+    </div>
+    <div class="store-pagination">{{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" .Object.Filter.Product.Name)}}</div>
+</section>

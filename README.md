@@ -25,15 +25,43 @@ Crie um novo arquivo .env com base no .env.example e atualize suas configuraçõ
 cp .env.example .env 
 ~~~
 
-Atualize os módulos:
+Instale as dependências nas versões fixadas no projeto:
 ~~~go
-go mod tidy
+go mod download
 ~~~
 
 Rode o projeto:
 ~~~go
 go run .
 ~~~
+
+### Configuração e validação
+
+Use **Go 1.26 ou superior**, em uma versão estável com os patches atuais, além de um compilador C (CGO) para SQLite. Execute os comandos na raiz do repositório; templates e arquivos estáticos são carregados do disco, sem build frontend.
+
+O arquivo `.env` é opcional. Variáveis já definidas no ambiente têm precedência. O padrão de desenvolvimento usa SQLite e `http://localhost:8080`.
+
+Não há senha administrativa padrão. Para criar o primeiro administrador, defina `ADMIN_EMAIL` e `ADMIN_PASSWORD` (12 a 72 bytes) antes de iniciar. Uma conta existente não é promovida nem tem a senha sobrescrita pelo seed. Após a criação, remova essas variáveis do ambiente. Em bancos antigos, revise as contas criadas com a antiga senha pública.
+
+O Pix começa desativado: configure a chave e habilite a forma de pagamento no painel. O pagamento em dinheiro permite testar a compra sem acessar um provedor externo.
+
+```sh
+go build ./...
+go test ./...
+go test -race ./...
+go vet ./...
+go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+```
+
+Os testes usam bancos temporários e servidores HTTP locais. Há cobertura de autorização, CSRF, cadastro, carrinho, checkout, concorrência no estoque, cancelamento e renderização de templates. A CI executa build, testes com detector de corrida, vet, verificação de formatação e `govulncheck`.
+
+O backend usa **Fiber 3.5**, com validação integrada ao binding, sessões por middleware, renovação de sessão/CSRF no login e APIs atuais de contexto, redirecionamento e arquivos estáticos. Sessões expiram após uma hora de inatividade ou 24 horas no total; permanecem em memória e são encerradas ao reiniciar.
+
+Consulte a [auditoria e plano de evolução](docs/AUDIT.md) para decisões de arquitetura, compatibilidade de dados e pendências conhecidas.
+
+### Frontend
+
+A loja, o checkout, a autenticação e o painel compartilham uma interface responsiva. Formulários funcionam em HTML e os comportamentos ficam em três arquivos JavaScript próprios, sem jQuery ou build frontend. Veja o [guia de manutenção](docs/FRONTEND.md) e as [capturas atuais](docs/screenshots/).
 
 ### Informações Adicionais
 
@@ -58,7 +86,7 @@ A estrutura do projeto é organizada da seguinte forma:
 - `routers`: *Configuração das rotas da aplicação.*
 - `services`: *Serviços oferecidos pela aplicação.*
 - `session`: *Gerenciamento de sessões de usuário.*
-- `utils`: *Utilitários diversos.*
+- `helpers`: *Utilitários compartilhados.*
 - `views`: *Templates e arquivos relacionados à visualização da aplicação.*
 - `web`: *Recursos web, como favicons, imagens, assets, etc.*
 
@@ -78,7 +106,7 @@ Para mais informações, consulte a [documentação](https://github.com/bitebait
 ## Imagens
 
 - **Loja:**
-  ![Loja](https://github.com/bitebait/cupcakestore/blob/main/docs/store.png)
+  ![Loja](docs/screenshots/store-desktop.png)
 
 - **Painel de Admin:**
-  ![Painel de Admin](https://github.com/bitebait/cupcakestore/blob/main/docs/dashboard.png)
+  ![Painel de Admin](docs/screenshots/admin-desktop.png)

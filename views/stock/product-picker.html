@@ -1,0 +1,23 @@
+<div class="form-group">
+    <label for="productName">Buscar produto</label>
+    <input type="search" class="form-control" id="productName" data-product-search
+           placeholder="Digite pelo menos 2 letras do nome" autocomplete="off"
+           aria-describedby="productSearchStatus" aria-controls="productResults">
+    <p id="productSearchStatus" class="form-text text-muted" data-search-status role="status">Busque pelo nome e selecione um produto.</p>
+    <ul id="productResults" class="product-picker-results" data-product-results hidden></ul>
+    <input type="hidden" name="productID" data-selected-product>
+</div>
+<div class="row" data-product-details hidden>
+    <div class="col-md-8">
+        <h2 class="h5" data-product-field="Name"></h2>
+        <p class="text-muted" data-product-field="Description"></p>
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Preço</dt><dd class="col-sm-8" data-product-field="Price"></dd>
+            <dt class="col-sm-4">Em estoque</dt><dd class="col-sm-8" data-product-field="CurrentStock"></dd>
+            <dt class="col-sm-4">Ingredientes</dt><dd class="col-sm-8" data-product-field="Ingredients"></dd>
+        </dl>
+    </div>
+    <div class="col-md-4">
+        <img class="product-preview" data-product-image src="/images/600x400.svg" alt="Imagem do produto selecionado" width="240" height="160">
+    </div>
+</div>

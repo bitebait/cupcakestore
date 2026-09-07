@@ -1,72 +1,65 @@
 package models
 
 import (
-	"fmt"
-	"github.com/bitebait/cupcakestore/helpers"
-	"github.com/disintegration/imaging"
+	"crypto/rand"
+	"encoding/hex"
+	"errors"
 	"image"
+	"io"
 	"mime/multipart"
-	"strings"
+	"path/filepath"
+
+	"github.com/disintegration/imaging"
 )
 
-type ProductImage struct {
-	Path string
-}
+const maxImageBytes = 4 << 20
+const maxImagePixels = 16_000_000
 
-func (i *ProductImage) Save(imageFile *multipart.FileHeader) error {
-	imageName, err := i.generateRandomImageFileName(imageFile.Filename)
+type ProductImage struct{ Path string }
+
+func (i *ProductImage) Save(file *multipart.FileHeader) error {
+	thumbnail, err := i.cropImage(file)
 	if err != nil {
 		return err
 	}
-
-	croppedImage, err := i.cropImage(imageFile)
-	if err != nil {
+	// User filenames never determine the path or output format.
+	var random [16]byte
+	if _, err := rand.Read(random[:]); err != nil {
 		return err
 	}
-
-	err = i.saveCroppedImage(imageName, croppedImage)
-	if err != nil {
+	name := hex.EncodeToString(random[:]) + ".jpg"
+	if err := imaging.Save(thumbnail, filepath.Join("web", "images", name)); err != nil {
 		return err
 	}
-
+	i.Path = "/images/" + name
 	return nil
 }
 
-func (i *ProductImage) cropImage(imageFile *multipart.FileHeader) (image.Image, error) {
-	open, err := imageFile.Open()
+func (i *ProductImage) cropImage(file *multipart.FileHeader) (image.Image, error) {
+	if file == nil || file.Size <= 0 || file.Size > maxImageBytes {
+		return nil, errors.New("a imagem deve ter até 4 MB")
+	}
+	reader, err := file.Open()
 	if err != nil {
 		return nil, err
 	}
-	defer open.Close()
-
-	decoded, err := imaging.Decode(open)
+	defer reader.Close()
+	config, format, err := image.DecodeConfig(io.LimitReader(reader, maxImageBytes))
+	if err != nil {
+		return nil, errors.New("imagem inválida")
+	}
+	if format != "jpeg" && format != "png" && format != "gif" {
+		return nil, errors.New("use uma imagem JPEG, PNG ou GIF")
+	}
+	if config.Width <= 0 || config.Height <= 0 || int64(config.Width)*int64(config.Height) > maxImagePixels {
+		return nil, errors.New("a imagem deve ter até 16 milhões de pixels")
+	}
+	if _, err := reader.Seek(0, io.SeekStart); err != nil {
+		return nil, err
+	}
+	decoded, err := imaging.Decode(io.LimitReader(reader, maxImageBytes))
 	if err != nil {
 		return nil, err
 	}
-
-	croppedImage := imaging.Thumbnail(decoded, 400, 400, imaging.Lanczos)
-
-	return croppedImage, nil
-}
-
-func (i *ProductImage) saveCroppedImage(imageName string, thumbnail image.Image) error {
-	imagePath := fmt.Sprintf("./web/images/%s", imageName)
-
-	err := imaging.Save(thumbnail, imagePath)
-	if err != nil {
-		return err
-	}
-
-	i.Path = strings.ReplaceAll(imagePath, "./web/", "/")
-
-	return nil
-}
-
-func (i *ProductImage) generateRandomImageFileName(filename string) (string, error) {
-	rand := helpers.NewRandomizer()
-	randString, err := rand.GenerateString(22)
-	if err != nil {
-		return "", err
-	}
-	return randString + "." + strings.Split(filename, ".")[1], nil
+	return imaging.Thumbnail(decoded, 400, 400, imaging.Lanczos), nil
 }

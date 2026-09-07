@@ -6,7 +6,7 @@ import (
 	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type OrderRouter struct {
@@ -33,11 +33,12 @@ func NewOrderRouter() *OrderRouter {
 func (r *OrderRouter) InstallRouters(app *fiber.App) {
 	order := app.Group("/orders").Use(middlewares.LoginRequired())
 	order.Get("/checkout/:id", r.orderController.Checkout)
+	order.Post("/checkout/:id", r.orderController.Checkout)
 	order.Post("/payment/:id", r.orderController.Payment)
 	order.Get("/payment/:id", r.orderController.Payment)
 	order.Get("/cancel/:id", r.orderController.RenderCancel)
 	order.Post("/cancel/:id", r.orderController.Cancel)
 	order.Get("/", r.orderController.RenderAllOrders)
 	order.Get("/order/:id", r.orderController.RenderOrder)
-	order.Post("/order/:id", r.orderController.Update)
+	order.Post("/order/:id", middlewares.LoginAndStaffRequired(), r.orderController.Update)
 }

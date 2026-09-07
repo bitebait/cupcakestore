@@ -1,7 +1,10 @@
 package models
 
 import (
-	"github.com/go-playground/validator/v10"
+	"errors"
+	"math"
+	"strings"
+
 	"gorm.io/gorm"
 )
 
@@ -23,10 +26,10 @@ func NewProductFilter(query string, page, limit int) *ProductFilter {
 
 type Product struct {
 	gorm.Model
-	Name         string  `gorm:"not null,type:varchar(60)"`
-	Description  string  `gorm:"not null,type:varchar(200)"`
+	Name         string  `gorm:"not null;type:varchar(60)"`
+	Description  string  `gorm:"not null;type:varchar(200)"`
 	Price        float64 `gorm:"not null"`
-	Ingredients  string  `gorm:"not null,type:varchar(300)"`
+	Ingredients  string  `gorm:"not null;type:varchar(300)"`
 	Image        string
 	Thumbnail    string
 	CurrentStock int
@@ -34,20 +37,15 @@ type Product struct {
 }
 
 func (p *Product) Validate() error {
-	v := validator.New()
-	return v.Struct(p)
-}
-
-func (p *Product) BeforeCreate(tx *gorm.DB) error {
-	if err := p.Validate(); err != nil {
-		return err
+	if strings.TrimSpace(p.Name) == "" {
+		return errors.New("o nome do produto deve ser informado")
+	}
+	if p.Price <= 0 || math.IsNaN(p.Price) || math.IsInf(p.Price*100, 0) {
+		return errors.New("o preço do produto deve ser maior que zero")
 	}
 	return nil
 }
 
-func (p *Product) AfterDelete(tx *gorm.DB) (err error) {
-	if err = tx.Where("product_id = ?", p.ID).Delete(&Stock{}).Error; err != nil {
-		return err
-	}
-	return nil
+func (p *Product) BeforeSave(tx *gorm.DB) error {
+	return p.Validate()
 }

@@ -6,13 +6,13 @@ import (
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"strconv"
 )
 
 type ProfileController interface {
-	Update(ctx *fiber.Ctx) error
-	RenderProfile(ctx *fiber.Ctx) error
+	Update(ctx fiber.Ctx) error
+	RenderProfile(ctx fiber.Ctx) error
 }
 
 type profileController struct {
@@ -23,28 +23,32 @@ func NewProfileController(profileService services.ProfileService) ProfileControl
 	return &profileController{profileService: profileService}
 }
 
-func (c *profileController) RenderProfile(ctx *fiber.Ctx) error {
+func (c *profileController) RenderProfile(ctx fiber.Ctx) error {
 	profile, userSess, err := c.getAuthorizedProfileAndUser(ctx)
 	if err != nil {
 		messages.SetErrorMessage(ctx, "ocorreu um erro ao processar o perfil")
-		return ctx.Redirect("/")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/")
 	}
 
 	layout := selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID)
 	return ctx.Render("profile/user-profile", fiber.Map{"Object": profile}, layout)
 }
 
-func (c *profileController) Update(ctx *fiber.Ctx) error {
+func (c *profileController) Update(ctx fiber.Ctx) error {
 	profile, userSess, err := c.getAuthorizedProfileAndUser(ctx)
 	if err != nil {
 		messages.SetErrorMessage(ctx, "ocorreu um erro ao processar o perfil")
-		return ctx.Redirect("/")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/")
 	}
 
-	if err := ctx.BodyParser(&profile); err != nil {
-		messages.SetErrorMessage(ctx, "ocorreu um erro ao processar o perfil")
-		return ctx.Redirect("/")
-	}
+	// Only editable profile fields may cross the HTTP boundary.
+	profile.FirstName = ctx.FormValue("firstname")
+	profile.LastName = ctx.FormValue("lastname")
+	profile.Address = ctx.FormValue("address")
+	profile.City = ctx.FormValue("city")
+	profile.State = ctx.FormValue("state")
+	profile.PostalCode = ctx.FormValue("postalcode")
+	profile.PhoneNumber = ctx.FormValue("phonenumber")
 
 	if err = c.profileService.Update(&profile); err != nil {
 		layout := selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID)
@@ -53,10 +57,10 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 	}
 
 	messages.SetSuccessMessage(ctx, "perfil atualizado com sucesso")
-	return ctx.Redirect("/profile/" + strconv.Itoa(int(profile.ID)))
+	return ctx.Redirect().Status(fiber.StatusFound).To("/profile/" + strconv.Itoa(int(profile.UserID)))
 }
 
-func (c *profileController) getAuthorizedProfileAndUser(ctx *fiber.Ctx) (models.Profile, *models.Profile, error) {
+func (c *profileController) getAuthorizedProfileAndUser(ctx fiber.Ctx) (models.Profile, *models.Profile, error) {
 	profile, err := c.getProfile(ctx)
 	if err != nil {
 		return models.Profile{}, nil, err
@@ -74,7 +78,7 @@ func (c *profileController) getAuthorizedProfileAndUser(ctx *fiber.Ctx) (models.
 	return profile, userSess, nil
 }
 
-func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
+func (c *profileController) getProfile(ctx fiber.Ctx) (models.Profile, error) {
 	userID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return models.Profile{}, errors.New("usuário não autorizado, por favor, efetue o login e tente novamente")
@@ -82,9 +86,9 @@ func (c *profileController) getProfile(ctx *fiber.Ctx) (models.Profile, error) {
 	return c.profileService.FindByUserId(userID)
 }
 
-func (c *profileController) getUserSession(ctx *fiber.Ctx) (*models.Profile, error) {
-	userSess, ok := ctx.Locals("Profile").(*models.Profile)
-	if !ok || userSess == nil {
+func (c *profileController) getUserSession(ctx fiber.Ctx) (*models.Profile, error) {
+	userSess := fiber.Locals[*models.Profile](ctx, "Profile")
+	if userSess == nil {
 		return nil, errors.New("usuário não autorizado, por favor, efetue o login e tente novamente")
 	}
 	return userSess, nil

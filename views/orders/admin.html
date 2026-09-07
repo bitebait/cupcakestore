@@ -1,62 +1,40 @@
 <div class="content-header">
     <div class="container">
-        <h1 class="m-0 text-dark">Lista de Pedidos</h1>
+        <h1>Pedidos</h1>
+        <p class="text-muted">Acompanhe pagamentos, preparo e entrega.</p>
     </div>
 </div>
-
 <section class="content">
     <div class="container">
-        <div class="row">
-            <div class="col-12 mx-auto">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">Lista de Pedidos</h3>
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <div class="card-body table-responsive p-0">
-                            <table class="table table-hover text-nowrap">
-                                <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Status do Pedido</th>
-                                    <th>Cliente</th>
-                                    <th>Total</th>
-                                    <th>Metodo de Pagamento</th>
-                                    <th>Tipo de Entrega</th>
-                                    <th>Data do Pedido</th>
-                                    <th>Opções</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {{range .Object.Orders}}
-                                <tr>
-                                    <td><strong>{{.ID}}</strong></td>
-                                    <td>
-                                        <strong {{if eq .Status
-                                        "Cancelado"}}class="text-danger"{{end}}>{{.Status}}</strong>
-                                    </td>
-                                    <td>{{.DeliveryDetail.UserFirstName}} {{.DeliveryDetail.UserLastName}}</td>
-                                    <td>R$ {{ printf "%.2f" .Total}}</td>
-                                    <td>{{.PaymentMethod}}</td>
-                                    <td>{{if .IsDelivery}}Entrega no Endereço{{else}}Retirada na Loja{{end}}</td>
-                                    <td>{{.CreatedAt | date "02/01/2006 15:04h"}}</td>
-                                    <td>
-                                        <a href="/orders/order/{{.ID}}" class="mr-2"><u>Visualizar</u></a>
-                                        {{if and (eq .Status "Em Aberto") (eq .ProfileID $.Profile.ID)}}
-                                        <a href="/orders/checkout/{{.ShoppingCartID}}" class="text-info"><u>Ir Para
-                                            Checkout</u></a>
-                                        {{end}}
-                                    </td>
-                                </tr>
-                                {{end}}
-                                </tbody>
-                            </table>
-                        </div>
-                        {{template "snippets/pagination" .Object.Filter.Pagination}}
-                        <!-- /.card-body -->
-                    </div>
-                </div>
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <caption class="sr-only">Pedidos da loja</caption>
+                    <thead><tr>
+                        <th scope="col">Pedido</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Pagamento e entrega</th>
+                        <th scope="col">Ações</th>
+                    </tr></thead>
+                    <tbody>
+                    {{range .Object.Orders}}
+                    <tr>
+                        <td class="text-nowrap"><strong>#{{.ID}}</strong><br><small class="text-muted">{{.CreatedAt | date "02/01/2006 15:04"}}</small></td>
+                        <td>{{.DeliveryDetail.UserFirstName}} {{.DeliveryDetail.UserLastName}}</td>
+                        <td><span class="badge {{if eq .Status "Cancelado"}}badge-secondary{{else if eq .Status "Entregue"}}badge-success{{else}}badge-primary{{end}}">{{if and (not .IsDelivery) (eq .Status "Aguardando Envio")}}Pronto para retirada{{else}}{{.Status}}{{end}}</span></td>
+                        <td class="text-nowrap">{{money .Total}}</td>
+                        <td>{{.PaymentMethod}}<br><small class="text-muted">{{if .IsDelivery}}Entrega no endereço{{else}}Retirada na loja{{end}}</small></td>
+                        <td><a href="/orders/order/{{.ID}}" class="btn btn-outline-primary btn-sm" aria-label="Ver pedido {{.ID}}">Ver pedido</a></td>
+                    </tr>
+                    {{else}}
+                    <tr><td colspan="6" class="text-center text-muted py-5">Nenhum pedido recebido ainda.</td></tr>
+                    {{end}}
+                    </tbody>
+                </table>
             </div>
+            {{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" "")}}
         </div>
     </div>
 </section>

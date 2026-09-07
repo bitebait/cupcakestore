@@ -1,62 +1,20 @@
-<div class="content-wrapper">
-    <div class="content-header">
-        <div class="container">
-            <h1 class="m-0 text-dark">Detalhes do Produto</h1>
+<div class="store-container store-page">
+    <nav class="store-breadcrumb" aria-label="Você está em"><a href="/store">Vitrine</a><span aria-hidden="true">/</span><span>{{.Object.Name}}</span></nav>
+    <article class="store-product-detail">
+        <div class="store-detail-image"><img src="{{if .Object.Image}}{{.Object.Image}}{{else}}/images/cupcake-placeholder.svg{{end}}" alt="{{.Object.Name}}" width="600" height="600"></div>
+        <div class="store-detail-content">
+            <p class="store-eyebrow">Seu próximo doce momento</p>
+            <h1>{{.Object.Name}}</h1>
+            <p class="store-detail-description">{{.Object.Description}}</p>
+            <p class="store-price store-detail-price">{{money .Object.Price}}<small>/ unidade</small></p>
+            <div class="store-ingredients"><h2>O que tem por aqui</h2><p>{{.Object.Ingredients}}</p></div>
+            {{if gt .Object.CurrentStock 0}}
+            <p class="store-field-label">Quantos vão deixar o seu dia mais doce?</p>
+            {{template "snippets/cart" (dict "Product" .Object "CSRFToken" .CSRFToken "Profile" .Profile)}}
+            {{else}}
+            <p class="store-notice" role="status">Este produto está sem estoque no momento.</p>
+            {{end}}
+            <a href="/store" class="store-back-link">← Continuar explorando a vitrine</a>
         </div>
-    </div>
-
-    <section class="content">
-        <div class="container">
-
-            <!-- Default box -->
-            <div class="card card-solid">
-                <div class="card-body">
-                    <input type="hidden" id="csrf" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
-                    <div class="row row-eq-height">
-                        <div class="col-12 col-sm-6">
-                            <img src="{{.Object.Image}}"
-                                 style="max-height: 400px; max-width: 400px; display: block; margin-left: auto; margin-right: auto;"
-                                 class="product-image img-fluid" alt="Product Image">
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <h3 class="my-3">Informações do Produto</h3>
-                            <p style="font-size: 18px"><strong>Nome: </strong>{{.Object.Name}}</p>
-                            <p style="font-size: 18px"><strong>Descrição: </strong>{{.Object.Description}}</p>
-                            <p style="font-size: 18px"><strong>Ingredientes: </strong>{{.Object.Ingredients}}</p>
-                            <hr>
-                            <h4><strong>Preço:</strong> R$ {{ printf "%.2f" .Object.Price}}</h4>
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <div class="input-group mb-3">
-                                        <button class="btn btn-outline-secondary" type="button"
-                                                id="{{.Object.ID}}-decrement"
-                                                onclick="decrementQuantity('{{.Object.ID}}')">-
-                                        </button>
-                                        <input type="number" id="{{.Object.ID}}-quantity"
-                                               class="form-control text-center"
-                                               pattern="[0-9]*" inputmode="numeric" min="1" value="1"
-                                               aria-label="Example text with button addon"
-                                               aria-describedby="{{.Object.ID}}-decrement {{.Object.ID}}-increment">
-                                        <button class="btn btn-outline-secondary" type="button"
-                                                id="{{.Object.ID}}-increment"
-                                                onclick="incrementQuantity('{{.Object.ID}}')">+
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-md-5">
-                                    <a href="#" class="adicionar-ao-carrinho btn btn-primary" data-id="{{.Object.ID}}">Adicionar
-                                        ao Carrinho</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-        </div>
-    </section>
-
-    <!-- /.content -->
+    </article>
 </div>
-{{template "snippets/cart"}}

@@ -7,7 +7,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item">
-                        <a href="#">Home</a>
+                        <a href="/dashboard">Visão geral</a>
                     </li>
                     <li class="breadcrumb-item active">Usuários Registrados</li>
                 </ol>
@@ -15,7 +15,7 @@
         </div>
     </div>
 </div>
-<section class="content">
+<section class="content ui-form-page">
     <div class="container">
         <div class="row">
             <div class="col-12 mx-auto">
@@ -29,10 +29,10 @@
                                         <div class="input-group m-0">
                                             <input hidden="hidden" id="limit" name="limit"
                                                    type="text" value="{{.Object.Filter.Pagination.Limit}}">
-                                            <input class="form-control" id="q" name="q" onclick="this.value = '';"
+                                            <input class="form-control" id="q" name="q" aria-label="Pesquisar usuários por e-mail"
                                                    placeholder="Pesquisar Usuário" type="text">
                                             <div class="input-group-append">
-                                                <button class="btn btn-default" type="submit">
+                                                <button class="btn btn-default" type="submit" aria-label="Pesquisar usuários">
                                                     <i class="fas fa-search"></i>
                                                 </button>
                                             </div>
@@ -44,6 +44,7 @@
                     </div>
                     <div class="card-body table-responsive p-0">
                         <table class="table table-hover text-nowrap">
+                            <caption class="sr-only">Usuários cadastrados e opções de gerenciamento</caption>
                             <thead>
                             <tr>
                                 <th>#</th>
@@ -84,10 +85,10 @@
                                 </td>
                                 <td>
                                     {{if not .IsStaff}}
-                                    <a class="btn btn-sm btn-outline-primary mr-2" href="/users/user/{{.ID}}">
+                                    <a class="btn btn-sm btn-outline-primary mr-2" href="/users/user/{{.ID}}" aria-label="Editar usuário {{.Email}}">
                                         <i class="fas fa-pen"></i>
                                     </a>
-                                    <a class="btn btn-sm btn-outline-danger" href="/users/delete/{{.ID}}">
+                                    <a class="btn btn-sm btn-outline-danger" href="/users/delete/{{.ID}}" aria-label="Excluir usuário {{.Email}}">
                                         <i class="fa fa-trash"></i>
                                     </a>
                                     {{else}}
@@ -95,11 +96,13 @@
                                     {{end}}
                                 </td>
                             </tr>
+                            {{else}}
+                            <tr><td colspan="8" class="text-center py-5 text-muted">Nenhum usuário encontrado. Experimente outro e-mail na busca.</td></tr>
                             {{end}}
                             </tbody>
                         </table>
                     </div>
-                    {{template "snippets/pagination" .Object.Filter.Pagination}}
+                    {{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" .Object.Filter.User.Email)}}
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
@@ -107,4 +110,3 @@
         </div>
     </div>
 </section>
-{{template "snippets/table-filter" }}

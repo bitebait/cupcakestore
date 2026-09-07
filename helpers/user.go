@@ -17,9 +17,9 @@ func HashPassword(password string) (string, error) {
 }
 
 func ParseStringToID(s string) (uint, error) {
-	id, err := strconv.ParseUint(s, 10, 64)
+	id, err := strconv.ParseUint(s, 10, strconv.IntSize)
 
-	if err != nil {
+	if err != nil || id == 0 {
 		return 0, errors.New("ID inválido")
 	}
 

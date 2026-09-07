@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type StoreConfigRepository interface {
@@ -26,7 +26,7 @@ func (r *storeConfigRepository) GetStoreConfig() (models.StoreConfig, error) {
 	err := r.db.First(&storeConfig).Error
 
 	if err != nil {
-		log.Errorf("StoreConfigRepository GetStoreConfig: %s", err.Error())
+		slog.Error("StoreConfigRepository GetStoreConfig", "error", err)
 	}
 
 	return storeConfig, err
@@ -34,7 +34,7 @@ func (r *storeConfigRepository) GetStoreConfig() (models.StoreConfig, error) {
 
 func (r *storeConfigRepository) Update(storeConfig *models.StoreConfig) error {
 	if err := r.db.Save(storeConfig).Error; err != nil {
-		log.Errorf("StoreConfigRepository Update: %s", err.Error())
+		slog.Error("StoreConfigRepository Update", "error", err)
 		return err
 	}
 

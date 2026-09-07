@@ -5,7 +5,7 @@ import (
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type StoreRouter struct {

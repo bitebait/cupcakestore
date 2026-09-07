@@ -25,12 +25,12 @@
                         <h3 class="card-title">Gerenciar as Configurações de Entrega</h3>
                     </div>
                     <form method="post" action="/config">
-                        <input type="hidden" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
+                        <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="deliveryPrice">Valor da Taxa de Entrega (R$)</label>
                                 <input type="number" step="0.01" class="form-control" id="deliveryPrice"
-                                       name="deliveryPrice" placeholder="Valor da Taxa de Entrega" min="0.01"
+                                       name="deliveryPrice" placeholder="Valor da Taxa de Entrega" min="0"
                                        value="{{.Object.DeliveryPrice}}" required="required"/>
                             </div>
                             <div class="form-group">

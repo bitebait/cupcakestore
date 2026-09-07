@@ -1,176 +1,37 @@
 <div class="content-header">
     <div class="container">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Gerenciar Entrada/Saída de Estoque</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item">
-                        <a href="/stock">Estoque de Produtos</a>
-                    </li>
-                    <li class="breadcrumb-item active">Gerenciar Estoque</li>
-                </ol>
-            </div>
-        </div>
+        <a href="/stock" class="text-muted">← Estoque</a>
+        <h1 class="mt-2">Movimentar estoque</h1>
+        <p class="text-muted">Registre a entrada ou a saída de unidades de um produto.</p>
     </div>
 </div>
 <section class="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 mx-auto">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">Gerenciar Entrada/Saída de estoque</h3>
+    <div class="container" data-product-picker>
+        <form method="post" action="/stock/create" id="stockForm" class="card">
+            <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}">
+            <div class="card-body">
+                {{template "stock/product-picker" .}}
+                <hr>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="type">Tipo de movimentação</label>
+                        <select class="form-control" id="type" name="type" required>
+                            <option value="entrada">Entrada de estoque</option>
+                            <option value="saída">Saída de estoque</option>
+                        </select>
                     </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="productName">Nome do produto</label>
-                                    <input type="text" class="form-control" id="productName" name="productName"
-                                           placeholder="Nome do produto" required="required">
-                                </div>
-                                <form method="post" action="/stock/create" id="stockForm">
-                                    <input type="hidden" name="csrf" autocomplete="off"
-                                           value="{{ .csrfToken }}"/>
-                                    <div class="form-group">
-                                        <label for="type">Selecione Entra/Saída</label>
-                                        <select class="form-control" id="type" name="type">
-                                            <option value="entrada">Entrada</option>
-                                            <option value="saída">Saída</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="quantity">Quantidade</label>
-                                        <input type="number" class="form-control" id="quantity" name="quantity"
-                                               placeholder="Quantidade" pattern="[1-9]\d*" step="1" min="1"
-                                               required="required"/>
-                                        <input type="number" class="form-control" id="productID" name="productID"
-                                               required="required" value="" hidden="hidden">
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <a href="/stock" class="btn btn-default">
-                            <i class="fas fa-undo-alt"></i> Cancelar </a>
-                        <button type="button" onclick="document.getElementById('stockForm').submit();"
-                                class="btn btn-primary float-right">Adicionar
-                        </button>
+                    <div class="form-group col-md-6">
+                        <label for="quantity">Quantidade de unidades</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity"
+                               min="1" step="1" value="1" required disabled data-product-quantity>
                     </div>
                 </div>
             </div>
-            <div class="col-md-8 mx-auto">
-                <div class="card card-primary">
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="name">Nome do produto</label>
-                                    <p class="text-muted" id="name">Sem informações</p>
-                                </div>
-                                <div class="form-group">
-                                    <label for="description">Descrição</label>
-                                    <p class="text-muted" id="description">Sem informações</p>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ingredients">Ingredientes</label>
-                                    <p class="text-muted" id="ingredients">Sem informações</p>
-                                </div>
-                                <div class="form-group">
-                                    <label for="price">Preço</label>
-                                    <p class="text-muted" id="price">Sem informações</p>
-                                </div>
-                                <div class="form-group">
-                                    <label for="stock">Estoque</label>
-                                    <p class="text-muted" id="stock">Sem informações</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <div class="mt-2"
-                                         style="display: flex; justify-content: center; align-items: center;">
-                                        <img id="previewImage" src="/images/placeholder.png"
-                                             alt="Pré-visualização da imagem"
-                                             style="max-width: 100%;height: auto;max-height: 40vh;">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="card-footer d-flex justify-content-between flex-wrap">
+                <a href="/stock" class="btn btn-default">Cancelar</a>
+                <button type="submit" class="btn btn-primary" disabled data-product-submit>Registrar movimentação</button>
             </div>
-        </div>
+        </form>
+        <noscript><p>Ative o JavaScript para buscar e selecionar o produto.</p></noscript>
     </div>
 </section>
-<script>
-    $(document).ready(function () {
-        const $quantity = $('#quantity').prop('disabled', true);
-        const $productName = $('#productName');
-        const $name = $('#name');
-        const $price = $('#price');
-        const $currentStock = $('#stock');
-        const $description = $('#description');
-        const $ingredients = $('#ingredients');
-        const $previewImage = $('#previewImage');
-        const $productID = $('#productID');
-
-        const clearFields = () => {
-            $name.text('Sem informações');
-            $price.text('Sem informações');
-            $currentStock.text('Sem informações');
-            $description.text('Sem informações');
-            $ingredients.text('Sem informações');
-            $previewImage.attr('src', '/images/placeholder.png');
-            $quantity.prop('disabled', true);
-            $productID.val('');
-        };
-
-        const setFields = (item) => {
-            if (item && item.name) {
-                $name.text(item.name);
-                $price.text("R$ " + item.price);
-                $currentStock.text(item.currentStock);
-                $description.text(item.description);
-                $ingredients.text(item.ingredients);
-                $previewImage.attr('src', item.imageUrl);
-                $quantity.prop('disabled', false);
-                $productID.val(item.id);
-            } else {
-                clearFields();
-            }
-        };
-
-        const fetchData = (request, response) => {
-            $.getJSON('/products/json', {
-                q: request.term,
-                limit: 5
-            }, data => {
-                if (data.Products.length !== 0) {
-                    response(data.Products.map(item => ({
-                        label: item.Name,
-                        value: item.Name,
-                        id: item.ID,
-                        name: item.Name,
-                        description: item.Description,
-                        price: item.Price,
-                        currentStock: item.CurrentStock,
-                        ingredients: item.Ingredients,
-                        imageUrl: item.Image,
-                    })));
-                } else {
-                    clearFields();
-                }
-            });
-        };
-
-        $productName.autocomplete({
-            source: fetchData,
-            minLength: 2,
-            select: (event, ui) => setFields(ui.item),
-            change: (event, ui) => ui.item || clearFields()
-        });
-    });
-</script>

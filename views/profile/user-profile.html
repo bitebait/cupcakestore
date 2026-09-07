@@ -2,7 +2,8 @@
     <div class="container">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Detalhes do Perfil</h1>
+                <h1 class="m-0">{{if eq .Profile.UserID .Object.UserID}}Meu perfil{{else}}Dados do perfil{{end}}</h1>
+                <p class="ui-form-intro">Mantenha seus dados de contato e entrega atualizados.</p>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -12,46 +13,46 @@
                     </li>
                     {{else}}
                     <li class="breadcrumb-item">
-                        <a href="/">Home</a>
+                        <a href="/store">Loja</a>
                     </li>
                     {{end}}
-                    <li class="breadcrumb-item active">Detalhes do Perfil</li>
+                    <li class="breadcrumb-item active">Dados do perfil</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
-<section class="content">
+<section class="content ui-form-page">
     <div class="container">
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h3 class="card-title">Perfil do Usuário</h3>
+                        <h3 class="card-title">Dados do perfil</h3>
                         <a class="btn float-right" href="/users/user/{{.Object.UserID}}">
-                            <i class="fas fa-eye"></i> <u>Conta de Usuário</u>
+                            <i class="fas fa-eye"></i> E-mail e senha
                         </a>
                     </div>
                     <form action="/profile/update/{{.Object.UserID}}" method="post">
-                        <input type="hidden" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
+                        <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-12">
                                     <label for="mail">E-mail</label>
-                                    <input class="form-control" disabled id="mail" type="mail"
+                                    <input class="form-control" disabled id="mail" type="email"
                                            value="{{.Object.User.Email}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="firstname">Nome</label>
-                                    <input class="form-control" id="firstname" minlength="4" name="firstname"
+                                    <input class="form-control" id="firstname" name="firstname" maxlength="100" autocomplete="given-name"
                                            placeholder="Nome"
                                            type="text" value="{{.Object.FirstName}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="lastname">Sobrenome</label>
-                                    <input class="form-control" id="lastname" name="lastname" placeholder="Sobrenome"
+                                    <input class="form-control" id="lastname" name="lastname" maxlength="100" autocomplete="family-name" placeholder="Sobrenome"
                                            type="text"
                                            value="{{.Object.LastName}}">
                                 </div>
@@ -59,7 +60,7 @@
                             <div class="form-row">
                                 <div class="form-group col-12">
                                     <label for="address">Endereço</label>
-                                    <input class="form-control" id="address" minlength="4" name="address"
+                                    <input class="form-control" id="address" name="address" maxlength="200" autocomplete="street-address"
                                            placeholder="Endereço"
                                            type="text" value="{{.Object.Address}}">
                                 </div>
@@ -67,13 +68,13 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="phonenumber">Telefone</label>
-                                    <input class="form-control phone-number" id="phonenumber" name="phonenumber"
+                                    <input class="form-control phone-number" id="phonenumber" name="phonenumber" inputmode="tel" autocomplete="tel" maxlength="20"
                                            placeholder="Telefone"
-                                           type="text" value="{{.Object.PhoneNumber}}">
+                                           type="tel" value="{{.Object.PhoneNumber}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="postalcode">Código postal</label>
-                                    <input class="form-control postal-code" id="postalcode" name="postalcode"
+                                    <input class="form-control postal-code" id="postalcode" name="postalcode" inputmode="numeric" autocomplete="postal-code" maxlength="9"
                                            placeholder="Código postal"
                                            type="text" value="{{.Object.PostalCode}}">
                                 </div>
@@ -81,13 +82,13 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="state">Estado</label>
-                                    <input class="form-control" id="state" minlength="4" name="state" placeholder="Estado"
+                                    <input class="form-control" id="state" name="state" maxlength="100" autocomplete="address-level1" placeholder="Estado"
                                            type="text"
                                            value="{{.Object.State}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="city">Cidade</label>
-                                    <input class="form-control" id="city" name="city" placeholder="Cidade" type="text"
+                                    <input class="form-control" id="city" name="city" maxlength="100" autocomplete="address-level2" placeholder="Cidade" type="text"
                                            value="{{.Object.City}}">
                                 </div>
                             </div>
@@ -108,18 +109,3 @@
         </div>
     </div>
 </section>
-<script src="/plugins/cleave/cleave.min.js"></script>
-<script src="/plugins/cleave/cleave-phone.br.js"></script>
-<script>
-    var cleavePostal = new Cleave('.postal-code', {
-        numericOnly: true,
-        delimiter: '-',
-        blocks: [5, 3]
-    });
-    var cleavePhone = new Cleave('.phone-number', {
-        phone: true,
-        phoneRegionCode: 'BR'
-    });
-</script>
-
-

@@ -1,74 +1,41 @@
-<div class="content-wrapper">
-    <div class="content-header">
-        <div class="container">
-            <h1 class="m-0 text-dark">Carrinho de Compras</h1>
-        </div>
-    </div>
-
-    <section class="content">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 mx-auto">
-                    <div class="card card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Seu Carrinho</h3>
-                            <div class="card-tools">
-                                <div class="row">
-                                    <div class="col-12 mb-2">
-                                        <a href="/store" class="mr-2 btn btn-sm btn-light text-dark">
-                                            <i class="fas fa-cart-plus"></i>
-                                            Adicionar Produtos
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card-body table-responsive p-0">
-                            <table class="table table-hover text-nowrap" id="shoppingCartTable">
-                                <thead>
-                                <tr>
-                                    <th>Produto</th>
-                                    <th>Preço</th>
-                                    <th>Quantidade</th>
-                                    <th>Subtotal</th>
-                                    <th>Ações</th>
-                                </tr>
-                                </thead>
-                                <tbody id="cartItems">
-                                {{range .Object.Items}}
-                                <tr>
-                                    <td><strong>{{.Product.Name}}</strong></td>
-                                    <td>R$ {{.ItemPrice}}</td>
-                                    <td><small>x</small>{{.Quantity}}</td>
-                                    <td>R$ {{mulf .Quantity .ItemPrice}}</td>
-                                    <td><a href="/cart/remove/{{.Product.ID}}"><u
-                                            class="text-danger">Remover</u></a></td>
-                                </tr>
-                                {{end}}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="card-footer"
-                             style="display: flex; justify-content: space-between; align-items: center;">
-                            <strong style="margin-right: auto;">Total: R$ {{ printf "%.2f" .Object.Total }}</strong>
-                            <div class="float-right">
-                                {{ if not .Profile.IsProfileComplete }}
-                                <a href="/profile/{{.Profile.User.ID}}"><u>Complete o seu perfil</u></a> para
-                                prosseguir para o checkout.
-                                {{ else }}
-                                {{ if gt .Object.Total 0.0 }}
-                                <a class="btn btn-success" href="/orders/checkout/{{.Object.ID}}">Finalizar</a>
-                                {{ end }}
-                                {{ end }}
-                            </div>
-                        </div>
-
+<div class="store-container store-page">
+    <div class="store-page-heading"><div><p class="store-eyebrow">Sua seleção</p><h1>Seu carrinho.</h1><p>Confira os sabores antes de continuar.</p></div><a href="/store" class="store-back-link">← Escolher mais doces</a></div>
+    {{if .Object.Items}}
+    <div class="store-checkout-grid">
+        <section class="store-panel" aria-label="Produtos no carrinho">
+            <ul class="store-line-items">
+                {{range .Object.Items}}
+                <li class="store-line-item">
+                    <img src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/cupcake-placeholder.svg{{end}}" alt="" width="88" height="88">
+                    <div class="store-line-content"><h2>{{.Product.Name}}</h2><p>{{.Quantity}} unidade(s) · {{money .ItemPrice}} cada</p>
+                        <form action="/cart/remove/{{.Product.ID}}" method="post">
+                            <input type="hidden" name="_csrf" value="{{$.CSRFToken}}">
+                            <button type="submit" class="store-text-button" aria-label="Remover {{.Product.Name}} do carrinho">Remover</button>
+                        </form>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
+                    <strong class="store-line-price">{{money (mulf .Quantity .ItemPrice)}}</strong>
+                </li>
+                {{end}}
+            </ul>
+        </section>
+        <aside class="store-panel store-summary" aria-labelledby="summary-title">
+            <p class="store-eyebrow">Falta pouco</p><h2 id="summary-title">Resumo da seleção</h2>
+            <dl class="store-totals"><div><dt>Produtos</dt><dd>{{money .Object.Total}}</dd></div><div class="store-total"><dt>Subtotal</dt><dd>{{money .Object.Total}}</dd></div></dl>
+            <p class="store-help">A opção de entrega e o pagamento são definidos na próxima etapa.</p>
+            {{if not .Profile.IsProfileComplete}}
+            <p class="store-notice">Complete seu perfil para continuar com o pedido.</p>
+            <a href="/profile/{{.Profile.User.ID}}" class="store-button store-button-primary store-button-wide">Completar meu perfil →</a>
+            {{else}}
+            {{if gt .Object.Total 0.0}}
+            <form action="/orders/checkout/{{.Object.ID}}" method="post">
+                <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                <button type="submit" class="store-button store-button-primary store-button-wide">Continuar para o pedido →</button>
+            </form>
+            {{end}}
+            {{end}}
+        </aside>
+    </div>
+    {{else}}
+    <section class="store-empty store-panel"><span class="store-empty-symbol" aria-hidden="true">♡</span><h2>Seu carrinho está vazio.</h2><p>Que tal começar pelo seu sabor favorito?</p><a href="/store" class="store-button store-button-primary">Explorar a vitrine →</a></section>
+    {{end}}
 </div>

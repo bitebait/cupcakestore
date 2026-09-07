@@ -1,174 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <script type='text/javascript'>
-        window.smartlook || (function (d) {
-            var o = smartlook = function () {
-                o.api.push(arguments)
-            }, h = d.getElementsByTagName('head')[0];
-            var c = d.createElement('script');
-            o.api = new Array();
-            c.async = true;
-            c.type = 'text/javascript';
-            c.charset = 'utf-8';
-            c.src = 'https://web-sdk.smartlook.com/recorder.js';
-            h.appendChild(c);
-        })(document);
-        smartlook('init', 'ca5dad74e4686bf7fe9575ca78620f1f7f703c71', {region: 'eu'});
-    </script>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <title>CupCake Store | Loja</title>
-
-    <!-- Google Font: Source Sans Pro -->
-    <style>
-        @font-face {
-            font-family: "Source Sans Pro";
-            font-style: italic;
-            font-weight: 400;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPZ7nsDc.ttf) format("truetype");
-        }
-
-        @font-face {
-            font-family: "Source Sans Pro";
-            font-style: normal;
-            font-weight: 300;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format("truetype");
-        }
-
-        @font-face {
-            font-family: "Source Sans Pro";
-            font-style: normal;
-            font-weight: 400;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7g.ttf) format("truetype");
-        }
-
-        @font-face {
-            font-family: "Source Sans Pro";
-            font-style: normal;
-            font-weight: 700;
-            src: url(https://fonts.gstatic.com/s/sourcesanspro/v22/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdr.ttf) format("truetype");
-        }
-    </style>
-    <!-- Font Awesome Icons -->
-    <link href="/plugins/fontawesome-free/css/all.min.css" rel="stylesheet"/>
-    <!-- Theme style -->
-    <link href="/dist/css/adminlte.min.css" rel="stylesheet"/>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff9f2">
+    <title>Cupcake Store | Escolha seu próximo doce</title>
+    <link href="/plugins/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/dist/css/adminlte.min.css" rel="stylesheet">
+    <link href="/css/ui.css" rel="stylesheet">
+    <link href="/css/storefront.css" rel="stylesheet">
+    <script src="/js/ui.js" defer></script>
+    <script src="/js/storefront.js" defer></script>
 </head>
-<body class="hold-transition layout-top-nav">
-<div class="wrapper">
-    <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
-        <div class="container">
-            <div>
-                <a class="navbar-brand" href="/">
-                    <img alt="AdminLTE Logo" class="brand-image img-circle" src="/dist/img/logo.png"
-                         style="opacity: 0.8;"/>
-                    <span class="brand-text font-weight-light">CupcakeStore</span>
-                </a>
-            </div>
-
-            <button aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation"
-                    class="navbar-toggler order-1"
-                    data-target="#navbarCollapse" data-toggle="collapse" type="button">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse order-3" id="navbarCollapse">
-                <!-- Left navbar links -->
-                <ul class="navbar-nav">
-                    <li class="nav-item d-flex">
-                        <a class="nav-link" href="/">
-                            <i class="fas fa-store-alt"></i>
-                            Vitrine da Loja
-                        </a>
-                    </li>
-                    <li class="nav-item d-flex">
-                        <a class="nav-link" data-widget="navbar-search" href="/cart" role="button">
-                            <i class="fas fa-shopping-cart"></i>
-                            Meu Carrinho (<span id="cart-count">0</span>)
-                        </a>
-                    </li>
-                    <li class="nav-item d-flex">
-                        <a class="nav-link" data-widget="navbar-search" href="/orders" role="button">
-                            <i class="fas fa-file-invoice"></i>
-                            Meus Pedidos
-                        </a>
-                    </li>
-                    {{ if and .Profile .Profile.User }}
-                    <li class="nav-item d-flex align-items-center">
-                        <a class="nav-link" href="/profile/{{.Profile.User.ID}}">{{.Profile.User.Email}}</a>
-                    </li>
-                    <li class="nav-item d-flex align-items-center justify-between mr-3">
-                        {{if .Profile.User.IsStaff}}
-                        <a class="btn btn-sm btn-primary mr-2 mt-1" href="/dashboard">Painel Admin</a>
-                        {{end}}
-                        <a class="btn btn-sm btn-danger mt-1" href="/auth/logout"> <i
-                                class="fas fa-sign-out-alt"></i> Sair
-                        </a>
-                    </li>
-                    {{else}}
-                    <li class="nav-item d-flex align-items-center">
-                        <a class="nav-link" data-slide="true" data-widget="control-sidebar" href="/auth/login"
-                           role="button"> <i class="fas fa-user"></i> Fazer Login/Cadastro </a>
-                    </li>
-                    {{end}}
-                </ul>
-            </div>
-
-        </div>
-    </nav>
-
-    <!-- /.navbar -->
-
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-        {{embed}}
+<body class="storefront" {{if .Profile}}data-authenticated="true"{{end}}>
+<a class="store-skip" href="#main-content">Pular para o conteúdo</a>
+<header class="store-header">
+    <div class="store-container store-header-inner">
+        <a class="store-brand" href="/store" aria-label="Cupcake Store, início">
+            <img src="/dist/img/logo.png" alt="" width="42" height="42">
+            <span>Cupcake<span class="store-brand-light"> Store</span></span>
+        </a>
+        <nav class="store-nav" aria-label="Navegação principal">
+            <a href="/store" data-nav="store">Vitrine</a>
+            <a href="/orders" data-nav="orders">Meus pedidos</a>
+            {{if .Profile}}
+            <a href="/profile/{{.Profile.User.ID}}" data-nav="profile" title="{{.Profile.User.Email}}">Minha conta</a>
+            {{if .Profile.User.IsStaff}}<a href="/dashboard">Admin</a>{{end}}
+            <form action="/auth/logout" method="post">
+                <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                <button type="submit" class="store-nav-button">Sair</button>
+            </form>
+            {{else}}
+            <a href="/auth/login">Entrar</a>
+            {{end}}
+            <a href="/cart" class="store-cart-link" data-nav="cart">
+                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 7h14l-2 9H8L5 3H2M9 20h.01M17 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Carrinho <span id="cart-count" class="store-cart-count" aria-label="Itens no carrinho">0</span>
+            </a>
+        </nav>
     </div>
-    <!-- /.content-wrapper -->
-
-    <!-- Control Sidebar -->
-    <aside class="control-sidebar control-sidebar-dark">
-        <!-- Control sidebar content goes here -->
-    </aside>
-    <!-- /.control-sidebar -->
-
-    {{template "snippets/message" .}}
-
-    <!-- Main Footer -->
-    <footer class="main-footer">
-        <!-- To the right -->
-        <div class="float-right d-none d-sm-inline">
-            <a href="https://github.com/bitebait/cupcakestore" class="text-info" target="_blank">
-                <svg class="bi bi-github" fill="currentColor" height="16" viewBox="0 0 16 16" width="16"
-                     xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
-                </svg>
-                Ver no Github</a>
-        </div>
-        <!-- Default to the left -->
-        <strong>CupCakeStore</strong>
-    </footer>
-</div>
-<!-- jQuery -->
-<script src="/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-{{ if and .Profile .Profile.User }}
-<script>
-    $(document).ready(function () {
-        function getCartCount() {
-            $.getJSON('/cart/count', function (data) {
-                $('#cart-count').text(data.itemCount);
-            }).fail(function (error) {
-                console.error(error);
-            });
-        }
-
-        getCartCount();
-    });
-</script>
-{{end}}
+</header>
+<main id="main-content" class="store-main" tabindex="-1">
+    {{embed}}
+</main>
+{{template "snippets/message" .}}
+<footer class="store-footer">
+    <div class="store-container store-footer-inner">
+        <a class="store-brand" href="/store">Cupcake<span class="store-brand-light"> Store</span></a>
+        <p>Um doce momento, do seu jeito.</p>
+        <a href="https://github.com/bitebait/cupcakestore" target="_blank" rel="noopener noreferrer">Conheça o projeto <span aria-hidden="true">↗</span></a>
+    </div>
+</footer>
 </body>
 </html>

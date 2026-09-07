@@ -2,7 +2,8 @@ package messages
 
 import (
 	"github.com/bitebait/cupcakestore/session"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/log"
 )
 
 type Message struct {
@@ -15,37 +16,43 @@ const (
 	SuccessMessageKey = "success_message"
 )
 
-func SetErrorMessage(ctx *fiber.Ctx, message string) {
+func SetErrorMessage(ctx fiber.Ctx, message string) {
 	setSessionMessage(ctx, ErrorMessageKey, message)
 }
 
-func SetSuccessMessage(ctx *fiber.Ctx, message string) {
+func SetSuccessMessage(ctx fiber.Ctx, message string) {
 	setSessionMessage(ctx, SuccessMessageKey, message)
 }
 
-func setSessionMessage(ctx *fiber.Ctx, key, message string) {
-	sess, _ := session.Store.Get(ctx)
+func setSessionMessage(ctx fiber.Ctx, key, message string) {
+	current, _ := ctx.Locals("Messages").(Message)
+	if key == ErrorMessageKey {
+		current.Error = message
+	} else {
+		current.Success = message
+	}
+	ctx.Locals("Messages", current)
+	sess := session.FromContext(ctx)
+	if sess == nil {
+		log.Error("middleware de sessão indisponível para mensagens")
+		return
+	}
 	sess.Set(key, message)
-	sess.Save()
 }
 
-func LoadMessages(ctx *fiber.Ctx) Message {
-	msg := Message{}
-	msg.Error = clearSessionMessage(ctx, ErrorMessageKey)
-	msg.Success = clearSessionMessage(ctx, SuccessMessageKey)
-	return msg
+func LoadMessages(ctx fiber.Ctx) Message {
+	return Message{
+		Error:   clearSessionMessage(ctx, ErrorMessageKey),
+		Success: clearSessionMessage(ctx, SuccessMessageKey),
+	}
 }
 
-func clearSessionMessage(ctx *fiber.Ctx, key string) string {
-	sess, err := session.Store.Get(ctx)
-	if err != nil {
+func clearSessionMessage(ctx fiber.Ctx, key string) string {
+	sess := session.FromContext(ctx)
+	if sess == nil {
 		return ""
 	}
-	message := ""
-	if msg := sess.Get(key); msg != nil {
-		message = msg.(string)
-		sess.Delete(key)
-	}
-	sess.Save()
+	message, _ := sess.Get(key).(string)
+	sess.Delete(key)
 	return message
 }

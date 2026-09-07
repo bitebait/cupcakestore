@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
@@ -78,21 +79,53 @@ func (s *orderService) Update(order *models.Order) error {
 }
 
 func (s *orderService) Payment(order *models.Order) error {
-	order.Status = models.AwaitingPaymentStatus
-
+	if order == nil {
+		return errors.New("pedido inválido")
+	}
+	paymentMethod, isDelivery := order.PaymentMethod, order.IsDelivery
+	current, err := s.orderRepository.FindById(order.ID)
+	if err != nil || !current.CanProceedToPayment() {
+		return errors.New("o pedido não pode seguir para pagamento")
+	}
+	current.PaymentMethod = paymentMethod
+	*order = current
+	if err := order.Validate(); err != nil {
+		return err
+	}
+	storeConfig, err := s.storeConfigService.GetStoreConfig()
+	if err != nil {
+		return errors.New("falha ao carregar as formas de pagamento")
+	}
+	order.IsDelivery = isDelivery && storeConfig.DeliveryIsActive
+	order.DeliveryPrice = 0
+	if order.IsDelivery {
+		order.DeliveryPrice = storeConfig.DeliveryPrice
+	}
+	if order.DeliveryPrice < 0 || math.IsNaN(order.DeliveryPrice) || math.IsInf(order.DeliveryPrice, 0) {
+		return errors.New("taxa de entrega inválida")
+	}
+	order.Total = math.Round((order.ShoppingCart.Total+order.DeliveryPrice)*100) / 100
+	if math.IsNaN(order.Total) || math.IsInf(order.Total, 0) || order.Total <= 0 {
+		return errors.New("valor total do pedido inválido")
+	}
 	switch order.PaymentMethod {
 	case models.CashPaymentMethod:
+		if !storeConfig.PaymentCashIsActive {
+			return errors.New("pagamento em dinheiro indisponível")
+		}
 		order.Status = models.ProcessingStatus
 	case models.PixPaymentMethod:
-		if err := s.processPixPayment(order); err != nil {
-			return errors.New("falha ao processar o pagamento com pix")
+		if !storeConfig.PaymentPixIsActive {
+			return errors.New("pagamento com Pix indisponível")
 		}
+		if err := s.processPixPayment(order); err != nil {
+			return errors.New("falha ao processar o pagamento com Pix")
+		}
+		order.Status = models.AwaitingPaymentStatus
 	}
-
 	if err := s.orderRepository.Update(order); err != nil {
 		return errors.New("falha ao atualizar o status do pedido")
 	}
-
 	return nil
 }
 
@@ -113,7 +146,7 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 		Nome:  "Cupcake Store",
 	}
 
-	payment, err := models.GeneratePixPayment(pixData)
+	payment, err := generatePixPayment(pixData)
 
 	if err != nil {
 		return err

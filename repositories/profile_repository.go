@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type ProfileRepository interface {
@@ -22,7 +22,7 @@ func NewProfileRepository(db *gorm.DB) ProfileRepository {
 
 func (r *profileRepository) Create(profile *models.Profile) error {
 	if err := r.db.Create(profile).Error; err != nil {
-		log.Errorf("ProfileRepository Create: %s", err.Error())
+		slog.Error("ProfileRepository Create", "error", err)
 		return err
 	}
 
@@ -34,16 +34,23 @@ func (r *profileRepository) FindByUserId(userID uint) (models.Profile, error) {
 	err := r.db.Where("user_id = ?", userID).Preload("User").First(&profile).Error
 
 	if err != nil {
-		log.Errorf("ProfileRepository FindOrCreateByUserId: %s", err.Error())
+		slog.Error("ProfileRepository FindOrCreateByUserId", "error", err)
 	}
 
 	return profile, err
 }
 
 func (r *profileRepository) Update(profile *models.Profile) error {
-	if err := r.db.Save(profile).Error; err != nil {
-		log.Errorf("ProfileRepository Update: %s", err.Error())
-		return err
+	if profile == nil || profile.ID == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	result := r.db.Model(profile).
+		Select("FirstName", "LastName", "Address", "City", "State", "PostalCode", "PhoneNumber").Updates(profile)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected != 1 {
+		return gorm.ErrRecordNotFound
 	}
 
 	return nil

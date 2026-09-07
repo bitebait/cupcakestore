@@ -1,0 +1,537 @@
+{
+  "date": "2026-09-07",
+  "before": {
+    "scanner": {
+      "protocol_version": "v1.0.0",
+      "scanner_name": "govulncheck",
+      "scanner_version": "v1.7.0",
+      "db": "https://vuln.go.dev",
+      "db_last_modified": "2026-09-02T19:12:04Z",
+      "go_version": "go1.27.0-X:nodwarf5",
+      "scan_level": "symbol",
+      "scan_mode": "source"
+    },
+    "counts": {
+      "symbol": 16,
+      "package": 12,
+      "module": 33
+    },
+    "findings": [
+      {
+        "id": "GO-2023-1572",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.5.0",
+        "summary": "Denial of service via crafted TIFF image in golang.org/x/image/tiff"
+      },
+      {
+        "id": "GO-2023-1989",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.10.0",
+        "summary": "Excessive resource consumption in golang.org/x/image/tiff"
+      },
+      {
+        "id": "GO-2023-1990",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.10.0",
+        "summary": "Excessive CPU consumption when decoding 0-height images in golang.org/x/image/tiff"
+      },
+      {
+        "id": "GO-2024-2687",
+        "level": "module",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.23.0",
+        "summary": "HTTP/2 CONTINUATION flood in net/http"
+      },
+      {
+        "id": "GO-2024-2937",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.18.0",
+        "summary": "Panic when parsing invalid palette-color images in golang.org/x/image"
+      },
+      {
+        "id": "GO-2024-3321",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.31.0",
+        "summary": "Misuse of connection.serverAuthenticate may cause authorization bypass in golang.org/x/crypto"
+      },
+      {
+        "id": "GO-2024-3333",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.33.0",
+        "summary": "Non-linear parsing of case-insensitive content in golang.org/x/net/html"
+      },
+      {
+        "id": "GO-2025-3487",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.35.0",
+        "summary": "Potential denial of service in golang.org/x/crypto"
+      },
+      {
+        "id": "GO-2025-3503",
+        "level": "module",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.36.0",
+        "summary": "HTTP Proxy bypass using IPv6 Zone IDs in golang.org/x/net"
+      },
+      {
+        "id": "GO-2025-3595",
+        "level": "symbol",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.38.0",
+        "summary": "Incorrect Neutralization of Input During Web Page Generation in x/net in golang.org/x/net"
+      },
+      {
+        "id": "GO-2025-3845",
+        "level": "symbol",
+        "module": "github.com/gofiber/fiber/v2",
+        "version": "v2.52.5",
+        "fixed_version": "v2.52.9",
+        "summary": "Fiber Crashes in BodyParser Due to Unvalidated Large Slice Index in Decoder in github.com/gofiber/fiber"
+      },
+      {
+        "id": "GO-2025-4116",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.43.0",
+        "summary": "Potential denial of service in golang.org/x/crypto/ssh/agent"
+      },
+      {
+        "id": "GO-2025-4134",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.45.0",
+        "summary": "Unbounded memory consumption in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2025-4135",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.45.0",
+        "summary": "Malformed constraint may cause denial of service in golang.org/x/crypto/ssh/agent"
+      },
+      {
+        "id": "GO-2025-4208",
+        "level": "symbol",
+        "module": "github.com/gofiber/utils",
+        "version": "v1.1.0",
+        "fixed_version": "v1.2.0",
+        "summary": "Fiber Utils UUIDv4 and UUID Silent Fallback to Predictable Values in github.com/gofiber/utils"
+      },
+      {
+        "id": "GO-2026-4440",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.45.0",
+        "summary": "Quadratic parsing complexity in golang.org/x/net/html"
+      },
+      {
+        "id": "GO-2026-4441",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.45.0",
+        "summary": "Infinite parsing loop in golang.org/x/net"
+      },
+      {
+        "id": "GO-2026-4471",
+        "level": "symbol",
+        "module": "github.com/gofiber/fiber/v2",
+        "version": "v2.52.5",
+        "fixed_version": "v2.52.11",
+        "summary": "Fiber has an insecure fallback in utils.UUIDv4() / utils.UUID() on crypto/rand failure in github.com/gofiber/fiber"
+      },
+      {
+        "id": "GO-2026-4543",
+        "level": "symbol",
+        "module": "github.com/gofiber/fiber/v2",
+        "version": "v2.52.5",
+        "fixed_version": "v2.52.12",
+        "summary": "Fiber has a Denial of Service Vulnerability via Route Parameter Overflow in github.com/gofiber/fiber"
+      },
+      {
+        "id": "GO-2026-4771",
+        "level": "package",
+        "module": "github.com/jackc/pgx/v5",
+        "version": "v5.5.5",
+        "fixed_version": "v5.9.0",
+        "summary": "CVE-2026-33815 in github.com/jackc/pgx"
+      },
+      {
+        "id": "GO-2026-4772",
+        "level": "package",
+        "module": "github.com/jackc/pgx/v5",
+        "version": "v5.5.5",
+        "fixed_version": "v5.9.0",
+        "summary": "CVE-2026-33816 in github.com/jackc/pgx"
+      },
+      {
+        "id": "GO-2026-4815",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.38.0",
+        "summary": "OOM from malicious IFD offset in golang.org/x/image/tiff"
+      },
+      {
+        "id": "GO-2026-4918",
+        "level": "module",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.53.0",
+        "summary": "Infinite loop in HTTP/2 transport when given bad SETTINGS_MAX_FRAME_SIZE in net/http/internal/http2 in golang.org/x/net"
+      },
+      {
+        "id": "GO-2026-4950",
+        "level": "package",
+        "module": "github.com/valyala/fasthttp",
+        "version": "v1.52.0",
+        "fixed_version": "v1.70.0",
+        "summary": "Authorization bypass via double-encoded paths in github.com/valyala/fasthttp"
+      },
+      {
+        "id": "GO-2026-4961",
+        "level": "module",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.42.0",
+        "summary": "Panic when decoding large WEBP image on 32-bit platforms in golang.org/x/image"
+      },
+      {
+        "id": "GO-2026-4962",
+        "level": "module",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.39.0",
+        "summary": "Excessive memory allocation when decoding malicious SFNT in golang.org/x/image"
+      },
+      {
+        "id": "GO-2026-5004",
+        "level": "symbol",
+        "module": "github.com/jackc/pgx/v5",
+        "version": "v5.5.5",
+        "fixed_version": "v5.9.2",
+        "summary": "SQL Injection via placeholder confusion with dollar quoted string literals in github.com/jackc/pgx"
+      },
+      {
+        "id": "GO-2026-5005",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking key constraints not enforced in golang.org/x/crypto/ssh/agent"
+      },
+      {
+        "id": "GO-2026-5006",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking agent constraints dropped when forwarding keys in golang.org/x/crypto/ssh/agent"
+      },
+      {
+        "id": "GO-2026-5013",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking byte arithmetic causes underflow and panic in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5014",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking bypass of certificate restrictions in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5015",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking server panic during CheckHostKey/Authenticate in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5016",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking memory leak when rejecting channels can lead to DoS in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5017",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking client can cause server deadlock on unexpected responses in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5018",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking pathological RSA/DSA parameters may cause DoS in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5019",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking bypass of FIDO/U2F security keys physical interaction in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5020",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking infinite loop on large channel writes in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5021",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking auth bypass via unenforced @revoked status in golang.org/x/crypto/ssh/knownhosts"
+      },
+      {
+        "id": "GO-2026-5023",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking VerifiedPublicKeyCallback permissions skip enforcement in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-5024",
+        "level": "module",
+        "module": "golang.org/x/sys",
+        "version": "v0.18.0",
+        "fixed_version": "v0.44.0",
+        "summary": "Invoking integer overflow in NewNTUnicodeString in golang.org/x/sys/windows"
+      },
+      {
+        "id": "GO-2026-5025",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.55.0",
+        "summary": "Invoking incorrect handling of namespaced elements in foreign content in golang.org/x/net/html"
+      },
+      {
+        "id": "GO-2026-5026",
+        "level": "module",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.55.0",
+        "summary": "Invoking failure to reject ASCII-only Punycode-encoded labels in golang.org/x/net/idna"
+      },
+      {
+        "id": "GO-2026-5027",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.55.0",
+        "summary": "Invoking incorrect handling of HTML elements in foreign content in golang.org/x/net/html"
+      },
+      {
+        "id": "GO-2026-5028",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.55.0",
+        "summary": "Invoking denial of service when parsing arbitrary HTML in golang.org/x/net/html"
+      },
+      {
+        "id": "GO-2026-5029",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.55.0",
+        "summary": "Invoking incorrect handling of character references in DOCTYPE nodes in golang.org/x/net/html"
+      },
+      {
+        "id": "GO-2026-5030",
+        "level": "package",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.55.0",
+        "summary": "Invoking duplicate attributes can cause XSS in golang.org/x/net/html"
+      },
+      {
+        "id": "GO-2026-5031",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.41.0",
+        "summary": "Panic when reading out of bound palette index in golang.org/x/image/bmp"
+      },
+      {
+        "id": "GO-2026-5032",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.41.0",
+        "summary": "Excessive resource consumption in PackBits decompression in golang.org/x/image/tiff"
+      },
+      {
+        "id": "GO-2026-5033",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.52.0",
+        "summary": "Invoking pathological inputs can lead to client panic in golang.org/x/crypto/ssh/agent"
+      },
+      {
+        "id": "GO-2026-5061",
+        "level": "module",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.43.0",
+        "summary": "Panic on VP8 alpha channel size mismatch in x/image/webp in golang.org/x/image"
+      },
+      {
+        "id": "GO-2026-5062",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.43.0",
+        "summary": "Lack of limit on tile sizes in x/image/tiff in golang.org/x/image"
+      },
+      {
+        "id": "GO-2026-5066",
+        "level": "symbol",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.43.0",
+        "summary": "Panic decoding image with out-of-bounds strip offset in x/image/tiff in golang.org/x/image"
+      },
+      {
+        "id": "GO-2026-5585",
+        "level": "package",
+        "module": "github.com/gofiber/fiber/v2",
+        "version": "v2.52.5",
+        "fixed_version": "v2.52.13",
+        "summary": "Fiber vulnerable to XSS in AutoFormat Content Negotiation in github.com/gofiber/fiber"
+      },
+      {
+        "id": "GO-2026-5841",
+        "level": "module",
+        "module": "github.com/klauspost/compress",
+        "version": "v1.17.7",
+        "fixed_version": "v1.18.7",
+        "summary": "OOB read in github.com/klauspost/compress/s2"
+      },
+      {
+        "id": "GO-2026-5932",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": null,
+        "summary": "The golang.org/x/crypto/openpgp package is unmaintained, unsafe by design, and has known security issues"
+      },
+      {
+        "id": "GO-2026-5942",
+        "level": "module",
+        "module": "golang.org/x/net",
+        "version": "v0.21.0",
+        "fixed_version": "v0.56.0",
+        "summary": "Parsing an invalid SVCB or HTTPS RR can panic in golang.org/x/net/dns/dnsmessage"
+      },
+      {
+        "id": "GO-2026-5970",
+        "level": "symbol",
+        "module": "golang.org/x/text",
+        "version": "v0.14.0",
+        "fixed_version": "v0.39.0",
+        "summary": "Infinite loop on invalid input in golang.org/x/text"
+      },
+      {
+        "id": "GO-2026-6222",
+        "level": "module",
+        "module": "golang.org/x/image",
+        "version": "v0.0.0-20191009234506-e7c1f5e7dbb8",
+        "fixed_version": "v0.45.0",
+        "summary": "Excessive memory allocation during VP8L decoding in golang.org/x/image"
+      },
+      {
+        "id": "GO-2026-6303",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.55.0",
+        "summary": "Source-address critical option not enforced for non-public-key auth callbacks in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-6354",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.56.0",
+        "summary": "Prevent DoS on deadlocked undecided channel in golang.org/x/crypto/ssh"
+      },
+      {
+        "id": "GO-2026-6355",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.19.0",
+        "fixed_version": "v0.56.0",
+        "summary": "Prevent DoS on deadlocked established channel in golang.org/x/crypto/ssh"
+      }
+    ]
+  },
+  "after": {
+    "scanner": {
+      "protocol_version": "v1.0.0",
+      "scanner_name": "govulncheck",
+      "scanner_version": "v1.7.0",
+      "db": "https://vuln.go.dev",
+      "db_last_modified": "2026-09-02T19:12:04Z",
+      "go_version": "go1.27.0-X:nodwarf5",
+      "scan_level": "symbol",
+      "scan_mode": "source"
+    },
+    "counts": {
+      "symbol": 0,
+      "package": 0,
+      "module": 1
+    },
+    "findings": [
+      {
+        "id": "GO-2026-5932",
+        "level": "module",
+        "module": "golang.org/x/crypto",
+        "version": "v0.56.0",
+        "fixed_version": null,
+        "summary": "The golang.org/x/crypto/openpgp package is unmaintained, unsafe by design, and has known security issues"
+      }
+    ]
+  }
+}

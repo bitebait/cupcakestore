@@ -1,78 +1,47 @@
 <div class="content-header">
     <div class="container">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Movimentações do Produto</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item">
-                        <a href="#">Home</a>
-                    </li>
-                    <li class="breadcrumb-item active">Movimentações do Produto</li>
-                </ol>
-            </div>
-        </div>
+        <a href="/stock" class="text-muted">← Estoque</a>
+        <h1 class="mt-2">Histórico de movimentações</h1>
+        <p class="text-muted">Entradas e saídas do produto #{{.Object.Filter.Stock.ProductID}}.</p>
     </div>
 </div>
 <section class="content">
     <div class="container">
-        <div class="row">
-            <div class="col-12 mx-auto">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title mb-2">Histórico de Movimentação</h3>
-                        <div class="card-tools">
-                            <form method="get" id="filters">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <a href="/products/{{ (index .Object.Stocks 0).ProductID }}"
-                                           class="btn">
-                                            <i class="fa fa-search"></i> <u>Abrir detalhes do produto</u> </a>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap">
-                            <thead>
-                            <tr>
-                                <th>Nome do Produto</th>
-                                <th>ID do Produto</th>
-                                <th>ID da Movimentação</th>
-                                <th>Quantidade</th>
-                                <th>Tipo</th>
-                                <th>Movimentado Por</th>
-                                <th>Data da Movimentação</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {{range .Object.Stocks}}
-                            <tr>
-                                <td><a href="/products/{{.Product.ID}}">{{.Product.Name}}</a></td>
-                                <td>{{.ProductID}}</td>
-                                <td>{{.ID}}</td>
-                                <td class="{{if ge .Quantity 0 }}text-dark{{else}}text-danger{{end}}">{{if ge .Quantity
-                                    0 }}+{{end}}{{.Quantity}}
-                                </td>
-                                <td>
-                                    <span class="badge {{if eq .Type " entrada"
-                                    }}badge-primary{{else}}badge-danger{{end}}">{{.Type}}</span>
-                                </td>
-                                <td><a href="/users/user/{{.Profile.UserID}}">{{.Profile.User.Email}}</a></td>
-                                <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
-                            </tr>
-                            {{end}}
-                            </tbody>
-                        </table>
-                    </div>
-                    {{template "snippets/pagination" .Object.Filter.Pagination}}
-                    <!-- /.card-body -->
-                </div>
-                <!-- /.card -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <h2 class="h5 mb-0">Movimentações</h2>
+                <a href="/products/{{.Object.Filter.Stock.ProductID}}" class="btn btn-outline-primary btn-sm">Ver produto</a>
             </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <caption class="sr-only">Histórico de entradas e saídas de estoque</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">Movimentação</th>
+                        <th scope="col">Produto</th>
+                        <th scope="col">Quantidade</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Responsável</th>
+                        <th scope="col">Data</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{range .Object.Stocks}}
+                    <tr>
+                        <td>#{{.ID}}</td>
+                        <td><a href="/products/{{.ProductID}}">{{if .Product.Name}}{{.Product.Name}}{{else}}Produto #{{.ProductID}}{{end}}</a></td>
+                        <td class="{{if lt .Quantity 0}}text-danger{{end}}">{{if ge .Quantity 0}}+{{end}}{{.Quantity}}</td>
+                        <td><span class="badge {{if eq .Type "entrada"}}badge-success{{else}}badge-secondary{{end}}">{{.Type}}</span></td>
+                        <td>{{if .Profile.User.Email}}<a href="/users/user/{{.Profile.UserID}}">{{.Profile.User.Email}}</a>{{else}}Usuário indisponível{{end}}</td>
+                        <td class="text-nowrap">{{.CreatedAt | date "02/01/2006 15:04"}}</td>
+                    </tr>
+                    {{else}}
+                    <tr><td colspan="6" class="text-center text-muted py-5">Nenhuma movimentação encontrada.</td></tr>
+                    {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" "")}}
         </div>
     </div>
 </section>
-{{template "snippets/table-filter" }}

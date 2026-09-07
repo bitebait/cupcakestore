@@ -1,287 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <script type='text/javascript'>
-        window.smartlook || (function (d) {
-            var o = smartlook = function () {
-                o.api.push(arguments)
-            }, h = d.getElementsByTagName('head')[0];
-            var c = d.createElement('script');
-            o.api = new Array();
-            c.async = true;
-            c.type = 'text/javascript';
-            c.charset = 'utf-8';
-            c.src = 'https://web-sdk.smartlook.com/recorder.js';
-            h.appendChild(c);
-        })(document);
-        smartlook('init', 'ca5dad74e4686bf7fe9575ca78620f1f7f703c71', {region: 'eu'});
-    </script>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <title>Cupcake Store | Panel de Administrador</title>
-    <!-- Google Font: Source Sans Pro -->
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
-          rel="stylesheet"/>
-    <!-- Font Awesome -->
-    <link href="/plugins/fontawesome-free/css/all.min.css" rel="stylesheet"/>
-    <!-- Ionicons -->
-    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
-    <!-- overlayScrollbars -->
-    <link href="/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" rel="stylesheet"/>
-    <!-- Theme style -->
-    <link href="/dist/css/adminlte.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet"/>
-    <style>
-        #darkModeToggle {
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 24px; /* Adjust size as needed */
-        }
-    </style>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#35241f">
+    <title>Cupcake Store | Administração</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="/css/ui.css">
+    <script src="/js/ui.js" defer></script>
+    <script src="/js/admin.js" defer></script>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
-<!-- Site wrapper -->
-<div class="wrapper">
-    <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-        <!-- Left navbar links -->
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-                    <i class="fas fa-bars"></i>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <button id="darkModeToggle" title="Toggle Dark Mode">
-                    <i class="fas fa-sun text-secondary" id="toggleIcon"></i>
-                </button>
-            </li>
-        </ul>
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                    <i class="fas fa-expand-arrows-alt"></i>
-                </a>
-            </li>
-        </ul>
-    </nav>
-    <!-- /.navbar -->
-    <!-- Main Sidebar Container -->
-    <aside class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4">
-        <!-- Brand Logo -->
-        <a class="brand-link" href="/dashboard">
-            <img alt="Cupcake Logo" class="brand-image img-circle" src="/dist/img/logo.png" style="opacity: 0.8;"/>
-            <span class="brand-text font-weight-light">Cupcake Store</span>
+<body class="ui-admin">
+<a class="ui-skip" href="#main-content">Pular para o conteúdo</a>
+<div class="ui-admin-shell">
+    <header class="ui-admin-header">
+        <button class="ui-menu-button" type="button" data-admin-toggle aria-controls="admin-navigation" aria-expanded="false">
+            <span aria-hidden="true">☰</span> Menu
+        </button>
+        <span class="ui-eyebrow">Seu ateliê, organizado.</span>
+        <a class="ui-store-link" href="/store">Visitar a loja <span aria-hidden="true">↗</span></a>
+    </header>
+    <aside class="ui-admin-sidebar" id="admin-navigation">
+        <a class="ui-brand ui-brand-light" href="/dashboard">
+            <img src="/dist/img/logo.png" width="40" height="44" alt="">
+            <span>Cupcake <strong>Store</strong><small>PAINEL DA LOJA</small></span>
         </a>
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Sidebar user (optional) -->
-            <div class="user-panel mt-2 text-center">
-                <div class="info">
-                    <a class="d-block" href="/users/user/{{.Profile.UserID}}">{{.Profile.User.Email}}</a>
-                </div>
-            </div>
-            <!-- Sidebar Menu -->
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-accordion="false" data-widget="treeview"
-                    role="menu">
-                    <!-- Store Menu -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/store">
-                            <i class="nav-icon fas fa-shopping-cart"></i>
-                            <p>Acessar Loja</p>
-                        </a>
-                    </li>
-                    <!-- Dashboard Menu -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-                    <!-- Order Menu -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/orders">
-                            <i class="nav-icon fas fa-money-bill"></i>
-                            <p>Pedidos</p>
-                        </a>
-                    </li>
-                    <!-- User Menu -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="nav-icon fas fa-user-alt"></i>
-                            <p>Usuários <i class="right fas fa-angle-left"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/users/create">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Adicionar Usuário</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/users">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Usuários Registrados</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <!-- Product Menu -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="nav-icon fas fa-list-alt"></i>
-                            <p>Produtos <i class="right fas fa-angle-left"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/products/create">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Adicionar Produto</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/products">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Produtos Cadastrados</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <!-- Stock Menu -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="nav-icon fas fa-box"></i>
-                            <p>Estoque <i class="right fas fa-angle-left"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/stock/create">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Gerenciar Estoque</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/stock">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Movimentações</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <!-- Config Menu -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="nav-icon fas fa-cog"></i>
-                            <p>Config. da Loja <i class="right fas fa-angle-left"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/config/address">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Endereço</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/config/delivery">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Entrega</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/config/payment">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Pagamento</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/config/pix">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Pix</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-            <!-- /.sidebar-menu -->
+        <nav aria-label="Administração" class="ui-admin-nav">
+            <p class="ui-nav-label">Dia a dia</p>
+            <a href="/dashboard"><i class="fas fa-chart-line" aria-hidden="true"></i> Visão geral</a>
+            <a href="/orders"><i class="fas fa-receipt" aria-hidden="true"></i> Pedidos</a>
+            <details open>
+                <summary><i class="fas fa-cookie-bite" aria-hidden="true"></i> Produtos</summary>
+                <a href="/products">Catálogo de produtos</a>
+                <a href="/products/create">Adicionar produto</a>
+            </details>
+            <details>
+                <summary><i class="fas fa-box" aria-hidden="true"></i> Estoque</summary>
+                <a href="/stock">Movimentações</a>
+                <a href="/stock/create">Gerenciar estoque</a>
+            </details>
+            <p class="ui-nav-label">Sua loja</p>
+            <details>
+                <summary><i class="fas fa-users" aria-hidden="true"></i> Pessoas</summary>
+                <a href="/users">Usuários cadastrados</a>
+                <a href="/users/create">Adicionar usuário</a>
+            </details>
+            <details>
+                <summary><i class="fas fa-sliders-h" aria-hidden="true"></i> Configurações</summary>
+                <a href="/config/address">Endereço e contato</a>
+                <a href="/config/delivery">Entrega</a>
+                <a href="/config/payment">Formas de pagamento</a>
+                <a href="/config/pix">Pix</a>
+            </details>
+        </nav>
+        <div class="ui-admin-account">
+            <span class="ui-nav-label">Sua conta</span>
+            <a href="/users/user/{{.Profile.UserID}}">{{.Profile.User.Email}}</a>
+            <form action="/auth/logout" method="post">
+                <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                <button type="submit" class="ui-logout"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sair da conta</button>
+            </form>
         </div>
-        <!-- /.sidebar -->
-        <div class="sidebar-custom">
-            <a class="btn btn-danger btn-sm btn-block" href="/auth/logout"> <i class="fas fa-sign-out-alt"></i> Sair
-            </a>
-        </div>
-        <!-- /.sidebar-custom -->
     </aside>
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-        {{embed}}
-    </div>
-    <!-- /.content-wrapper -->
-
-    {{template "snippets/message" .}}
-
-    <!-- Main Footer -->
-    <footer class="main-footer">
-        <!-- To the right -->
-        <div class="float-right d-none d-sm-inline">
-            <a href="https://github.com/bitebait/cupcakestore" class="text-info" target="_blank">
-                <svg class="bi bi-github" fill="currentColor" height="16" viewBox="0 0 16 16" width="16"
-                     xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
-                </svg>
-                Ver no Github</a>
-        </div>
-        <!-- Default to the left -->
-        <strong>CupCakeStore - Admin</strong>
+    <main id="main-content" class="ui-admin-main" tabindex="-1">{{embed}}</main>
+    <footer class="ui-admin-footer">
+        <span>Cupcake Store <span aria-hidden="true">·</span> Feito para cuidar da sua loja.</span>
+        <a href="https://github.com/bitebait/cupcakestore" target="_blank" rel="noopener noreferrer">Projeto no GitHub</a>
     </footer>
 </div>
-<!-- ./wrapper -->
-<!-- jQuery -->
-<!-- Bootstrap 4 -->
-<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
-<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
-<script src="/dist/js/adminlte.min.js"></script>
-<script>
-    $(document).ready(function () {
-        // Check for saved user preference in localStorage
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            $('body').addClass('dark-mode');
-            $('#toggleIcon').removeClass('fa-sun').addClass('fa-moon');
-        }
-
-        $('#darkModeToggle').click(function () {
-            $('body').toggleClass('dark-mode');
-
-            // Change icon based on the current mode
-            if ($('body').hasClass('dark-mode')) {
-                $('#toggleIcon').removeClass('fa-sun').addClass('fa-moon');
-                localStorage.setItem('darkMode', 'enabled');
-            } else {
-                $('#toggleIcon').removeClass('fa-moon').addClass('fa-sun');
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        });
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        const currentUrl = window.location.pathname;
-        const navLink = $(`.nav-link[href='${currentUrl}']`);
-        if (navLink.length > 0) {
-            navLink.addClass("active");
-            navLink.parents(".nav-treeview").prev(".nav-link").addClass("active");
-            navLink.parents(".has-treeview").children(".nav-link").addClass("active");
-            navLink.parents(".nav-item").addClass("menu-open");
-        }
-    });
-</script>
+{{template "snippets/message" .}}
 </body>
 </html>
