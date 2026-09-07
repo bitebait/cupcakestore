@@ -102,17 +102,11 @@ A estrutura do projeto é organizada da seguinte forma:
 - `views`: *Templates e arquivos relacionados à visualização da aplicação.*
 - `web`: *Recursos web, como favicons, imagens, assets, etc.*
 
-### Tecnologias Utilizadas
-
-- **Linguagens**: Go, JavaScript, CSS, HTML
-- **Frameworks e Bibliotecas**: [GO Fiber Framework](https://github.com/gofiber/fiber) & [GORM](https://gorm.io/index.html) (ORM para Golang)
-- **Front-end**: HTML+CSS+JS ([AdminLTE Bootstrap Admin Dashboard](https://adminlte.io/))
-
 ### Autoria
 
 Este projeto foi desenvolvido por William Schwaab (<william@schwaab.me>) como parte do Projeto Integrador Transdisciplinar em Engenharia de Software II - UNICID - Cruzeiro Sul Virtual.
 
-Para mais informações, consulte a [documentação](https://github.com/bitebait/cupcakestore/tree/main/docs).
+Consulte o [índice da documentação](docs/README.md) para os guias atuais e o [arquivo acadêmico](docs/archive/README.md) para os documentos originais.
 
 
 ## Imagens
