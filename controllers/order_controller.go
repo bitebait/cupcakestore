@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -63,6 +62,9 @@ func (c *orderController) Checkout(ctx fiber.Ctx) error {
 
 	if !c.isAuthorizedUser(currentUser, &order, profileID) || !order.CanProceedToCheckout() {
 		return ctx.Redirect().Status(fiber.StatusFound).To("/orders")
+	}
+	if order.CanRedirectToPixPayment() {
+		return ctx.Redirect().Status(fiber.StatusFound).To("/orders/order/" + strconv.Itoa(int(order.ID)))
 	}
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
@@ -128,22 +130,14 @@ func (c *orderController) processPaymentPost(ctx fiber.Ctx, order *models.Order)
 	// Ownership, status, totals and Pix data come exclusively from the server.
 	order.PaymentMethod = models.PaymentMethod(ctx.FormValue("paymentMethod"))
 
-	storeConfig, err := c.storeConfigService.GetStoreConfig()
-	if err != nil {
-		return "", fmt.Errorf("falha ao carregar configuração da loja: %w", err)
-	}
-	order.IsDelivery = storeConfig.DeliveryIsActive && ctx.FormValue("isDelivery") == "1"
+	order.IsDelivery = ctx.FormValue("isDelivery") == "1"
 
 	if err := c.orderService.Payment(order); err != nil {
 		return "", fmt.Errorf("falha ao processar pagamento: %w", err)
 	}
 
 	if order.PaymentMethod == models.PixPaymentMethod {
-		if order.PixURL == "" {
-			return "", errors.New("QR Code PIX não foi gerado corretamente")
-		}
-		pixURL := "https://pix.ae" + order.PixURL
-		return pixURL, nil
+		return services.PixPaymentURL(order.PixURL)
 	}
 
 	return "/orders/order/" + strconv.Itoa(int(order.ID)), nil
@@ -151,7 +145,9 @@ func (c *orderController) processPaymentPost(ctx fiber.Ctx, order *models.Order)
 
 func (c *orderController) processPaymentGet(ctx fiber.Ctx, order *models.Order) error {
 	if order.CanRedirectToPixPayment() {
-		return ctx.Redirect().Status(fiber.StatusFound).To("https://pix.ae" + order.PixURL)
+		if paymentURL, err := services.PixPaymentURL(order.PixURL); err == nil {
+			return ctx.Redirect().Status(fiber.StatusFound).To(paymentURL)
+		}
 	}
 
 	messages.SetErrorMessage(ctx, "não foi possível redirecionar para pagamento via Pix")
@@ -251,11 +247,9 @@ func (c *orderController) Cancel(ctx fiber.Ctx) error {
 	if !c.isAuthorizedUser(user, &order, user.ID) {
 		return fiber.NewError(fiber.StatusForbidden, "acesso negado")
 	}
-	{
-		if err := c.orderService.Cancel(order.ID); err != nil {
-			messages.SetErrorMessage(ctx, err.Error())
-			return ctx.Redirect().Status(fiber.StatusFound).To("/orders")
-		}
+	if err := c.orderService.Cancel(order.ID); err != nil {
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect().Status(fiber.StatusFound).To("/orders")
 	}
 
 	messages.SetSuccessMessage(ctx, "pedido cancelado com sucesso")

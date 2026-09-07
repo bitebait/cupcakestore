@@ -14,13 +14,24 @@ import (
 )
 
 const maxPixResponseBytes = 1 << 20
+const pixProviderOrigin = "https://pix.ae"
+
+// PixPaymentURL validates provider paths both on receipt and when reopening
+// historical orders, which may predate validation at the HTTP client boundary.
+func PixPaymentURL(providerPath string) (string, error) {
+	path, err := url.Parse(providerPath)
+	if err != nil || path.IsAbs() || path.Host != "" || !strings.HasPrefix(providerPath, "/") || strings.HasPrefix(providerPath, "//") || strings.ContainsAny(providerPath, "\\\r\n\t") {
+		return "", errors.New("endereço de pagamento Pix inválido")
+	}
+	return pixProviderOrigin + providerPath, nil
+}
 
 func generatePixPayment(data *models.PixPaymentData) (*models.PixInfo, error) {
 	client := &http.Client{
 		Timeout:       10 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
 	}
-	return requestPixPayment(client, "https://pix.ae", data)
+	return requestPixPayment(client, pixProviderOrigin, data)
 }
 
 func requestPixPayment(client *http.Client, endpoint string, data *models.PixPaymentData) (*models.PixInfo, error) {
@@ -55,9 +66,7 @@ func requestPixPayment(client *http.Client, endpoint string, data *models.PixPay
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, err
 	}
-	// Controllers prefix this path with the fixed provider origin.
-	path, err := url.Parse(result.Urlpixae)
-	if err != nil || path.IsAbs() || path.Host != "" || !strings.HasPrefix(result.Urlpixae, "/") || strings.HasPrefix(result.Urlpixae, "//") || strings.ContainsAny(result.Urlpixae, "\\\r\n") || result.Qrstring == "" {
+	if _, err := PixPaymentURL(result.Urlpixae); err != nil || result.Qrstring == "" {
 		return nil, errors.New("resposta Pix inválida")
 	}
 	return &models.PixInfo{PixQR: result.Qrbase64, PixString: result.Qrstring, PixTransactionID: result.Idfatura, PixURL: result.Urlpixae}, nil

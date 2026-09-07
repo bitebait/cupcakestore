@@ -12,6 +12,7 @@ import (
 type ShoppingCartController interface {
 	RenderShoppingCart(ctx fiber.Ctx) error
 	AddShoppingCartItem(ctx fiber.Ctx) error
+	SetItemQuantity(ctx fiber.Ctx) error
 	RemoveFromCart(ctx fiber.Ctx) error
 	CountShoppingCart(ctx fiber.Ctx) error
 }
@@ -91,4 +92,23 @@ func (c *shoppingCartController) CountShoppingCart(ctx fiber.Ctx) error {
 	}
 	itemCount := cart.CountItems()
 	return ctx.JSON(fiber.Map{"itemCount": itemCount})
+}
+
+func (c *shoppingCartController) SetItemQuantity(ctx fiber.Ctx) error {
+	productID, err := helpers.ParseStringToID(ctx.Params("id"))
+	if err != nil {
+		messages.SetErrorMessage(ctx, "produto inválido")
+		return ctx.Redirect().Status(fiber.StatusSeeOther).To("/cart")
+	}
+	quantity, err := strconv.Atoi(ctx.FormValue("quantity"))
+	if err != nil || quantity <= 0 {
+		messages.SetErrorMessage(ctx, "informe uma quantidade maior que zero")
+		return ctx.Redirect().Status(fiber.StatusSeeOther).To("/cart")
+	}
+	if err := c.shoppingCartService.SetItemQuantity(getProfileID(ctx), productID, quantity); err != nil {
+		messages.SetErrorMessage(ctx, err.Error())
+		return ctx.Redirect().Status(fiber.StatusSeeOther).To("/cart")
+	}
+	messages.SetSuccessMessage(ctx, "quantidade atualizada")
+	return ctx.Redirect().Status(fiber.StatusSeeOther).To("/cart")
 }

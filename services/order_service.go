@@ -23,12 +23,14 @@ type OrderService interface {
 type orderService struct {
 	orderRepository    repositories.OrderRepository
 	storeConfigService StoreConfigService
+	generatePix        func(*models.PixPaymentData) (*models.PixInfo, error)
 }
 
 func NewOrderService(orderRepository repositories.OrderRepository, storeConfigService StoreConfigService) OrderService {
 	return &orderService{
 		orderRepository:    orderRepository,
 		storeConfigService: storeConfigService,
+		generatePix:        generatePixPayment,
 	}
 }
 
@@ -87,6 +89,18 @@ func (s *orderService) Payment(order *models.Order) error {
 	if err != nil || !current.CanProceedToPayment() {
 		return errors.New("o pedido não pode seguir para pagamento")
 	}
+	// An already issued Pix belongs to the recorded delivery terms. Reopening
+	// it must not issue another invoice or apply a subsequently changed fee.
+	if current.CanRedirectToPixPayment() {
+		if current.PaymentMethod != paymentMethod || current.IsDelivery != isDelivery {
+			return errors.New("este pedido já possui um Pix emitido; entre em contato com a loja para alterar o pagamento ou a entrega")
+		}
+		if _, err := PixPaymentURL(current.PixURL); err != nil || current.PixString == "" {
+			return errors.New("os dados do Pix deste pedido estão inválidos; entre em contato com a loja")
+		}
+		*order = current
+		return nil
+	}
 	current.PaymentMethod = paymentMethod
 	*order = current
 	if err := order.Validate(); err != nil {
@@ -96,7 +110,10 @@ func (s *orderService) Payment(order *models.Order) error {
 	if err != nil {
 		return errors.New("falha ao carregar as formas de pagamento")
 	}
-	order.IsDelivery = isDelivery && storeConfig.DeliveryIsActive
+	if isDelivery && !storeConfig.DeliveryIsActive {
+		return errors.New("a entrega está indisponível; escolha retirada na loja para continuar")
+	}
+	order.IsDelivery = isDelivery
 	order.DeliveryPrice = 0
 	if order.IsDelivery {
 		order.DeliveryPrice = storeConfig.DeliveryPrice
@@ -113,29 +130,24 @@ func (s *orderService) Payment(order *models.Order) error {
 		if !storeConfig.PaymentCashIsActive {
 			return errors.New("pagamento em dinheiro indisponível")
 		}
+		order.PixQR, order.PixString, order.PixTransactionID, order.PixURL = "", "", "", ""
 		order.Status = models.ProcessingStatus
 	case models.PixPaymentMethod:
 		if !storeConfig.PaymentPixIsActive {
 			return errors.New("pagamento com Pix indisponível")
 		}
-		if err := s.processPixPayment(order); err != nil {
+		if err := s.processPixPayment(order, storeConfig); err != nil {
 			return errors.New("falha ao processar o pagamento com Pix")
 		}
 		order.Status = models.AwaitingPaymentStatus
 	}
-	if err := s.orderRepository.Update(order); err != nil {
+	if err := s.orderRepository.UpdatePayment(order); err != nil {
 		return errors.New("falha ao atualizar o status do pedido")
 	}
 	return nil
 }
 
-func (s *orderService) processPixPayment(order *models.Order) error {
-	storeConfig, err := s.storeConfigService.GetStoreConfig()
-
-	if err != nil {
-		return err
-	}
-
+func (s *orderService) processPixPayment(order *models.Order, storeConfig models.StoreConfig) error {
 	orderTotalPrice := fmt.Sprintf("%.2f", order.Total)
 
 	pixData := &models.PixPaymentData{
@@ -146,9 +158,15 @@ func (s *orderService) processPixPayment(order *models.Order) error {
 		Nome:  "Cupcake Store",
 	}
 
-	payment, err := generatePixPayment(pixData)
+	payment, err := s.generatePix(pixData)
 
 	if err != nil {
+		return err
+	}
+	if payment == nil || payment.PixString == "" {
+		return errors.New("dados do Pix ausentes")
+	}
+	if _, err := PixPaymentURL(payment.PixURL); err != nil {
 		return err
 	}
 

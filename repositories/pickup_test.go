@@ -32,7 +32,7 @@ func TestOrderCompletionRespectsDeliveryChoice(t *testing.T) {
 				order.DeliveryPrice = 0
 				order.Total = order.ShoppingCart.Total
 			}
-			if err := repo.Update(&order); err != nil {
+			if err := repo.UpdatePayment(&order); err != nil {
 				t.Fatal(err)
 			}
 			if test.status == models.DeliveredStatusAwaiting {

@@ -36,4 +36,5 @@ func (r *ShoppingCartRouter) InstallRouters(app *fiber.App) {
 	cart.Post("/", r.shoppingCartController.AddShoppingCartItem)
 	cart.Get("/count", r.shoppingCartController.CountShoppingCart)
 	cart.Post("/remove/:id", r.shoppingCartController.RemoveFromCart)
+	cart.Post("/items/:id/quantity", r.shoppingCartController.SetItemQuantity)
 }
