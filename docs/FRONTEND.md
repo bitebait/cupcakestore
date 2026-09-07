@@ -24,6 +24,7 @@ O CSS do AdminLTE permanece como base de compatibilidade para os formulários e 
 ## Convenções
 
 - Preserve os tokens `--cream`, `--cocoa`, `--berry`, `--muted` e `--line` para manter loja e painel consistentes.
+- Texto funcional usa `1rem` (16 px na configuração padrão); textos secundários têm mínimo de `.875rem` (14 px). No painel, reutilize `--ui-text`, `--ui-text-small` e `--ui-title`. Não reduza essas fontes no celular: ajuste a disposição dos elementos. Tabelas largas mantêm rolagem dentro do próprio contêiner para preservar a leitura das colunas.
 - Use HTML semântico, labels explícitos e formulários nativos. A compra não deve depender da criação de formulários por JavaScript.
 - Scripts são externos, carregados com `defer`, e usam `data-*` para encontrar componentes. Evite handlers inline, estado global e IDs novos para cada item.
 - Todo formulário POST inclui `_csrf` com `CSRFToken` do contexto raiz. Dentro de `range`, passe o token explicitamente ao partial.
@@ -46,3 +47,5 @@ Na revisão visual, use um banco temporário com dados fictícios. Exercite: vit
 As [capturas de tela](screenshots/) foram obtidas em Chromium com Playwright, em 1440×1000 e 390×844, usando dados fictícios e o placeholder de produto. Não representam produtos ou pedidos reais da loja. A verificação automatizada de acessibilidade usa axe-core (WCAG A/AA) e complementa a inspeção visual; não substitui uma avaliação completa com tecnologias assistivas.
 
 Na verificação final de 07/09/2026, os 16 cenários avaliados não apresentaram violações detectadas pelo axe-core, erros de JavaScript ou overflow horizontal. O percurso incluiu cadastro, conclusão do perfil, compra em dinheiro com retirada e consulta do pedido; no painel, troca da seleção de estoque, entrada de quantidade, rejeição de arquivo inválido e abertura do menu móvel. A suíte `go test -race ./...` também passou após a integração dos templates e do formatter monetário.
+
+Após a revisão de legibilidade, as fontes calculadas de menus, botões, campos, labels e tabelas do painel foram conferidas em 320, 390, 768 e 1440 px de largura. Mantêm 16 px e não provocam overflow da página; tabelas usam rolagem local quando necessário. As capturas refletem essa escala maior.
