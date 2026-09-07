@@ -32,3 +32,23 @@ jobs:
         run: go vet ./...
       - name: Check reachable vulnerabilities
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.7.0 ./...
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose
+        run: docker compose config --quiet
+      - name: Build and start isolated store
+        run: docker compose -p cupcake-ci up --build --wait --wait-timeout 120
+      - name: Verify readiness and storefront
+        run: |
+          curl --fail --silent --show-error http://127.0.0.1:8080/readyz
+          curl --fail --silent --show-error --output /dev/null http://127.0.0.1:8080/store
+          curl --compressed --fail --silent --show-error --output /dev/null http://127.0.0.1:8080/css/ui.css
+      - name: Container logs
+        if: failure()
+        run: docker compose -p cupcake-ci logs --no-color --tail 100
+      - name: Remove isolated test resources
+        if: always()
+        run: docker compose -p cupcake-ci down --volumes --remove-orphans

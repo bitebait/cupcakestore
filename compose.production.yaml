@@ -1,0 +1,24 @@
+# Combine with compose.yaml. Set BIND_ADDRESS=0.0.0.0 and HTTP_PORT=443
+# in the deployment environment to publish HTTPS directly.
+services:
+  app:
+    environment:
+      DEV_MODE: "false"
+      CERT_FILE_PATH: /run/tls/fullchain.pem
+      KEY_FILE_PATH: /run/tls/privkey.pem
+      TLS_DOMAIN: ${TLS_DOMAIN:?Set TLS_DOMAIN to the certificate DNS name}
+    volumes:
+      - type: bind
+        source: ${TLS_DIRECTORY:?Set TLS_DIRECTORY to an existing certificate directory}
+        target: /run/tls
+        read_only: true
+        bind:
+          create_host_path: false
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          curl --fail --silent --show-error --max-time 3
+          --cacert /run/tls/fullchain.pem
+          --resolve "$${TLS_DOMAIN}:8080:127.0.0.1"
+          "https://$${TLS_DOMAIN}:8080/readyz"

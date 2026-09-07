@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"encoding/json"
+	"os"
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
@@ -46,6 +47,7 @@ func NewApplicationWithError() (*fiber.App, error) {
 	session.SetupSession()
 
 	fiberApp := createFiberApp()
+	registerHealthChecks(fiberApp, db)
 	registerMiddlewares(fiberApp)
 	configureHTTPS(fiberApp)
 	serveStaticFiles(fiberApp)
@@ -108,7 +110,8 @@ func registerMiddlewares(fiberApp *fiber.App) {
 
 func serveStaticFiles(fiberApp *fiber.App) {
 	// Compress only public assets; pages contain secrets such as CSRF tokens.
-	fiberApp.Use("/", static.New("./web", static.Config{Compress: true}))
+	// io/fs keeps the compression cache in memory, including read-only containers.
+	fiberApp.Use("/", static.New("", static.Config{FS: os.DirFS("./web"), Compress: true}))
 }
 
 func configureHTTPS(fiberApp *fiber.App) {
