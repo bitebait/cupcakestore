@@ -1,76 +1,78 @@
 package database
 
 import (
+	"errors"
+
+	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/gorm"
-	"log"
-)
-
-const (
-	adminEmail               = "admin@admin.com"
-	adminPassword            = "admin@admin.com"
-	storePhysicalEmail       = "foo@bar.com"
-	storePhysicalAddress     = "Foo Bar"
-	storePhysicalCity        = "Foo Bar"
-	storePhysicalState       = "Foo Bar"
-	storePhysicalPostalCode  = "00000-000"
-	storePhysicalPhoneNumber = "(00)00000-0000"
-	storePixKey              = "000.000.000-00"
 )
 
 type Seeder interface {
 	Seed(db *gorm.DB) error
 }
 
-type UserAdminSeeder struct{}
+type UserAdminSeeder struct {
+	Email    string
+	Password string
+}
 
 func (s UserAdminSeeder) Seed(db *gorm.DB) error {
-	admin := &models.User{
-		Email:    adminEmail,
-		Password: adminPassword,
-		IsActive: true,
-		IsStaff:  true,
+	// No shared/default administrator credentials are ever created.
+	if s.Email == "" && s.Password == "" {
+		return nil
 	}
-	return createRecordIfNotExists(db, admin, "email = ?", admin.Email, "AdminUser")
+	if s.Email == "" || len(s.Password) < 12 || len(s.Password) > 72 {
+		return errors.New("administrator seed requires an email and a password of 12 to 72 bytes")
+	}
+	var admin models.User
+	err := db.Unscoped().Where("email = ?", s.Email).First(&admin).Error
+	if err == nil {
+		// Never overwrite credentials, restore deleted users, or promote an
+		// existing customer's account during an application restart.
+		return nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	return db.Create(&models.User{
+		Email: s.Email, Password: s.Password, IsActive: true, IsStaff: true,
+	}).Error
 }
 
 type StoreConfigSeeder struct{}
 
 func (s StoreConfigSeeder) Seed(db *gorm.DB) error {
-	storeConfig := &models.StoreConfig{
-		DeliveryPrice:            10,
-		DeliveryIsActive:         true,
-		PhysicalStoreEmail:       storePhysicalEmail,
-		PhysicalStoreAddress:     storePhysicalAddress,
-		PhysicalStoreCity:        storePhysicalCity,
-		PhysicalStoreState:       storePhysicalState,
-		PhysicalStorePostalCode:  storePhysicalPostalCode,
-		PhysicalStorePhoneNumber: storePhysicalPhoneNumber,
-		PaymentCashIsActive:      true,
-		PaymentPixIsActive:       true,
-		PixKey:                   storePixKey,
-		PixKeyType:               models.PixTypeCPF,
-	}
-	return createRecordIfNotExists(db, storeConfig, "physical_store_email = ?", storeConfig.PhysicalStoreEmail, "StoreConfig")
-}
-
-func createRecordIfNotExists(db *gorm.DB, value interface{}, query string, args ...interface{}) error {
-	if err := db.FirstOrCreate(value, append([]interface{}{query}, args...)...).Error; err != nil {
-		log.Printf("Failed to create %T: %v", value, err)
+	var existing models.StoreConfig
+	if err := db.First(&existing).Error; err == nil {
+		return nil
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
-	return nil
+	storeConfig := &models.StoreConfig{
+		DeliveryPrice:       10,
+		DeliveryIsActive:    true,
+		PaymentCashIsActive: true,
+		PixKeyType:          models.PixTypeCPF,
+	}
+	return db.Create(storeConfig).Error
 }
 
 func SeedDatabase(db *gorm.DB) error {
-	seeders := []Seeder{
-		UserAdminSeeder{},
-		StoreConfigSeeder{},
-	}
-	for _, seeder := range seeders {
-		if err := seeder.Seed(db); err != nil {
-			return err
+	return seedDatabase(db, config.Get())
+}
+
+func seedDatabase(db *gorm.DB, cfg *config.Config) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		seeders := []Seeder{
+			UserAdminSeeder{Email: cfg.AdminEmail, Password: cfg.AdminPassword},
+			StoreConfigSeeder{},
 		}
-	}
-	return nil
+		for _, seeder := range seeders {
+			if err := seeder.Seed(tx); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
