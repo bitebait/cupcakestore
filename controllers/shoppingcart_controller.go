@@ -27,7 +27,7 @@ func NewShoppingCartController(shoppingCartService services.ShoppingCartService)
 }
 
 func (c *shoppingCartController) RenderShoppingCart(ctx *fiber.Ctx) error {
-	userID := getUserID(ctx)
+	userID := getProfileID(ctx)
 	cart, err := c.shoppingCartService.FindOrCreateByUserId(userID)
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
@@ -52,7 +52,7 @@ func (c *shoppingCartController) AddShoppingCartItem(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/cart")
 	}
 
-	userID := getUserID(ctx)
+	userID := getProfileID(ctx)
 	if err = c.shoppingCartService.AddItemToCart(userID, productID, quantity); err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/cart")
@@ -71,7 +71,7 @@ func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/cart")
 	}
 
-	userID := getUserID(ctx)
+	userID := getProfileID(ctx)
 	if err = c.shoppingCartService.RemoveFromCart(userID, productID); err != nil {
 
 		messages.SetErrorMessage(ctx, err.Error())
@@ -83,7 +83,7 @@ func (c *shoppingCartController) RemoveFromCart(ctx *fiber.Ctx) error {
 }
 
 func (c *shoppingCartController) CountShoppingCart(ctx *fiber.Ctx) error {
-	userID := getUserID(ctx)
+	userID := getProfileID(ctx)
 	cart, err := c.shoppingCartService.FindOrCreateByUserId(userID)
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())

@@ -7,6 +7,8 @@ import (
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"time"
 )
 
 type AuthRouter struct {
@@ -35,8 +37,8 @@ func (r *AuthRouter) InstallRouters(app *fiber.App) {
 	auth := app.Group("/auth")
 
 	auth.Get("/login", r.authController.RenderLogin)
-	auth.Post("/login", r.authController.Login)
+	auth.Post("/login", limiter.New(limiter.Config{Max: 10, Expiration: time.Minute}), r.authController.Login)
 	auth.Get("/register", r.authController.RenderRegister)
-	auth.Post("/register", r.authController.Register)
-	auth.Get("/logout", r.authController.Logout).Use(middlewares.LoginRequired())
+	auth.Post("/register", limiter.New(limiter.Config{Max: 5, Expiration: time.Minute}), r.authController.Register)
+	auth.Post("/logout", middlewares.LoginRequired(), r.authController.Logout)
 }

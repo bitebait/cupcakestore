@@ -23,7 +23,7 @@
     <div class="container">
         <div class="row row-eq-height">
             {{ if .Object.Products}}
-            <input type="hidden" id="csrf" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
+            <input type="hidden" id="csrf" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
             {{range .Object.Products}}
             <div class="col-md-3">
                 <div class="card card-produto  text-center">
@@ -34,28 +34,28 @@
                         <a class="link-muted" href="/products/details/{{.ID}}"><u>Ler descrição</u></a>
                     </div>
                     <div class="card-footer">
-                        <span class="card-text font-weight-bold" s
+                        <span class="card-text font-weight-bold"
                               style="font-size: 24px;">R$ {{ printf "%.2f" .Price}}<small
                                 class="text-muted">/uni</small></span>
                         <div class="mt-3">
                             <div class="input-group mb-3">
-                                <button class="btn btn-outline-secondary" id="{{.ID}}-decrement"
+                                <button class="btn btn-outline-secondary" aria-label="Diminuir quantidade" id="{{.ID}}-decrement"
                                         onclick="decrementQuantity('{{.ID}}')"
                                         type="button">-
                                 </button>
                                 <input aria-describedby="{{.ID}}-decrement {{.ID}}-increment"
-                                       aria-label="Example text with button addon" class="form-control text-center"
-                                       id="{{.ID}}-quantity" inputmode="numeric" min="1" pattern="[0-9]*"
+                                       aria-label="Quantidade" class="form-control text-center"
+                                       id="{{.ID}}-quantity" inputmode="numeric" min="1" step="1" required pattern="[0-9]*"
                                        type="number"
                                        value="1">
-                                <button class="btn btn-outline-secondary" id="{{.ID}}-increment"
+                                <button class="btn btn-outline-secondary" aria-label="Aumentar quantidade" id="{{.ID}}-increment"
                                         onclick="incrementQuantity('{{.ID}}')"
                                         type="button">+
                                 </button>
                             </div>
                         </div>
-                        <a class="adicionar-ao-carrinho btn btn-outline-primary w-100" data-id="{{.ID}}" href="#">
-                            Adicionar ao carrinho</a>
+                        <button type="button" class="adicionar-ao-carrinho btn btn-outline-primary w-100" data-id="{{.ID}}">
+                            Adicionar ao carrinho</button>
                     </div>
                 </div>
             </div>
@@ -66,24 +66,20 @@
         <div class="row">
             <div class="col-12 text-center">
                 <p>Nenhum produto disponível no momento.</p>
-                {{if .Profile.User.IsStaff}}
+                {{if and .Profile .Profile.User.IsStaff}}
                 <p>
-                    <a href="/products/create">
-                        <button class="btn btn-sm btn-primary">
-                            <i class="fa fa-plus"></i> Cadastrar novo produto
-                        </button>
+                    <a href="/products/create" class="btn btn-sm btn-primary">
+                        <i class="fa fa-plus"></i> Cadastrar novo produto
                     </a> ou
-                    <a href="/stock/create">
-                        <button class="btn btn-sm btn-success">
-                            <i class="fa fa-plus"></i> Adicionar ao estoque
-                        </button>
+                    <a href="/stock/create" class="btn btn-sm btn-success">
+                        <i class="fa fa-plus"></i> Adicionar ao estoque
                     </a>
                 </p>
                 {{ end }}
             </div>
         </div>
         {{end}}
-        <div class="mb-5">{{template "snippets/pagination" .Object.Filter.Pagination}}</div>
+        <div class="mb-5">{{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" .Object.Filter.Product.Name)}}</div>
 
         <!-- /.row -->
     </div><!-- /.container-fluid -->

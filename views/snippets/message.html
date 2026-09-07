@@ -72,7 +72,9 @@
         document.querySelectorAll('.message').forEach(msg => {
             const timeout = msg.dataset.timeout || DEFAULT_TIMEOUT;
             showMessage(msg.id);
-            autoHideMessage(msg.id, timeout);
+            if (!msg.classList.contains('message--error')) {
+                autoHideMessage(msg.id, timeout);
+            }
         });
     });
 
@@ -82,15 +84,15 @@
 </script>
 
 {{if .Messages.Error}}
-<div class="message message--error" id="message-error">
+<div class="message message--error" id="message-error" role="alert">
     <strong>Atenção: </strong>{{ .Messages.Error }}.
-    <button class="close-btn" onclick="closeMessage('message-error')">&times;</button>
+    <button type="button" class="close-btn" aria-label="Fechar mensagem" onclick="closeMessage('message-error')">&times;</button>
 </div>
 {{end}}
 
 {{if .Messages.Success}}
-<div class="message message--success" id="message-success">
+<div class="message message--success" id="message-success" role="status">
     <strong>Sucesso: </strong>{{ .Messages.Success }}.
-    <button class="close-btn" onclick="closeMessage('message-success')">&times;</button>
+    <button type="button" class="close-btn" aria-label="Fechar mensagem" onclick="closeMessage('message-success')">&times;</button>
 </div>
 {{end}}

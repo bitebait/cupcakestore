@@ -62,16 +62,16 @@
                                     <tr>
                                         <td>
                                             <div style="display: flex; justify-content: center; align-items: center;">
-                                                <img id="previewImage"
+                                                <img
                                                      src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/600x400.svg{{end}}"
-                                                     alt="Pré-visualização da imagem"
+                                                     alt="{{.Product.Name}}"
                                                      style="max-width: 4vh;height: auto;max-height: 4vh;">
                                             </div>
                                         </td>
                                         <td>{{.Quantity}}</td>
                                         <td>{{.Product.Name}}</td>
                                         <td>{{abbrev 60 .Product.Description}}</td>
-                                        <td>R$ {{mulf .Quantity .ItemPrice}}</td>
+                                        <td>R$ {{printf "%.2f" (mulf .Quantity .ItemPrice)}}</td>
                                     </tr>
                                     {{end}}
                                     </tbody>
@@ -85,12 +85,12 @@
                             <div class="col-md-6">
                                 <form method="post" action="/orders/payment/{{.Object.Order.ShoppingCartID}}"
                                       id="payment" class="form-row">
-                                    <input type="hidden" name="csrf" autocomplete="off"
-                                           value="{{ .csrfToken }}"/>
+                                    <input type="hidden" name="_csrf" autocomplete="off"
+                                           value="{{ .CSRFToken }}"/>
                                     <div class="row">
                                         <div class="col-12">
-                                            <p class="lead">Formas de Pagamento:</p>
-                                            <select class="form-control" id="paymentMethod" name="paymentMethod">
+                                            <label class="lead" for="paymentMethod">Formas de Pagamento:</label>
+                                            <select class="form-control" id="paymentMethod" name="paymentMethod" required>
                                                 {{if .Object.StoreConfig.PaymentPixIsActive}}
                                                 <option value="Pix">Pix</option>
                                                 {{end}}
@@ -101,7 +101,7 @@
                                         </div>
                                         {{if .Object.StoreConfig.DeliveryIsActive}}
                                         <div class="col-12 mt-2">
-                                            <p class="lead">Receber Produto Por:</p>
+                                            <label class="lead" for="isDelivery">Receber Produto Por:</label>
                                             <select class="form-control" id="isDelivery" name="isDelivery">
                                                 {{if .Object.StoreConfig.DeliveryIsActive}}
                                                 <option value="1">Entregar no Endereço</option>
@@ -142,7 +142,11 @@
                                 <a href="/orders" class="btn btn-default">
                                     <i class="fas fa-undo-alt"></i> Cancelar
                                 </a>
+                                {{if not (or .Object.StoreConfig.PaymentPixIsActive .Object.StoreConfig.PaymentCashIsActive)}}
+                                <p role="alert">Nenhuma forma de pagamento está disponível. Entre em contato com a loja.</p>
+                                {{end}}
                                 <button type="submit" form="payment"
+                                        {{if not (or .Object.StoreConfig.PaymentPixIsActive .Object.StoreConfig.PaymentCashIsActive)}}disabled{{end}}
                                         class="btn btn-success float-right"><i
                                         class="far fa-credit-card"></i> Finalizar
                                 </button>

@@ -3,6 +3,7 @@ package messages
 import (
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type Message struct {
@@ -24,9 +25,22 @@ func SetSuccessMessage(ctx *fiber.Ctx, message string) {
 }
 
 func setSessionMessage(ctx *fiber.Ctx, key, message string) {
-	sess, _ := session.Store.Get(ctx)
+	current, _ := ctx.Locals("Messages").(Message)
+	if key == ErrorMessageKey {
+		current.Error = message
+	} else {
+		current.Success = message
+	}
+	ctx.Locals("Messages", current)
+	sess, err := session.Store.Get(ctx)
+	if err != nil {
+		log.Error("falha ao carregar sessão de mensagens")
+		return
+	}
 	sess.Set(key, message)
-	sess.Save()
+	if err := sess.Save(); err != nil {
+		log.Error("falha ao salvar sessão de mensagens")
+	}
 }
 
 func LoadMessages(ctx *fiber.Ctx) Message {
@@ -43,9 +57,11 @@ func clearSessionMessage(ctx *fiber.Ctx, key string) string {
 	}
 	message := ""
 	if msg := sess.Get(key); msg != nil {
-		message = msg.(string)
+		message, _ = msg.(string)
 		sess.Delete(key)
 	}
-	sess.Save()
+	if err := sess.Save(); err != nil {
+		log.Error("falha ao salvar sessão de mensagens")
+	}
 	return message
 }

@@ -17,8 +17,8 @@
                             </div>
                             {{if and .Profile.User.IsStaff (ne .Object.Order.Status "Cancelado")}}
                             <form method="post" action="/orders/order/{{.Object.Order.ID}}">
-                                <input type="hidden" name="csrf" autocomplete="off"
-                                       value="{{ .csrfToken }}"/>
+                                <input type="hidden" name="_csrf" autocomplete="off"
+                                       value="{{ .CSRFToken }}"/>
                                 <div class="form-row mt-3">
                                     <div class="col-9">
                                         <select class="form-control" id="status" name="status">

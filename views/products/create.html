@@ -24,7 +24,7 @@
                         <h3 class="card-title">Formulário de Cadastro de Produto</h3>
                     </div>
                     <form method="post" action="/products/create" enctype="multipart/form-data">
-                        <input type="hidden" name="csrf" autocomplete="off" value="{{ .csrfToken }}"/>
+                        <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="col-md-6">

@@ -36,12 +36,12 @@ func NewOrderController(orderService services.OrderService, storeConfigService s
 }
 
 func (c *orderController) Checkout(ctx *fiber.Ctx) error {
-	profileID := getUserID(ctx)
+	profileID := getProfileID(ctx)
 	currentUser := ctx.Locals("Profile").(*models.Profile)
 
 	if !currentUser.IsProfileComplete() {
 		messages.SetErrorMessage(ctx, "por favor, complete as informações do perfil para prosseguir")
-		return ctx.Redirect("/profile")
+		return ctx.Redirect("/profile/" + strconv.Itoa(int(currentUser.UserID)))
 	}
 
 	cartID, err := helpers.ParseStringToID(ctx.Params("id"))
@@ -50,7 +50,12 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/orders")
 	}
 
-	order, err := c.orderService.FindOrCreate(profileID, cartID)
+	var order models.Order
+	if ctx.Method() == fiber.MethodPost {
+		order, err = c.orderService.FindOrCreate(profileID, cartID)
+	} else {
+		order, err = c.orderService.FindByCartId(cartID)
+	}
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/orders")
@@ -75,7 +80,7 @@ func (c *orderController) Checkout(ctx *fiber.Ctx) error {
 }
 
 func (c *orderController) Payment(ctx *fiber.Ctx) error {
-	profileID := getUserID(ctx)
+	profileID := getProfileID(ctx)
 	cartID, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		messages.SetErrorMessage(ctx, "erro ao processar o ID do carrinho")
@@ -98,7 +103,7 @@ func (c *orderController) Payment(ctx *fiber.Ctx) error {
 		pixURL, err := c.processPaymentPost(ctx, &order)
 		if err != nil {
 			messages.SetErrorMessage(ctx, err.Error())
-			return c.processPaymentGet(ctx, &order)
+			return ctx.Redirect("/orders/checkout/" + strconv.Itoa(int(order.ShoppingCartID)))
 		}
 
 		if pixURL != "" {
@@ -120,19 +125,14 @@ func (c *orderController) isAuthorizedUser(user *models.Profile, order *models.O
 }
 
 func (c *orderController) processPaymentPost(ctx *fiber.Ctx, order *models.Order) (string, error) {
-	if err := ctx.BodyParser(order); err != nil {
-		return "", fiber.NewError(fiber.StatusBadRequest, "Erro ao processar os dados do pedido. Verifique os campos e tente novamente.")
-	}
+	// Ownership, status, totals and Pix data come exclusively from the server.
+	order.PaymentMethod = models.PaymentMethod(ctx.FormValue("paymentMethod"))
 
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
 		return "", fmt.Errorf("falha ao carregar configuração da loja: %w", err)
 	}
-	order.IsDelivery = storeConfig.DeliveryIsActive
-
-	if err := c.orderService.Update(order); err != nil {
-		return "", fmt.Errorf("falha ao atualizar pedido: %w", err)
-	}
+	order.IsDelivery = storeConfig.DeliveryIsActive && ctx.FormValue("isDelivery") == "1"
 
 	if err := c.orderService.Payment(order); err != nil {
 		return "", fmt.Errorf("falha ao processar pagamento: %w", err)
@@ -146,7 +146,7 @@ func (c *orderController) processPaymentPost(ctx *fiber.Ctx, order *models.Order
 		return pixURL, nil
 	}
 
-	return "", errors.New("método de pagamento não suportado ou resposta não implementada")
+	return "/orders/order/" + strconv.Itoa(int(order.ID)), nil
 }
 
 func (c *orderController) processPaymentGet(ctx *fiber.Ctx, order *models.Order) error {
@@ -248,7 +248,10 @@ func (c *orderController) Cancel(ctx *fiber.Ctx) error {
 	}
 
 	user := ctx.Locals("Profile").(*models.Profile)
-	if c.isAuthorizedUser(user, &order, user.ID) {
+	if !c.isAuthorizedUser(user, &order, user.ID) {
+		return fiber.NewError(fiber.StatusForbidden, "acesso negado")
+	}
+	{
 		if err := c.orderService.Cancel(order.ID); err != nil {
 			messages.SetErrorMessage(ctx, err.Error())
 			return ctx.Redirect("/orders")

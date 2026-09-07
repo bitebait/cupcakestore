@@ -7,7 +7,16 @@
 
         // Obter a quantidade do produto selecionado
         const quantityInput = document.getElementById(id + '-quantity');
-        const quantity = quantityInput.value;
+        if (!quantityInput.reportValidity()) {
+            return;
+        }
+        const quantity = Number(quantityInput.value);
+        if (!Number.isSafeInteger(quantity) || quantity < 1) {
+            quantityInput.setCustomValidity('Informe uma quantidade inteira maior que zero.');
+            quantityInput.reportValidity();
+            quantityInput.setCustomValidity('');
+            return;
+        }
 
         // Criar um formulário dinamicamente
         const form = document.createElement('form');
@@ -23,7 +32,7 @@
         // Criar um campo oculto para o CSRFToken
         const csrfToken = document.createElement('input');
         csrfToken.type = 'hidden';
-        csrfToken.name = 'csrf';
+        csrfToken.name = '_csrf';
         csrfToken.value = document.getElementById('csrf').value;
 
         // Criar um campo oculto para a quantidade do produto
@@ -56,9 +65,9 @@
     // Função para incrementar a quantidade
     function incrementQuantity(id) {
         const quantityInput = document.getElementById(id + '-quantity');
-        const value = parseInt(quantityInput.value, 10);
+        const value = Number(quantityInput.value);
 
-        if (!isNaN(value)) {
+        if (Number.isSafeInteger(value) && value >= 1 && value < Number.MAX_SAFE_INTEGER) {
             quantityInput.value = value + 1;
         }
     }
@@ -66,9 +75,9 @@
     // Função para decrementar a quantidade
     function decrementQuantity(id) {
         const quantityInput = document.getElementById(id + '-quantity');
-        const value = parseInt(quantityInput.value, 10);
+        const value = Number(quantityInput.value);
 
-        if (!isNaN(value) && value > 1) {
+        if (Number.isSafeInteger(value) && value > 1) {
             quantityInput.value = value - 1;
         }
     }

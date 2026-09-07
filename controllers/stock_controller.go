@@ -38,11 +38,22 @@ func (c *stockController) RenderCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *stockController) Create(ctx *fiber.Ctx) error {
-	var stock models.Stock
-
-	if err := ctx.BodyParser(&stock); err != nil {
-		messages.SetErrorMessage(ctx, "erro ao processar as informações fornecidas, verifique os dados e tente novamente")
-		return ctx.Render(StockCreateView, fiber.Map{}, views.BaseLayout)
+	var input struct {
+		ProductID uint   `form:"productID"`
+		Quantity  int    `form:"quantity"`
+		Type      string `form:"type"`
+	}
+	if err := ctx.BodyParser(&input); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "dados de estoque inválidos")
+	}
+	stock := models.Stock{ProductID: input.ProductID, Quantity: input.Quantity}
+	switch input.Type {
+	case string(models.StockEntrada):
+		stock.Type = models.StockEntrada
+	case string(models.StockSaida):
+		stock.Type = models.StockSaida
+	default:
+		return fiber.NewError(fiber.StatusBadRequest, "tipo de movimentação inválido")
 	}
 
 	profile := ctx.Locals("Profile").(*models.Profile)

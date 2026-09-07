@@ -39,12 +39,18 @@
                                 {{range .Object.Items}}
                                 <tr>
                                     <td><strong>{{.Product.Name}}</strong></td>
-                                    <td>R$ {{.ItemPrice}}</td>
+                                    <td>R$ {{printf "%.2f" .ItemPrice}}</td>
                                     <td><small>x</small>{{.Quantity}}</td>
-                                    <td>R$ {{mulf .Quantity .ItemPrice}}</td>
-                                    <td><a href="/cart/remove/{{.Product.ID}}"><u
-                                            class="text-danger">Remover</u></a></td>
+                                    <td>R$ {{printf "%.2f" (mulf .Quantity .ItemPrice)}}</td>
+                                    <td>
+                                        <form action="/cart/remove/{{.Product.ID}}" method="post">
+                                            <input type="hidden" name="_csrf" value="{{$.CSRFToken}}">
+                                            <button type="submit" class="btn btn-link text-danger p-0" aria-label="Remover {{.Product.Name}} do carrinho">Remover</button>
+                                        </form>
+                                    </td>
                                 </tr>
+                                {{else}}
+                                <tr><td colspan="5" class="text-center">Seu carrinho está vazio.</td></tr>
                                 {{end}}
                                 </tbody>
                             </table>
@@ -59,7 +65,10 @@
                                 prosseguir para o checkout.
                                 {{ else }}
                                 {{ if gt .Object.Total 0.0 }}
-                                <a class="btn btn-success" href="/orders/checkout/{{.Object.ID}}">Finalizar</a>
+                                <form action="/orders/checkout/{{.Object.ID}}" method="post">
+                                    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                                    <button type="submit" class="btn btn-success">Finalizar</button>
+                                </form>
                                 {{ end }}
                                 {{ end }}
                             </div>

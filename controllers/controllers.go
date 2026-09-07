@@ -16,9 +16,10 @@ func selectLayout(isStaff, isUserProfile bool) string {
 	return views.BaseLayout
 }
 
-func getUserID(ctx *fiber.Ctx) uint {
+// getProfileID returns the profile key used by carts, orders and stock.
+func getProfileID(ctx *fiber.Ctx) uint {
 	profile, ok := ctx.Locals("Profile").(*models.Profile)
-	if !ok {
+	if !ok || profile == nil {
 		return 0
 	}
 	return profile.ID

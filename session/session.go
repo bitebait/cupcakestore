@@ -3,6 +3,7 @@ package session
 import (
 	"time"
 
+	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/gofiber/fiber/v2/middleware/session"
 )
@@ -13,7 +14,11 @@ var Store *session.Store
 
 func SetupSession() {
 	sessConfig := session.Config{
-		Expiration: SessionExpiration,
+		Expiration:     SessionExpiration,
+		CookieHTTPOnly: true,
+		CookieSecure:   !config.Get().DevMode,
+		CookieSameSite: "Lax",
+		CookiePath:     "/",
 	}
 	Store = session.New(sessConfig)
 	Store.RegisterType(&models.Profile{})

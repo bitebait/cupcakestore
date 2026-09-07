@@ -1,36 +1,37 @@
 <script>
-    const fileInput = document.getElementById('image');
-    const statusElement = document.getElementById('imageLabel');
-    const previewImage = document.getElementById('previewImage');
-    const maxFileSizeInMB = 2;
-    const maxFileSizeInBytes = 1024 * 1024 * maxFileSizeInMB;
+    (() => {
+        const fileInput = document.getElementById('image');
+        const statusElement = document.getElementById('imageLabel');
+        const previewImage = document.getElementById('previewImage');
+        const originalImage = previewImage.src;
+        const maxFileSize = 2 * 1024 * 1024;
+        let previewURL;
 
-    function updateStatus(color, message) {
-        statusElement.style.color = color;
-        statusElement.innerHTML = message;
-    }
+        statusElement.setAttribute('role', 'status');
+        fileInput.setAttribute('aria-describedby', 'imageLabel');
 
-    function resetFileInput() {
-        fileInput.value = '';
-        previewImage.src = "/images/placeholder.png";
-    }
-
-    function previewFile(file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            previewImage.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
-    fileInput.addEventListener('change', event => {
-        const file = fileInput.files[0];
-        if (file.size > maxFileSizeInBytes) {
-            resetFileInput();
-            updateStatus("red", `Por favor, selecione um arquivo de até ${maxFileSizeInMB}MB.`);
-        } else {
-            updateStatus("green", 'Arquivo carregado com sucesso!');
-            previewFile(file);
-        }
-    });
+        fileInput.addEventListener('change', () => {
+            if (previewURL) {
+                URL.revokeObjectURL(previewURL);
+                previewURL = null;
+            }
+            previewImage.src = originalImage;
+            const file = fileInput.files[0];
+            if (!file) {
+                statusElement.textContent = 'Escolher Imagem do Produto';
+                statusElement.style.color = '';
+                return;
+            }
+            if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > maxFileSize) {
+                fileInput.value = '';
+                statusElement.textContent = 'Selecione uma imagem PNG ou JPEG de até 2 MB.';
+                statusElement.style.color = '#b21f2d';
+                return;
+            }
+            statusElement.textContent = 'Imagem selecionada: ' + file.name;
+            statusElement.style.color = '';
+            previewURL = URL.createObjectURL(file);
+            previewImage.src = previewURL;
+        });
+    })();
 </script>

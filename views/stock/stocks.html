@@ -37,9 +37,9 @@
                     <div class="card-footer">
                         <a href="/stock" class="btn btn-default">
                             <i class="fas fa-undo-alt"></i> Cancelar </a>
-                        <a href="javascript:function() { return false; }" id="productID"
-                           class="btn btn-primary float-right" disabled>Carregar Histórico
-                        </a>
+                        <button type="button" id="productID"
+                                class="btn btn-primary float-right" disabled>Carregar Histórico
+                        </button>
                     </div>
                 </div>
             </div>
@@ -96,6 +96,11 @@
         const $currentStock = $('#stock');
         const $productID = $('#productID');
 
+        $productID.on('click', () => {
+            const url = $productID.data('url');
+            if (url) window.location.assign(url);
+        });
+
         const clearFields = () => {
             $name.text('Sem informações');
             $description.text('Sem informações');
@@ -103,7 +108,7 @@
             $previewImage.attr('src', '/images/placeholder.png');
             $price.text('Sem informações');
             $currentStock.text('Sem informações');
-            $productID.removeAttr('href');
+            $productID.removeData('url');
             $productID.prop('disabled', true);
         };
 
@@ -115,7 +120,7 @@
                 $previewImage.attr('src', item.imageUrl);
                 $price.text("R$ " + item.price);
                 $currentStock.text(item.currentStock);
-                $productID.attr('href', "stock/" + item.id);
+                $productID.data('url', '/stock/' + encodeURIComponent(item.id));
                 $productID.prop('disabled', false);
             } else {
                 clearFields();
@@ -127,7 +132,7 @@
                 q: request.term,
                 limit: 5
             }, data => {
-                if (data.Products.length !== 0) {
+                if (data && Array.isArray(data.Products) && data.Products.length !== 0) {
                     response(data.Products.map(item => ({
                         label: item.Name,
                         value: item.Name,
@@ -141,9 +146,15 @@
                     })));
                 } else {
                     clearFields();
+                    response([]);
                 }
+            }).fail(() => {
+                clearFields();
+                response([]);
             });
         };
+
+        $productName.on('input', clearFields);
 
         $productName.autocomplete({
             source: fetchData,

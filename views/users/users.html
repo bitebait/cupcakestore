@@ -99,7 +99,7 @@
                             </tbody>
                         </table>
                     </div>
-                    {{template "snippets/pagination" .Object.Filter.Pagination}}
+                    {{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" .Object.Filter.User.Email)}}
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->

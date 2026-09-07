@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"errors"
 	"github.com/bitebait/cupcakestore/helpers"
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
+	"github.com/valyala/fasthttp"
 	"strconv"
 )
 
@@ -39,7 +41,7 @@ func (c *productController) RenderCreate(ctx *fiber.Ctx) error {
 func (c *productController) Create(ctx *fiber.Ctx) error {
 	var product models.Product
 
-	if err := ctx.BodyParser(&product); err != nil {
+	if err := readProductForm(ctx, &product); err != nil {
 		messages.SetErrorMessage(ctx, "erro ao processar os dados do produto")
 		return ctx.Redirect("/products/create")
 	}
@@ -65,6 +67,9 @@ func (c *productController) RenderDetails(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/store")
 	}
 
+	if !product.IsActive {
+		return fiber.ErrNotFound
+	}
 	return ctx.Render("products/details", fiber.Map{"Object": product}, views.StoreLayout)
 }
 
@@ -139,13 +144,14 @@ func (c *productController) JSONProducts(ctx *fiber.Ctx) error {
 
 func (c *productController) updateProductFromRequest(ctx *fiber.Ctx, product *models.Product) error {
 	oldImage := product.Image
-	if err := ctx.BodyParser(product); err != nil {
+	if err := readProductForm(ctx, product); err != nil {
 		return err
 	}
 
 	product.IsActive = ctx.FormValue("isActive") == "on"
 	if err := c.saveProductImage(ctx, product); err != nil {
 		product.Image = oldImage
+		return err
 	}
 
 	if err := c.productService.Update(product); err != nil {
@@ -157,6 +163,9 @@ func (c *productController) updateProductFromRequest(ctx *fiber.Ctx, product *mo
 
 func (c *productController) saveProductImage(ctx *fiber.Ctx, product *models.Product) error {
 	imageFile, err := ctx.FormFile("image")
+	if errors.Is(err, fasthttp.ErrMissingFile) {
+		return nil
+	}
 	if err != nil {
 		return err
 	}
@@ -182,4 +191,20 @@ func (c *productController) getProductByID(ctx *fiber.Ctx) (models.Product, erro
 		return models.Product{}, err
 	}
 	return c.productService.FindById(productID)
+}
+
+// Parse only fields the product form owns; IDs, stock and image paths stay server controlled.
+func readProductForm(ctx *fiber.Ctx, product *models.Product) error {
+	var input struct {
+		Name        string  `form:"name"`
+		Description string  `form:"description"`
+		Ingredients string  `form:"ingredients"`
+		Price       float64 `form:"price"`
+	}
+	if err := ctx.BodyParser(&input); err != nil {
+		return err
+	}
+	product.Name, product.Description = input.Name, input.Description
+	product.Ingredients, product.Price = input.Ingredients, input.Price
+	return product.Validate()
 }

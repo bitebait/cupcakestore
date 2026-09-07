@@ -28,12 +28,12 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="productName">Nome do produto</label>
-                                    <input type="text" class="form-control" id="productName" name="productName"
+                                    <input type="text" class="form-control" id="productName" name="productName" form="stockForm"
                                            placeholder="Nome do produto" required="required">
                                 </div>
                                 <form method="post" action="/stock/create" id="stockForm">
-                                    <input type="hidden" name="csrf" autocomplete="off"
-                                           value="{{ .csrfToken }}"/>
+                                    <input type="hidden" name="_csrf" autocomplete="off"
+                                           value="{{ .CSRFToken }}"/>
                                     <div class="form-group">
                                         <label for="type">Selecione Entra/Saída</label>
                                         <select class="form-control" id="type" name="type">
@@ -46,8 +46,7 @@
                                         <input type="number" class="form-control" id="quantity" name="quantity"
                                                placeholder="Quantidade" pattern="[1-9]\d*" step="1" min="1"
                                                required="required"/>
-                                        <input type="number" class="form-control" id="productID" name="productID"
-                                               required="required" value="" hidden="hidden">
+                                        <input type="hidden" id="productID" name="productID" value="">
                                     </div>
                                 </form>
                             </div>
@@ -56,7 +55,7 @@
                     <div class="card-footer">
                         <a href="/stock" class="btn btn-default">
                             <i class="fas fa-undo-alt"></i> Cancelar </a>
-                        <button type="button" onclick="document.getElementById('stockForm').submit();"
+                        <button type="submit" form="stockForm" id="stockSubmit" disabled
                                 class="btn btn-primary float-right">Adicionar
                         </button>
                     </div>
@@ -126,6 +125,7 @@
             $previewImage.attr('src', '/images/placeholder.png');
             $quantity.prop('disabled', true);
             $productID.val('');
+            $('#stockSubmit').prop('disabled', true);
         };
 
         const setFields = (item) => {
@@ -138,6 +138,7 @@
                 $previewImage.attr('src', item.imageUrl);
                 $quantity.prop('disabled', false);
                 $productID.val(item.id);
+                $('#stockSubmit').prop('disabled', false);
             } else {
                 clearFields();
             }
@@ -148,7 +149,7 @@
                 q: request.term,
                 limit: 5
             }, data => {
-                if (data.Products.length !== 0) {
+                if (data && Array.isArray(data.Products) && data.Products.length !== 0) {
                     response(data.Products.map(item => ({
                         label: item.Name,
                         value: item.Name,
@@ -162,9 +163,15 @@
                     })));
                 } else {
                     clearFields();
+                    response([]);
                 }
+            }).fail(() => {
+                clearFields();
+                response([]);
             });
         };
+
+        $productName.on('input', clearFields);
 
         $productName.autocomplete({
             source: fetchData,

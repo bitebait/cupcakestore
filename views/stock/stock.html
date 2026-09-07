@@ -57,7 +57,7 @@
                                     0 }}+{{end}}{{.Quantity}}
                                 </td>
                                 <td>
-                                    <span class="badge {{if eq .Type " entrada"
+                                    <span class="badge {{if eq .Type "entrada"
                                     }}badge-primary{{else}}badge-danger{{end}}">{{.Type}}</span>
                                 </td>
                                 <td><a href="/users/user/{{.Profile.UserID}}">{{.Profile.User.Email}}</a></td>
@@ -67,7 +67,7 @@
                             </tbody>
                         </table>
                     </div>
-                    {{template "snippets/pagination" .Object.Filter.Pagination}}
+                    {{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" "")}}
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
