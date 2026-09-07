@@ -8,7 +8,6 @@ import (
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/middlewares"
-	"github.com/bitebait/cupcakestore/routers"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/go-playground/validator/v10"
@@ -50,7 +49,7 @@ func NewApplicationWithError() (*fiber.App, error) {
 	registerMiddlewares(fiberApp)
 	configureHTTPS(fiberApp)
 	serveStaticFiles(fiberApp)
-	registerRoutes(fiberApp)
+	registerRoutes(fiberApp, db)
 	return fiberApp, nil
 }
 
@@ -115,11 +114,6 @@ func configureHTTPS(fiberApp *fiber.App) {
 	if !config.Get().DevMode {
 		fiberApp.Use(redirectToHTTPS)
 	}
-}
-
-func registerRoutes(fiberApp *fiber.App) {
-	fiberApp.Use(middlewares.Auth())
-	routers.InstallRouters(fiberApp)
 }
 
 func redirectToHTTPS(c fiber.Ctx) error {

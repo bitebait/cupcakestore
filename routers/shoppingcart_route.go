@@ -2,39 +2,15 @@ package routers
 
 import (
 	"github.com/bitebait/cupcakestore/controllers"
-	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/middlewares"
-	"github.com/bitebait/cupcakestore/repositories"
-	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v3"
 )
 
-type ShoppingCartRouter struct {
-	shoppingCartController controllers.ShoppingCartController
-}
-
-func NewShoppingCartRouter() *ShoppingCartRouter {
-	// Initialize repositories
-	shoppingCartRepository := repositories.NewShoppingCartRepository(database.DB)
-	shoppingCartItemRepository := repositories.NewShoppingCartItemRepository(database.DB)
-
-	// Initialize services with repositories
-	shoppingCartItemService := services.NewShoppingCartItemService(shoppingCartItemRepository)
-	shoppingCartService := services.NewShoppingCartService(shoppingCartRepository, shoppingCartItemService)
-
-	// Initialize controllers with services
-	shoppingCartController := controllers.NewShoppingCartController(shoppingCartService)
-
-	return &ShoppingCartRouter{
-		shoppingCartController: shoppingCartController,
-	}
-}
-
-func (r *ShoppingCartRouter) InstallRouters(app *fiber.App) {
+func RegisterShoppingCartRoutes(app *fiber.App, controller controllers.ShoppingCartController) {
 	cart := app.Group("/cart").Use(middlewares.LoginRequired())
-	cart.Get("/", r.shoppingCartController.RenderShoppingCart)
-	cart.Post("/", r.shoppingCartController.AddShoppingCartItem)
-	cart.Get("/count", r.shoppingCartController.CountShoppingCart)
-	cart.Post("/remove/:id", r.shoppingCartController.RemoveFromCart)
-	cart.Post("/items/:id/quantity", r.shoppingCartController.SetItemQuantity)
+	cart.Get("/", controller.RenderShoppingCart)
+	cart.Post("/", controller.AddShoppingCartItem)
+	cart.Get("/count", controller.CountShoppingCart)
+	cart.Post("/remove/:id", controller.RemoveFromCart)
+	cart.Post("/items/:id/quantity", controller.SetItemQuantity)
 }

@@ -2,37 +2,15 @@ package routers
 
 import (
 	"github.com/bitebait/cupcakestore/controllers"
-	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/middlewares"
-	"github.com/bitebait/cupcakestore/repositories"
-	"github.com/bitebait/cupcakestore/services"
 	"github.com/gofiber/fiber/v3"
 )
 
-type StockRouter struct {
-	stockController controllers.StockController
-}
-
-func NewStockRouter() *StockRouter {
-	// Initialize repositories
-	stockRepository := repositories.NewStockRepository(database.DB)
-
-	// Initialize services with repositories
-	stockService := services.NewStockService(stockRepository)
-
-	// Initialize controllers with services
-	stockController := controllers.NewStockController(stockService)
-
-	return &StockRouter{
-		stockController: stockController,
-	}
-}
-
-func (r *StockRouter) InstallRouters(app *fiber.App) {
+func RegisterStockRoutes(app *fiber.App, controller controllers.StockController) {
 	stock := app.Group("/stock").Use(middlewares.LoginAndStaffRequired())
 
-	stock.Get("/create", r.stockController.RenderCreate)
-	stock.Post("/create", r.stockController.Create)
-	stock.Get("/", r.stockController.RenderStocks)
-	stock.Get("/:id", r.stockController.RenderStock)
+	stock.Get("/create", controller.RenderCreate)
+	stock.Post("/create", controller.Create)
+	stock.Get("/", controller.RenderStocks)
+	stock.Get("/:id", controller.RenderStock)
 }

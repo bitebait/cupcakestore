@@ -3,23 +3,20 @@ package middlewares
 import (
 	"errors"
 
-	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v3"
 	"gorm.io/gorm"
 )
 
-func Auth() fiber.Handler                  { return createSessionHandler(false, false) }
-func LoginRequired() fiber.Handler         { return createSessionHandler(true, false) }
-func LoginAndStaffRequired() fiber.Handler { return createSessionHandler(true, true) }
-
-func createSessionHandler(requireLogin, requireStaff bool) fiber.Handler {
-	return sessionHandler(requireLogin, requireStaff, func(id uint) (models.Profile, error) {
-		return repositories.NewProfileRepository(database.DB).FindByUserId(id)
-	})
+// Auth resolves the current account once per request using the application's repository.
+func Auth(lookup func(uint) (models.Profile, error)) fiber.Handler {
+	return sessionHandler(false, false, lookup)
 }
+
+// Authorization guards run after Auth; missing authenticated context fails closed.
+func LoginRequired() fiber.Handler         { return sessionHandler(true, false, nil) }
+func LoginAndStaffRequired() fiber.Handler { return sessionHandler(true, true, nil) }
 
 // Reload account permissions from the database; a session is only proof of identity.
 func sessionHandler(requireLogin, requireStaff bool, lookup func(uint) (models.Profile, error)) fiber.Handler {
@@ -32,6 +29,9 @@ func sessionHandler(requireLogin, requireStaff bool, lookup func(uint) (models.P
 			}
 			userID, authenticated := sess.Get(session.UserIDKey).(uint)
 			if authenticated && userID != 0 {
+				if lookup == nil {
+					return fiber.ErrInternalServerError
+				}
 				current, err := lookup(userID)
 				if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 					return fiber.ErrInternalServerError

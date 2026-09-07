@@ -36,12 +36,15 @@ func TestSessionAuthorizationUsesCurrentAccountAndStopsDeniedRequests(t *testing
 				return c.SendStatus(200)
 			})
 			called := false
-			app.Get("/admin", sessionHandler(true, true, func(id uint) (models.Profile, error) {
+			lookups := 0
+			app.Use(Auth(func(id uint) (models.Profile, error) {
+				lookups++
 				if id != 7 {
 					t.Errorf("lookup ID = %d", id)
 				}
 				return models.Profile{UserID: 7, User: models.User{IsActive: tc.active, IsStaff: tc.staff}}, tc.lookupErr
-			}), func(c fiber.Ctx) error { called = true; return c.SendStatus(200) })
+			}))
+			app.Get("/admin", LoginRequired(), LoginAndStaffRequired(), func(c fiber.Ctx) error { called = true; return c.SendStatus(200) })
 			login, err := app.Test(httptest.NewRequest("GET", "/session", nil))
 			if err != nil {
 				t.Fatal(err)
@@ -56,6 +59,9 @@ func TestSessionAuthorizationUsesCurrentAccountAndStopsDeniedRequests(t *testing
 				t.Fatal(err)
 			}
 			defer response.Body.Close()
+			if lookups != 1 {
+				t.Fatalf("account lookups = %d, want one per request", lookups)
+			}
 			if response.StatusCode != tc.status || called != tc.allowed {
 				t.Fatalf("status=%d handlerCalled=%v", response.StatusCode, called)
 			}
