@@ -9,7 +9,7 @@ A aplicação continua renderizando HTML em Go. Não há bundler, framework Java
 | `web/css/ui.css` | Cores, foco, componentes compartilhados, autenticação e painel |
 | `web/css/storefront.css` | Vitrine, produto, carrinho, checkout e pedidos do cliente |
 | `web/js/ui.js` | Menu, senha/confirmar senha, mensagens, CEP e preview de imagem |
-| `web/js/storefront.js` | Quantidade, resumo de entrega e contador do carrinho |
+| `web/js/storefront.js` | Quantidade, resumo de entrega, contador do carrinho e cópia do Pix |
 | `web/js/admin.js` | Busca e seleção de produto no estoque |
 | `views/layouts/store.html` | Estrutura da loja e navegação do cliente |
 | `views/layouts/base.html` | Estrutura do painel e navegação administrativa |
@@ -18,6 +18,9 @@ A aplicação continua renderizando HTML em Go. Não há bundler, framework Java
 | `views/snippets/cart.html` | Formulário nativo de adicionar produto ou acesso ao login |
 | `views/snippets/quantity.html` | Controle de quantidade compartilhado entre catálogo e carrinho |
 | `views/snippets/order-status.html` | Nome do andamento compartilhado entre listas e detalhes, incluindo retirada |
+| `views/snippets/pix-payment.html` | QR Code local, Pix Copia e Cola e instruções de confirmação manual |
+| `views/snippets/state-options.html` | Opções de UF compartilhadas entre perfil e endereço da loja |
+| `views/snippets/store-readiness.html` | Pendências de configuração que impedem recebimento e pagamento |
 | `views/snippets/message.html` | Feedback persistente e acessível |
 | `views/snippets/pagination.html` | Navegação que preserva a busca |
 
@@ -77,3 +80,17 @@ Permanecem 19 recursos usados diretamente ou referenciados pelo CSS, somando 4.4
 O CSS do AdminLTE contém somente imagens `data:` embutidas. Seu comentário de sourcemap foi removido porque o mapa deixou de ser distribuído; os comentários de autoria e licença foram preservados. Nenhum JavaScript de terceiros é carregado ou distribuído nesses diretórios.
 
 As licenças foram obtidas das versões originais: [AdminLTE 3.2.0](https://github.com/ColorlibHQ/AdminLTE/blob/v3.2.0/LICENSE), [Bootstrap 4.6.1](https://github.com/twbs/bootstrap/blob/v4.6.1/LICENSE) e [Font Awesome 5.15.4](https://github.com/FortAwesome/Font-Awesome/blob/5.15.4/LICENSE.txt). Cópias acompanham os arquivos em `web/dist/LICENSE.AdminLTE.txt`, `web/dist/LICENSE.Bootstrap.txt` e `web/plugins/fontawesome-free/LICENSE.txt`.
+
+## Recebimento e Pix
+
+O checkout oferece entrega apenas quando o serviço está ativo e o cliente possui endereço válido. Retirada depende de endereço, cidade e UF válidos da loja; o cliente precisa somente dos dados de contato. Essas condições usam os métodos do domínio (`HasContactDetails`, `HasDeliveryAddress`, `IsPickupAvailable` e `IsPixAvailable`). Quando falta uma opção, a interface apresenta a correção possível; sem recebimento ou pagamento, a finalização fica indisponível. O backend repete as validações antes de reservar e pagar.
+
+Antes do pagamento, a página mostra o perfil atual e as configurações atuais da loja. Depois da escolha, o pedido exibe os dados registrados na operação. Pedidos em aberto apresentam pagamento e recebimento como escolhas pendentes, sem anunciar uma forma já confirmada.
+
+O Pix permanece na página do pedido. `PixQR` contém PNG em base64 e o template usa o prefixo literal `data:image/png;base64,`, mantendo o escape do HTML. `PixString` fica em um campo somente leitura, utilizável para copiar manualmente sem JavaScript. O botão de cópia usa Clipboard API quando disponível e orienta a cópia manual caso falhe. Um erro de validação do payload oculta tanto o código quanto o QR.
+
+A aprovação do Pix exige um formulário administrativo separado, com checkbox obrigatório de conferência do recebimento no extrato. A interface não oferece aprovação pelo seletor comum de status. Após confirmação, o cliente solicita cancelamento ou devolução à loja; `CanCustomerCancel` controla as ações exibidas e o backend protege a operação. Cancelamento administrativo não significa reembolso automático.
+
+Para validar esta etapa, inclua cenários de retirada sem endereço do cliente, loja sem endereço de retirada, entrega sem endereço completo, ausência de pagamento, Pix local no celular, cópia manual sem JavaScript, confirmação pelo administrador e cancelamento após Pix confirmado. As UFs do perfil e da loja usam `select`; automações devem usar `selectOption`, preservando os testes de tipografia de 16 px.
+
+Na validação desta etapa em 07/09/2026, o percurso real no Chromium confirmou 15 verificações funcionais, incluindo Pix local sem JavaScript, cópia exata do payload, bloqueio de dinheiro após alteração da taxa entre revisão e envio, preservação do Pix já emitido e confirmação/cancelamento conforme o perfil. As sete telas e estados avaliados pelo axe-core não apresentaram violações detectadas, erros de JavaScript, requisições externas, violações de CSP ou overflow horizontal. Os controles visíveis no celular mantiveram 16 px. As capturas `pix-payment-desktop.png`, `pix-payment-mobile.png` e `checkout-mobile.png` usam somente dados fictícios; nenhuma transação bancária foi realizada.

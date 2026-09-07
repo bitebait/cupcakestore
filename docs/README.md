@@ -4,6 +4,7 @@
 
 - [Execução local e visão geral](../README.md)
 - [Docker Compose, HTTPS, persistência e backups](DEPLOYMENT.md)
+- [Pix local, confirmação manual e atendimento](PIX.md)
 - [Organização do frontend e convenções de interface](FRONTEND.md)
 - [Auditoria de engenharia e pendências conhecidas](AUDIT.md)
 - [Auditoria de dependências Go](DEPENDENCY_AUDIT.md) e [dados da análise](dependency-audit.json)
