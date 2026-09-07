@@ -87,6 +87,7 @@ func setupTemplateEngine() *html.Engine {
 func registerMiddlewares(fiberApp *fiber.App) {
 	fiberApp.Use(logger.New())
 	fiberApp.Use(recover.New())
+	fiberApp.Use(middlewares.SecurityHeaders())
 	fiberApp.Use(session.Middleware)
 	fiberApp.Use(csrf.New(csrf.Config{
 		CookieHTTPOnly: true,
