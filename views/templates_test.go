@@ -7,8 +7,10 @@ import (
 	"testing"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/bitebait/cupcakestore/models"
 	templatehtml "github.com/gofiber/template/html/v2"
 	"golang.org/x/net/html"
+	"gorm.io/gorm"
 )
 
 func renderTemplate(t *testing.T, name string, data any, layout ...string) string {
@@ -25,6 +27,7 @@ func htmlEngine(t *testing.T) *templatehtml.Engine {
 	t.Helper()
 	engine := templatehtml.New(".", ".html")
 	engine.AddFuncMap(sprig.FuncMap())
+	engine.AddFunc("money", Money)
 	if err := engine.Load(); err != nil {
 		t.Fatal(err)
 	}
@@ -83,32 +86,64 @@ func TestStoreRendersForGuestWithoutProducts(t *testing.T) {
 	if !strings.Contains(output, "Nenhum produto disponível") || strings.Contains(output, "Página 1 de 0") {
 		t.Fatal("guest empty state is missing or has invalid pagination")
 	}
-	if strings.Count(output, `src="/plugins/jquery/jquery.min.js"`) != 1 {
-		t.Fatal("store must load jQuery exactly once")
+	if strings.Contains(output, "jquery") {
+		t.Fatal("storefront must work without jQuery")
 	}
 }
 
 func TestShoppingCartMutationFormsContainCSRFToken(t *testing.T) {
 	output := renderTemplate(t, "shoppingcart/shoppingcart", map[string]any{
-		"Object": map[string]any{
-			"ID":    3,
-			"Total": 5.0,
-			"Items": []any{map[string]any{
-				"Product":   map[string]any{"ID": 2, "Name": `<img src=x onerror=alert(1)>`},
-				"ItemPrice": 5.0, "Quantity": 1,
-			}},
+		"Object": models.ShoppingCart{
+			Model: gorm.Model{ID: 3}, Total: 5,
+			Items: []models.ShoppingCartItem{{ProductID: 2, Product: models.Product{Model: gorm.Model{ID: 2}, Name: `<img src=x onerror=alert(1)>`, Price: 5}, ItemPrice: 5, Quantity: 1}},
 		},
-		"Profile":   map[string]any{"IsProfileComplete": true},
+		"Profile":   &models.Profile{FirstName: "Ana", LastName: "Silva", Address: "Rua Teste", City: "São Paulo", State: "SP", PostalCode: "01000-000", PhoneNumber: "11999999999", UserID: 1},
 		"CSRFToken": "cart-token",
 	})
-	for _, action := range []string{"/cart/remove/2", "/orders/checkout/3"} {
-		if !strings.Contains(output, `action="`+action+`" method="post"`) {
-			t.Errorf("missing POST form for %s", action)
+	document, err := html.Parse(strings.NewReader(output))
+	if err != nil {
+		t.Fatal(err)
+	}
+	forms := map[string]string{}
+	var inspect func(*html.Node)
+	inspect = func(node *html.Node) {
+		if node.Type == html.ElementNode && node.Data == "form" {
+			attributes := map[string]string{}
+			for _, attr := range node.Attr {
+				attributes[attr.Key] = attr.Val
+			}
+			if strings.EqualFold(attributes["method"], "post") {
+				token := ""
+				var findToken func(*html.Node)
+				findToken = func(child *html.Node) {
+					if child.Data == "input" {
+						values := map[string]string{}
+						for _, attr := range child.Attr {
+							values[attr.Key] = attr.Val
+						}
+						if values["name"] == "_csrf" {
+							token = values["value"]
+						}
+					}
+					for nested := child.FirstChild; nested != nil; nested = nested.NextSibling {
+						findToken(nested)
+					}
+				}
+				findToken(node)
+				forms[attributes["action"]] = token
+			}
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			inspect(child)
 		}
 	}
-	if strings.Count(output, `name="_csrf" value="cart-token"`) != 2 {
-		t.Fatal("cart mutation forms must render the root CSRF token, including inside item range")
+	inspect(document)
+	for _, action := range []string{"/cart/remove/2", "/orders/checkout/3"} {
+		if forms[action] != "cart-token" {
+			t.Errorf("missing protected POST form for %s", action)
+		}
 	}
+
 	if strings.Contains(output, "<img src=x") {
 		t.Fatal("product name was not escaped")
 	}

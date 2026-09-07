@@ -10,6 +10,7 @@ import (
 	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/routers"
 	"github.com/bitebait/cupcakestore/session"
+	"github.com/bitebait/cupcakestore/views"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/extractors"
@@ -79,6 +80,7 @@ func (v *structValidator) Validate(value any) error {
 func setupTemplateEngine() *html.Engine {
 	engine := html.New("./views", ".html")
 	engine.AddFuncMap(sprig.FuncMap())
+	engine.AddFunc("money", views.Money)
 	engine.Reload(config.Get().DevMode)
 	return engine
 }

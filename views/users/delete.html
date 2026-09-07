@@ -15,7 +15,7 @@
         </div>
     </div>
 </div>
-<section class="content">
+<section class="content ui-form-page">
     <div class="container">
         <div class="row">
             <div class="col-md-10 mx-auto">
@@ -25,9 +25,8 @@
                             <i class="fas fa-exclamation-triangle text-danger"></i> Você realmente deseja deletar
                             <strong>#{{.Object.ID}} {{.Object.Email}}</strong>?
                         </h3>
-                        <p> Essa operação é irreversível e não poderemos recuperar os dados do usuário deletado. Caso
-                            não queira continuar, clique <a href="/users">aqui</a> para retornar à lista de usuários
-                            registrados. </p>
+                        <p>A conta deixará de ter acesso à loja. Confira o e-mail antes de confirmar ou
+                            <a href="/users">volte à lista de usuários</a>.</p>
                         <form method="post" action="/users/delete/{{.Object.ID}}">
                             <input type="hidden" name="_csrf" autocomplete="off"
                                    value="{{ .CSRFToken }}"/>

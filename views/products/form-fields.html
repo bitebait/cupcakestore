@@ -1,0 +1,49 @@
+<div class="row">
+    <div class="col-lg-7">
+        <div class="form-group">
+            <label for="name">Nome do produto</label>
+            <input type="text" class="form-control" id="name" name="name" minlength="4" maxlength="60"
+                   value="{{with .Object}}{{.Name}}{{end}}" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Preço (R$)</label>
+            <input type="number" class="form-control" id="price" name="price" min="0.01" step="0.01"
+                   value="{{with .Object}}{{printf "%.2f" .Price}}{{end}}" inputmode="decimal" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Descrição</label>
+            <textarea class="form-control" id="description" name="description" rows="3" maxlength="200"
+                      required>{{with .Object}}{{.Description}}{{end}}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="ingredients">Ingredientes</label>
+            <textarea class="form-control" id="ingredients" name="ingredients" rows="3" maxlength="300"
+                      required>{{with .Object}}{{.Ingredients}}{{end}}</textarea>
+        </div>
+        {{with .Object}}
+        <div class="form-group">
+            <p><strong>Em estoque:</strong> {{.CurrentStock}} unidade(s)</p>
+            <a href="/stock/create?q={{urlquery .Name}}" class="btn btn-outline-primary btn-sm">Movimentar estoque</a>
+            <a href="/stock/{{.ID}}" class="btn btn-default btn-sm">Ver histórico</a>
+        </div>
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="isActive" name="isActive"
+                   aria-describedby="statusHelp" {{if .IsActive}}checked{{end}}>
+            <label class="form-check-label" for="isActive">Produto ativo na loja</label>
+            <small id="statusHelp" class="form-text text-muted">Produtos inativos continuam disponíveis no cadastro.</small>
+        </div>
+        {{end}}
+    </div>
+    <div class="col-lg-5">
+        <div class="form-group">
+            <label for="image">Imagem do produto</label>
+            <input type="file" class="form-control-file" id="image" name="image"
+                   accept="image/png,image/jpeg,image/gif" aria-describedby="imageHelp imageLabel">
+            <small id="imageHelp" class="form-text text-muted">PNG, JPEG ou GIF de até 4 MB. A imagem é opcional.</small>
+            <p id="imageLabel" class="text-muted mt-2" role="status">Nenhuma nova imagem selecionada.</p>
+            <img id="previewImage" class="product-preview mt-3"
+                 src="{{if and .Object .Object.Image}}{{.Object.Image}}{{else}}/images/600x400.svg{{end}}"
+                 alt="Prévia da imagem do produto" width="400" height="300">
+        </div>
+    </div>
+</div>

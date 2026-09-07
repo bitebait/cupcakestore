@@ -1,8 +1,8 @@
 {{$query := .Query}}
 {{with .Pagination}}
-<nav class="card-footer clearfix" aria-label="Paginação" style="background-color: transparent !important;">
-    <span>Página {{.Page}} de {{max 1 .TotalPages}} - Até {{.Limit}} resultado(s) por página de um total de {{.Total}}.</span>
-    <ul class="pagination pagination-sm m-0 float-right">
+<nav class="ui-pagination" aria-label="Paginação">
+    <span>Página {{.Page}} de {{max 1 .TotalPages}} · {{.Total}} resultado(s)</span>
+    <ul class="pagination">
         {{if gt .Page 1}}
         <li class="page-item">
             <a class="page-link" aria-label="Página anterior" href="?page={{sub .Page 1}}&amp;limit={{.Limit}}&amp;q={{$query}}">«</a>

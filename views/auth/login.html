@@ -2,61 +2,50 @@
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <title>CupcakeStore | Acessar</title>
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
-          rel="stylesheet">
-    <link href="/plugins/fontawesome-free/css/all.min.css" rel="stylesheet">
-    <link href="/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
-    <link href="/dist/css/adminlte.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff9f2">
+    <title>Entrar na sua conta | Cupcake Store</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/ui.css">
+    <script src="/js/ui.js" defer></script>
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-    <!-- /.login-logo -->
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <a class="h1" href="/auth/login">
-                <b>Cupcake</b>Store </a>
-        </div>
-        <div class="card-body">
-            <p class="login-box-msg">Acesse sua conta para iniciar a sessão</p>
-            <form method="post">
-                <input type="hidden" name="_csrf" autocomplete="off" value="{{ .CSRFToken }}"/>
-                <div class="input-group mb-3">
-                    <input class="form-control" id="email" name="email" aria-label="E-mail" autocomplete="username" placeholder="E-mail do usuário"
-                           required="required"
-                           type="email">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-at"></span>
-                        </div>
-                    </div>
+<body class="ui-auth">
+<a class="ui-skip" href="#main-content">Pular para o conteúdo</a>
+<header class="ui-auth-header">
+    <a class="ui-brand" href="/store"><img src="/dist/img/logo.png" width="36" height="40" alt=""><span>Cupcake <strong>Store</strong></span></a>
+    <a class="ui-back-link" href="/store">← Voltar à loja</a>
+</header>
+<main class="ui-auth-layout" id="main-content">
+    <section class="ui-auth-story" aria-labelledby="welcome-title">
+        <span class="ui-eyebrow">UM DOCE REENCONTRO</span>
+        <h1 id="welcome-title">Que bom<br>ter você aqui.</h1>
+        <p>Seus sabores favoritos e todos os seus pedidos, em um só lugar.</p>
+        <div class="ui-auth-illustration" aria-hidden="true"><img src="/dist/img/logo.png" width="152" height="166" alt=""></div>
+        <span class="ui-auth-note">Pequenos doces. Bons momentos.</span>
+    </section>
+    <section class="ui-auth-card" aria-labelledby="login-title">
+        <span class="ui-eyebrow">SUA CONTA</span>
+        <h2 id="login-title">Entre e fique à vontade.</h2>
+        <p class="ui-muted">Use seu e-mail e senha para continuar.</p>
+        <form action="/auth/login" method="post" class="ui-form">
+            <input type="hidden" name="_csrf" autocomplete="off" value="{{.CSRFToken}}">
+            <div class="ui-field">
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" autocomplete="username" maxlength="100" placeholder="voce@exemplo.com" required>
+            </div>
+            <div class="ui-field">
+                <label for="password">Senha</label>
+                <div class="ui-password">
+                    <input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required>
+                    <button type="button" data-password-toggle="password" aria-controls="password" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button>
                 </div>
-                <div class="input-group mb-3">
-                    <input class="form-control password-field" id="password" aria-label="Senha" autocomplete="current-password" minlength="8" name="password"
-                           placeholder="Senha do usuário" required="required" type="password"/>
-                    <div class="input-group-append">
-                        <button class="input-group-text show-password-button" id="show-password-button" type="button" aria-label="Mostrar senha" aria-pressed="false">
-                            <span class="fas fa-eye" id="show-password-icon"></span>
-                        </button>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <button class="btn btn-primary btn-block" type="submit">Acessar</button>
-                    </div>
-                </div>
-                <p class="mb-0 mt-2 text-center">
-                    <a class="text-center" href="/auth/register">Clique aqui para fazer o registro</a>
-                </p>
-            </form>
-        </div>
-    </div>
-    {{template "snippets/message" .}}
-</div>
-<script src="/plugins/jquery/jquery.min.js"></script>
-<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/dist/js/adminlte.min.js"></script>
-{{template "auth/scripts/password"}}
+            </div>
+            <button class="ui-button ui-button-primary ui-button-full" type="submit">Entrar na minha conta <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="ui-auth-switch">Sua primeira visita? <a href="/auth/register">Criar uma conta</a></p>
+    </section>
+</main>
+<footer class="ui-auth-footer">Cupcake Store <span aria-hidden="true">·</span> Uma pausa doce no seu dia.</footer>
+{{template "snippets/message" .}}
 </body>
 </html>

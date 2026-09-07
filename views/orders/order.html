@@ -1,194 +1,55 @@
-<div class="content-wrapper">
-    <div class="content-header">
-        <div class="container">
-            <h1 class="m-0 text-dark">Detalhes do Pedido</h1>
-        </div>
-    </div>
-    <section class="content">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 mx-auto">
-                    <div class="invoice p-3 mb-3">
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h4><span>Status:  <strong
-                                        {{if eq .Object.Order.Status "Cancelado"}}class="text-danger"{{end}}>{{.Object.Order.Status}}</strong></span>
-                                </h4>
-                            </div>
-                            {{if and .Profile.User.IsStaff (ne .Object.Order.Status "Cancelado")}}
-                            <form method="post" action="/orders/order/{{.Object.Order.ID}}">
-                                <input type="hidden" name="_csrf" autocomplete="off"
-                                       value="{{ .CSRFToken }}"/>
-                                <div class="form-row mt-3">
-                                    <div class="col-9">
-                                        <select class="form-control" id="status" name="status">
-                                            <option {{if eq .Object.Order.Status
-                                            "Em Aberto"}}selected{{end}}
-                                            value="Em Aberto">Em Aberto
-                                            </option>
-                                            <option {{if eq .Object.Order.Status
-                                            "Processando Pagamento"}}selected{{end}}
-                                            value="Processando Pagamento">Processando Pagamento
-                                            </option>
-                                            <option {{if eq .Object.Order.Status
-                                            "Pagamento Aprovado"}}selected{{end}}
-                                            value="Pagamento Aprovado">Pagamento Aprovado
-                                            </option>
-                                            <option {{if eq .Object.Order.Status
-                                            "Preparando Pedido"}}selected{{end}}
-                                            value="Preparando Pedido">Preparando Pedido
-                                            </option>
-                                            <option {{if eq .Object.Order.Status
-                                            "Aguardando Envio"}}selected{{end}}
-                                            value="Aguardando Envio">Aguardando Envio
-                                            </option>
-                                            <option {{if eq .Object.Order.Status
-                                            "Enviado"}}selected{{end}}
-                                            value="Enviado">Enviado
-                                            </option>
-                                            <option {{if eq .Object.Order.Status
-                                            "Entregue"}}selected{{end}}
-                                            value="Entregue">Entregue
-                                            </option>
-                                            <option {{if eq .Object.Order.Status
-                                            "Cancelado"}}selected{{end}}
-                                            value="Cancelado">Cancelado
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-3">
-                                        <button type="submit" class="btn btn-primary">Atualizar</button>
-                                    </div>
-                                </div>
-                            </form>
-                            {{end}}
-                            <!-- /.col -->
-                        </div>
-                        <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
-                                De
-                                <address>
-                                    <strong>Cupcake Store</strong><br>
-                                    {{.Object.Order.DeliveryDetail.StoreAddress}}<br>
-                                    {{.Object.Order.DeliveryDetail.StoreCity}}
-                                    , {{.Object.Order.DeliveryDetail.StoreState}}
-                                    {{.Object.Order.DeliveryDetail.StorePostalCode}}<br>
-                                    Telefone: {{.Object.Order.DeliveryDetail.StorePhoneNumber}}<br>
-                                    Email: {{.Object.Order.DeliveryDetail.StoreEmail}}
-                                </address>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col" id="addressToDelivery">
-                                Para
-                                <address>
-                                    <strong>{{.Object.Order.DeliveryDetail.UserFirstName}}
-                                        {{.Object.Order.DeliveryDetail.UserLastName}}</strong><br>
-                                    {{.Object.Order.DeliveryDetail.UserAddress}}<br>
-                                    {{.Object.Order.DeliveryDetail.UserCity}}<br>
-                                    Telefone: {{.Object.Order.DeliveryDetail.UserPhoneNumber}}<br>
-                                    Email: {{.Object.Order.DeliveryDetail.UserEmail}}
-                                </address>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                                <b>Carrinho #{{.Object.Order.ShoppingCart.ID}}</b><br>
-                                <br>
-                                <b>Data do
-                                    Pedido:</b> {{.Object.Order.ShoppingCart.CreatedAt | date "02/01/2006 15:04h"}}<br>
-                                <b>Cliente:</b> {{.Object.Order.DeliveryDetail.UserFirstName}}
-                                {{.Object.Order.DeliveryDetail.UserLastName}}
-                            </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
-                        <!-- Table row -->
-                        <div class="row">
-                            <div class="col-12 table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Qtde</th>
-                                        <th>Produto</th>
-                                        <th>Description</th>
-                                        <th>Subtotal</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {{range .Object.Order.ShoppingCart.Items}}
-                                    <tr>
-                                        <td>
-                                            <div style="display: flex; justify-content: center; align-items: center;">
-                                                <img id="previewImage"
-                                                     src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/600x400.svg{{end}}"
-                                                     alt="Pré-visualização da imagem"
-                                                     style="max-width: 4vh;height: auto;max-height: 4vh;">
-                                            </div>
-                                        </td>
-                                        <td>{{.Quantity}}</td>
-                                        <td>{{.Product.Name}}</td>
-                                        <td>{{abbrev 60 .Product.Description}}</td>
-                                        <td>R$ {{mulf .Quantity .ItemPrice}}</td>
-                                    </tr>
-                                    {{end}}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
-                        <div class="row">
-                            <!-- accepted payments column -->
-                            <div class="col-md-6">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p class="lead">Formas de Pagamento:</p>
-                                        <p>{{.Object.Order.PaymentMethod}}</p>
-                                    </div>
-                                    <div class="col-6">
-                                        <p class="lead">Receber Produto Por:</p>
-                                        <p>{{if .Object.Order.IsDelivery}}Entregue pela Loja{{else}}Retirado pelo
-                                            Cliente{{end}}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="lead">Valor da Compra</p>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <tr>
-                                            <th style="width:50%">Subtotal:</th>
-                                            <td>R$ {{ printf "%.2f" .Object.Order.ShoppingCart.Total}}</td>
-                                        </tr>
-                                        {{if .Object.Order.IsDelivery}}
-                                        <tr id="deliveryRow">
-                                            <th>Entrega:</th>
-                                            <td>R$ {{ printf "%.2f" .Object.Order.DeliveryPrice}}</td>
-                                        </tr>
-                                        {{end}}
-                                        <tr id="totalRow">
-                                            <th>Total:</th>
-                                            <td id="total">
-                                                R$ {{ printf "%.2f" (addf .Object.Order.ShoppingCart.Total
-                                                .Object.Order.DeliveryPrice)}}
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
-                        <div class="row no-print">
-                            <div class="col-12">
-                                <a href="/orders" class="btn btn-default">
-                                    <i class="fas fa-undo-alt"></i> Voltar
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+{{$order := .Object.Order}}
+<div class="store-container store-page">
+    <nav class="store-breadcrumb" aria-label="Você está em"><a href="/orders">Meus pedidos</a><span aria-hidden="true">/</span><span>Pedido #{{$order.ID}}</span></nav>
+    <div class="store-page-heading"><div><p class="store-eyebrow">{{$order.CreatedAt | date "02/01/2006 · 15:04"}}</p><h1>Pedido #{{$order.ID}}.</h1></div><span class="store-status{{if eq $order.Status "Cancelado"}} store-status-cancelled{{end}}">{{if and (not $order.IsDelivery) (eq $order.Status "Aguardando Envio")}}Pronto para retirada{{else}}{{$order.Status}}{{end}}</span></div>
+    {{if and .Profile.User.IsStaff (ne $order.Status "Cancelado") (ne $order.Status "Entregue")}}
+    <section class="store-panel store-admin-status" aria-labelledby="status-title">
+        <h2 id="status-title">Atualizar andamento</h2>
+        <form method="post" action="/orders/order/{{$order.ID}}" class="store-inline-form">
+            <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+            <label class="store-sr-only" for="status">Status do pedido</label>
+            <select id="status" name="status" required>
+                {{range list "Em Aberto" "Processando Pagamento" "Pagamento Aprovado" "Preparando Pedido" "Aguardando Envio" "Enviado" "Entregue" "Cancelado"}}
+                <option value="{{.}}" {{if eq $order.Status .}}selected{{end}}>{{if and (not $order.IsDelivery) (eq . "Aguardando Envio")}}Pronto para retirada{{else}}{{.}}{{end}}</option>
+                {{end}}
+            </select>
+            <button type="submit" class="store-button store-button-primary">Atualizar</button>
+        </form>
     </section>
+    {{end}}
+    <div class="store-checkout-grid">
+        <div class="store-panel-stack">
+            <section class="store-panel" aria-label="Itens do pedido">
+                <h2>Os sabores escolhidos</h2>
+                <ul class="store-line-items">
+                    {{range $order.ShoppingCart.Items}}
+                    <li class="store-line-item"><img src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/cupcake-placeholder.svg{{end}}" alt="" width="88" height="88"><div class="store-line-content"><h3>{{.Product.Name}}</h3><p>{{.Quantity}} unidade(s) · {{money .ItemPrice}} cada</p></div><strong class="store-line-price">{{money (mulf .Quantity .ItemPrice)}}</strong></li>
+                    {{end}}
+                </ul>
+            </section>
+            <section class="store-panel">
+                <p class="store-eyebrow">{{if $order.IsDelivery}}Endereço de entrega{{else}}Retirada na loja{{end}}</p>
+                {{if $order.IsDelivery}}
+                <h2>{{$order.DeliveryDetail.UserFirstName}} {{$order.DeliveryDetail.UserLastName}}</h2>
+                <address>{{$order.DeliveryDetail.UserAddress}}<br>{{$order.DeliveryDetail.UserCity}}{{if and $order.DeliveryDetail.UserCity $order.DeliveryDetail.UserState}} · {{end}}{{$order.DeliveryDetail.UserState}}<br>{{$order.DeliveryDetail.UserPostalCode}}<br>{{$order.DeliveryDetail.UserPhoneNumber}}</address>
+                {{else}}
+                <h2>Cupcake Store</h2>
+                {{if $order.DeliveryDetail.StoreAddress}}
+                <address>{{$order.DeliveryDetail.StoreAddress}}{{if or $order.DeliveryDetail.StoreCity $order.DeliveryDetail.StoreState}}<br>{{$order.DeliveryDetail.StoreCity}}{{if and $order.DeliveryDetail.StoreCity $order.DeliveryDetail.StoreState}} · {{end}}{{$order.DeliveryDetail.StoreState}}{{end}}{{if $order.DeliveryDetail.StorePostalCode}}<br>{{$order.DeliveryDetail.StorePostalCode}}{{end}}</address>
+                {{else}}
+                <p class="store-notice">O endereço de retirada ainda não foi informado pela loja.</p>
+                {{end}}
+                {{end}}
+                {{if $order.DeliveryDetail.StorePhoneNumber}}<p class="store-help">Contato da loja: {{$order.DeliveryDetail.StorePhoneNumber}}</p>{{end}}
+            </section>
+        </div>
+        <aside class="store-panel store-summary" aria-labelledby="order-summary-title">
+            <p class="store-eyebrow">Tudo em um lugar</p><h2 id="order-summary-title">Resumo do pedido</h2>
+            <dl class="store-totals"><div><dt>Produtos</dt><dd>{{money $order.ShoppingCart.Total}}</dd></div>{{if $order.IsDelivery}}<div><dt>Entrega</dt><dd>{{money $order.DeliveryPrice}}</dd></div>{{end}}<div class="store-total"><dt>Total</dt><dd>{{money $order.Total}}</dd></div></dl>
+            <p class="store-help">Forma de pagamento: <strong>{{$order.PaymentMethod}}</strong></p>
+            {{if eq $order.Status "Em Aberto"}}<a href="/orders/checkout/{{$order.ShoppingCartID}}" class="store-button store-button-primary store-button-wide">Continuar pedido →</a>{{end}}
+            {{if and (eq $order.Status "Processando Pagamento") (eq $order.PaymentMethod "Pix")}}<a href="/orders/payment/{{$order.ShoppingCartID}}" class="store-button store-button-primary store-button-wide">Abrir pagamento Pix ↗</a>{{end}}
+            <a href="/orders" class="store-back-link">← Voltar aos meus pedidos</a>
+        </aside>
+    </div>
 </div>

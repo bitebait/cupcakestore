@@ -7,7 +7,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item">
-                        <a href="#">Home</a>
+                        <a href="/dashboard">Painel</a>
                     </li>
                     <li class="breadcrumb-item active">Configurar Endereço</li>
                 </ol>
@@ -47,23 +47,23 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="physicalStorePhoneNumber">Telefone</label>
-                                    <input type="text" class="form-control phone-number" id="physicalStorePhoneNumber"
+                                    <input type="tel" autocomplete="tel" maxlength="20" class="form-control" id="physicalStorePhoneNumber"
                                            name="physicalStorePhoneNumber"
                                            placeholder="Telefone" value="{{.Object.PhysicalStorePhoneNumber}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="physicalStorePostalCode">Código postal</label>
-                                    <input type="text" class="form-control postal-code" id="physicalStorePostalCode"
+                                    <input type="text" inputmode="numeric" autocomplete="postal-code" maxlength="20" class="form-control" id="physicalStorePostalCode"
                                            name="physicalStorePostalCode"
                                            placeholder="Código postal" value="{{.Object.PhysicalStorePostalCode}}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="physicalStorEstate">Estado</label>
-                                    <input type="text" class="form-control" id="physicalStorEstate"
-                                           name="physicalStorEstate" placeholder="Estado"
-                                           minlength="4"
+                                    <label for="physicalStoreState">Estado</label>
+                                    <input type="text" class="form-control" id="physicalStoreState"
+                                           name="physicalStoreState" placeholder="Estado"
+                                           minlength="2" maxlength="100" autocomplete="address-level1"
                                            value="{{.Object.PhysicalStoreState}}">
                                 </div>
                                 <div class="form-group col-md-6">
@@ -85,16 +85,3 @@
         </div>
     </div>
 </section>
-<script src="/plugins/cleave/cleave.min.js"></script>
-<script src="/plugins/cleave/cleave-phone.br.js"></script>
-<script>
-    var cleavePostal = new Cleave('.postal-code', {
-        numericOnly: true,
-        delimiter: '-',
-        blocks: [5, 3]
-    });
-    var cleavePhone = new Cleave('.phone-number', {
-        phone: true,
-        phoneRegionCode: 'BR'
-    });
-</script>
