@@ -2,20 +2,23 @@ package bootstrap
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/Masterminds/sprig/v3"
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/middlewares"
 	"github.com/bitebait/cupcakestore/routers"
 	"github.com/bitebait/cupcakestore/session"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/csrf"
-	"github.com/gofiber/fiber/v2/middleware/favicon"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/extractors"
+	"github.com/gofiber/fiber/v3/middleware/csrf"
+	"github.com/gofiber/fiber/v3/middleware/favicon"
+	"github.com/gofiber/fiber/v3/middleware/logger"
+	"github.com/gofiber/fiber/v3/middleware/recover"
+	"github.com/gofiber/fiber/v3/middleware/static"
 	"github.com/gofiber/template/html/v2"
-	"time"
 )
 
 const (
@@ -61,7 +64,16 @@ func createFiberApp() *fiber.App {
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       60 * time.Second,
+		StructValidator:   &structValidator{validate: validator.New()},
 	})
+}
+
+type structValidator struct {
+	validate *validator.Validate
+}
+
+func (v *structValidator) Validate(value any) error {
+	return v.validate.Struct(value)
 }
 
 func setupTemplateEngine() *html.Engine {
@@ -74,27 +86,27 @@ func setupTemplateEngine() *html.Engine {
 func registerMiddlewares(fiberApp *fiber.App) {
 	fiberApp.Use(logger.New())
 	fiberApp.Use(recover.New())
+	fiberApp.Use(session.Middleware)
 	fiberApp.Use(csrf.New(csrf.Config{
-		CookieHTTPOnly:    true,
-		CookieSecure:      !config.Get().DevMode,
-		CookieSameSite:    "Lax",
-		CookiePath:        "/",
-		Expiration:        time.Hour,
-		KeyLookup:         "form:_csrf",
-		ContextKey:        "CSRFToken",
-		Session:           session.Store,
-		SessionKey:        "fiber.csrf.token",
-		HandlerContextKey: "fiber.csrf.handler",
+		CookieHTTPOnly: true,
+		CookieSecure:   !config.Get().DevMode,
+		CookieSameSite: "Lax",
+		CookiePath:     "/",
+		IdleTimeout:    time.Hour,
+		Extractor:      extractors.FromForm("_csrf"),
+		Session:        session.Store,
 	}))
-	fiberApp.Use(compress.New(compress.Config{
-		Level: compress.LevelBestSpeed,
-	}))
+	fiberApp.Use(func(c fiber.Ctx) error {
+		c.Locals("CSRFToken", csrf.TokenFromContext(c))
+		return c.Next()
+	})
 	fiberApp.Use(favicon.New(favicon.Config{File: faviconPath, URL: faviconURL}))
 	fiberApp.Use(middlewares.Message())
 }
 
 func serveStaticFiles(fiberApp *fiber.App) {
-	fiberApp.Static("/", "./web")
+	// Compress only public assets; pages contain secrets such as CSRF tokens.
+	fiberApp.Use("/", static.New("./web", static.Config{Compress: true}))
 }
 
 func configureHTTPS(fiberApp *fiber.App) {
@@ -108,9 +120,9 @@ func registerRoutes(fiberApp *fiber.App) {
 	routers.InstallRouters(fiberApp)
 }
 
-func redirectToHTTPS(c *fiber.Ctx) error {
-	if c.Protocol() == "http" {
-		return c.Redirect("https://"+c.Hostname()+c.OriginalURL(), fiber.StatusMovedPermanently)
+func redirectToHTTPS(c fiber.Ctx) error {
+	if c.Scheme() == "http" {
+		return c.Redirect().Status(fiber.StatusMovedPermanently).To("https://" + c.Host() + c.OriginalURL())
 	}
 	return c.Next()
 }

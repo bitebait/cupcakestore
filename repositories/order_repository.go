@@ -5,9 +5,9 @@ import (
 	"math"
 
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"log/slog"
 )
 
 type OrderRepository interface {
@@ -42,7 +42,7 @@ func (r *orderRepository) FindById(id uint) (models.Order, error) {
 	err := r.applyPreloads(r.db).Preload("Profile.User").First(&order, id).Error
 
 	if err != nil {
-		log.Errorf("OrderRepository.FindOrCreateById: %s", err.Error())
+		slog.Error("OrderRepository.FindOrCreateById", "error", err)
 		return order, err
 	}
 
@@ -54,7 +54,7 @@ func (r *orderRepository) FindByCartId(cartID uint) (models.Order, error) {
 	err := r.applyPreloads(r.db).Where("shopping_cart_id = ?", cartID).First(&order).Error
 
 	if err != nil {
-		log.Errorf("OrderRepository.FindByCartId: %s", err.Error())
+		slog.Error("OrderRepository.FindByCartId", "error", err)
 		return order, err
 	}
 
@@ -162,7 +162,7 @@ func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
-		log.Errorf("OrderRepository.FindAll: %s", err.Error())
+		slog.Error("OrderRepository.FindAll", "error", err)
 		return nil
 	}
 	filter.Pagination.Total = total
@@ -173,7 +173,7 @@ func (r *orderRepository) FindAll(filter *models.OrderFilter) []models.Order {
 		Limit(filter.Pagination.Limit).
 		Order("created_at desc,updated_at desc").
 		Find(&orders).Error; err != nil {
-		log.Errorf("OrderRepository.FindAll: %s", err.Error())
+		slog.Error("OrderRepository.FindAll", "error", err)
 		return nil
 	}
 
@@ -188,7 +188,7 @@ func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Ord
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
-		log.Errorf("OrderRepository.FindAllByUser: %s", err.Error())
+		slog.Error("OrderRepository.FindAllByUser", "error", err)
 		return nil
 	}
 	filter.Pagination.Total = total
@@ -199,7 +199,7 @@ func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Ord
 		Limit(filter.Pagination.Limit).
 		Order("created_at desc,updated_at desc").
 		Find(&orders).Error; err != nil {
-		log.Errorf("OrderRepository.FindAllByUser: %s", err.Error())
+		slog.Error("OrderRepository.FindAllByUser", "error", err)
 		return nil
 	}
 
@@ -220,6 +220,9 @@ func (r *orderRepository) Update(order *models.Order) error {
 		var existing models.Order
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&existing, order.ID).Error; err != nil {
 			return err
+		}
+		if !existing.UpdatedAt.Equal(order.UpdatedAt) {
+			return errors.New("o pedido foi alterado; recarregue a página e tente novamente")
 		}
 		if existing.ProfileID != order.ProfileID || existing.ShoppingCartID != order.ShoppingCartID {
 			return errors.New("o perfil e o carrinho do pedido não podem ser alterados")
@@ -257,7 +260,7 @@ func (r *orderRepository) Update(order *models.Order) error {
 			}
 			updates["is_delivery"], updates["delivery_price"], updates["total"] = isDelivery, deliveryPrice, total
 		}
-		result := tx.Model(&models.Order{}).Where("id = ? AND status = ?", existing.ID, existing.Status).Updates(updates)
+		result := tx.Model(&models.Order{}).Where("id = ? AND status = ? AND updated_at = ?", existing.ID, existing.Status, order.UpdatedAt).Updates(updates)
 		if result.Error != nil {
 			return result.Error
 		}

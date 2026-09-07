@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/models"
@@ -18,6 +19,7 @@ type UserAdminSeeder struct {
 }
 
 func (s UserAdminSeeder) Seed(db *gorm.DB) error {
+	s.Email = strings.ToLower(strings.TrimSpace(s.Email))
 	// No shared/default administrator credentials are ever created.
 	if s.Email == "" && s.Password == "" {
 		return nil

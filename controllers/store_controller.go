@@ -4,11 +4,11 @@ import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/views"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type StoreController interface {
-	RenderStore(ctx *fiber.Ctx) error
+	RenderStore(ctx fiber.Ctx) error
 }
 
 type storeController struct {
@@ -21,10 +21,10 @@ func NewStoreController(productService services.ProductService) StoreController 
 	}
 }
 
-func (c *storeController) RenderStore(ctx *fiber.Ctx) error {
+func (c *storeController) RenderStore(ctx fiber.Ctx) error {
 	query := ctx.Query("q", "")
-	page := ctx.QueryInt("page")
-	limit := ctx.QueryInt("limit")
+	page := fiber.Query[int](ctx, "page")
+	limit := fiber.Query[int](ctx, "limit")
 	filter := models.NewProductFilter(query, page, limit)
 	products := c.productService.FindActiveWithStock(filter)
 

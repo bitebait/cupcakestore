@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/gofiber/fiber/v2/log"
+	"log/slog"
 	"time"
 
 	"github.com/bitebait/cupcakestore/models"
@@ -51,7 +51,7 @@ func (r *dashboardRepository) countOrderStatusInLastDays(lastDays string, status
 	var count int64
 
 	if err := r.db.Model(&models.Order{}).Where("status IN ?", statuses).Where("DATE(created_at) >= ?", lastDays).Count(&count).Error; err != nil {
-		log.Errorf("DashboardRepository countOrderStatusInLastDays: %s", err.Error())
+		slog.Error("DashboardRepository countOrderStatusInLastDays", "error", err)
 		return 0
 	}
 
@@ -62,7 +62,7 @@ func (r *dashboardRepository) countRecords(model interface{}) int64 {
 	var count int64
 
 	if err := r.db.Model(model).Count(&count).Error; err != nil {
-		log.Errorf("DashboardRepository countRecords: %s", err.Error())
+		slog.Error("DashboardRepository countRecords", "error", err)
 		return 0
 	}
 

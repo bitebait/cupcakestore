@@ -4,7 +4,7 @@
         const statusElement = document.getElementById('imageLabel');
         const previewImage = document.getElementById('previewImage');
         const originalImage = previewImage.src;
-        const maxFileSize = 2 * 1024 * 1024;
+        const maxFileSize = 4 * 1024 * 1024;
         let previewURL;
 
         statusElement.setAttribute('role', 'status');
@@ -22,9 +22,9 @@
                 statusElement.style.color = '';
                 return;
             }
-            if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > maxFileSize) {
+            if (!['image/png', 'image/jpeg', 'image/gif'].includes(file.type) || file.size > maxFileSize) {
                 fileInput.value = '';
-                statusElement.textContent = 'Selecione uma imagem PNG ou JPEG de até 2 MB.';
+                statusElement.textContent = 'Selecione uma imagem PNG, JPEG ou GIF de até 4 MB.';
                 statusElement.style.color = '#b21f2d';
                 return;
             }

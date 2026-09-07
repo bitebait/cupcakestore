@@ -4,6 +4,7 @@ import (
 	"math"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/bitebait/cupcakestore/models"
 	"gorm.io/driver/sqlite"
@@ -367,4 +368,136 @@ func TestLegacyOrderCancellationDoesNotInventAStockReservation(t *testing.T) {
 		t.Fatal(err)
 	}
 	assertStock(t, db, product.ID, 10)
+}
+
+func TestRegistrationRollsBackWhenProfileWriteFails(t *testing.T) {
+	db, _, _ := commerceDB(t)
+	if err := db.Exec(`CREATE TRIGGER reject_registration_profile BEFORE UPDATE OF first_name ON profiles BEGIN SELECT RAISE(ABORT, 'profile write failed'); END`).Error; err != nil {
+		t.Fatal(err)
+	}
+	profile := models.Profile{FirstName: "Ana", LastName: "Silva", User: models.User{Email: "rollback@example.com", Password: "test-password"}}
+	if err := NewUserRepository(db).CreateWithProfile(&profile); err == nil {
+		t.Fatal("expected profile write failure")
+	}
+	var count int64
+	if err := db.Model(&models.User{}).Where("email = ?", "rollback@example.com").Count(&count).Error; err != nil {
+		t.Fatal(err)
+	}
+	if count != 0 {
+		t.Fatal("failed registration left an account behind")
+	}
+	if err := db.Model(&models.Profile{}).Where("user_id = ?", profile.User.ID).Count(&count).Error; err != nil {
+		t.Fatal(err)
+	}
+	if count != 0 {
+		t.Fatal("failed registration left a profile behind")
+	}
+}
+
+func TestRecordLoginCannotRestoreAccountPermissions(t *testing.T) {
+	db, profile, _ := commerceDB(t)
+	repo := NewUserRepository(db)
+	first := time.Now().UTC().Truncate(time.Second)
+	if err := repo.RecordLogin(profile.UserID, first); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.RecordLogin(profile.UserID, first.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	var user models.User
+	if err := db.First(&user, profile.UserID).Error; err != nil {
+		t.Fatal(err)
+	}
+	if !user.FirstLogin.Equal(first) || !user.LastLogin.Equal(first.Add(time.Hour)) {
+		t.Fatalf("login dates were not preserved: first=%v last=%v", user.FirstLogin, user.LastLogin)
+	}
+	if err := db.Model(&user).UpdateColumn("is_active", false).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.RecordLogin(user.ID, first.Add(2*time.Hour)); err == nil {
+		t.Fatal("inactive account accepted login")
+	}
+	if err := db.First(&user, user.ID).Error; err != nil {
+		t.Fatal(err)
+	}
+	if user.IsActive || user.IsStaff {
+		t.Fatal("login changed account permissions")
+	}
+}
+
+func TestStaleUserUpdateCannotRestorePermissionsOrPassword(t *testing.T) {
+	db, profile, _ := commerceDB(t)
+	repo := NewUserRepository(db)
+	stale, err := repo.FindById(profile.UserID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	current := stale
+	current.IsActive = false
+	current.Password = "replacement-password-hash"
+	if err := repo.Update(&current); err != nil {
+		t.Fatal(err)
+	}
+	stale.Email = "edited@example.com"
+	if err := repo.Update(&stale); err == nil {
+		t.Fatal("stale account update accepted")
+	}
+	persisted, err := repo.FindById(current.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if persisted.IsActive || persisted.Password != current.Password || persisted.Email == stale.Email {
+		t.Fatal("stale update changed account state")
+	}
+}
+
+func TestUserUpdatePreservesConcurrentLoginDates(t *testing.T) {
+	db, profile, _ := commerceDB(t)
+	repo := NewUserRepository(db)
+	user, err := repo.FindById(profile.UserID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	login := time.Now().UTC().Truncate(time.Second)
+	if err := repo.RecordLogin(user.ID, login); err != nil {
+		t.Fatal(err)
+	}
+	user.Email = "edited@example.com"
+	if err := repo.Update(&user); err != nil {
+		t.Fatal(err)
+	}
+	updated, err := repo.FindById(user.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !updated.LastLogin.Equal(login) || !updated.FirstLogin.Equal(login) {
+		t.Fatal("profile edit overwrote login dates")
+	}
+}
+
+func TestStaleOrderStatusUpdateCannotOverwritePayment(t *testing.T) {
+	db, profile, product := commerceDB(t)
+	cart := cartWithItem(t, db, profile.ID, product.ID, 1)
+	repo := NewOrderRepository(db)
+	order, err := repo.FindOrCreate(profile.ID, cart.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	stale := order
+	order.PaymentMethod = models.CashPaymentMethod
+	order.Status = models.ProcessingStatus
+	if err := repo.Update(&order); err != nil {
+		t.Fatal(err)
+	}
+	stale.Status = models.DeliveredStatusAwaiting
+	if err := repo.Update(&stale); err == nil {
+		t.Fatal("stale order update accepted")
+	}
+	persisted, err := repo.FindById(order.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if persisted.PaymentMethod != models.CashPaymentMethod || persisted.Status != models.ProcessingStatus {
+		t.Fatal("stale update overwrote payment")
+	}
 }

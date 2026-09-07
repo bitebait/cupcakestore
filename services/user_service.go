@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/go-playground/validator/v10"
 	"strings"
+	"time"
 
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
@@ -16,6 +17,7 @@ type UserService interface {
 	FindById(id uint) (models.User, error)
 	FindByEmail(email string) (models.User, error)
 	Update(user *models.User) error
+	RecordLogin(id uint, at time.Time) error
 	Delete(id uint) error
 }
 
@@ -102,4 +104,8 @@ func (s *userService) Register(profile *models.Profile) error {
 		return errors.New("falha ao cadastrar o usuário, verifique os dados ou tente um e-mail diferente")
 	}
 	return nil
+}
+
+func (s *userService) RecordLogin(id uint, at time.Time) error {
+	return s.userRepository.RecordLogin(id, at)
 }

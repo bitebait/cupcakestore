@@ -11,11 +11,13 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/session"
+	"github.com/gofiber/fiber/v3"
 )
 
 func TestStoreFlowRegistrationLoginCheckoutAndCancellation(t *testing.T) {
@@ -62,7 +64,7 @@ func TestStoreFlowRegistrationLoginCheckoutAndCancellation(t *testing.T) {
 		for _, cookie := range cookies {
 			req.AddCookie(cookie)
 		}
-		response, err := app.Test(req, 5000)
+		response, err := app.Test(req, fiber.TestConfig{Timeout: 5 * time.Second})
 		if err != nil {
 			t.Fatal(err)
 		}

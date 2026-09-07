@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/bitebait/cupcakestore/session"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 func TestCSRFProtectsFormsAndUsesHttpOnlySessionCookie(t *testing.T) {
@@ -25,10 +25,10 @@ func TestCSRFProtectsFormsAndUsesHttpOnlySessionCookie(t *testing.T) {
 	session.SetupSession()
 	app := fiber.New()
 	registerMiddlewares(app)
-	app.Get("/form", func(c *fiber.Ctx) error {
+	app.Get("/form", func(c fiber.Ctx) error {
 		return c.SendString(c.Locals("CSRFToken").(string))
 	})
-	app.Post("/form", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNoContent) })
+	app.Post("/form", func(c fiber.Ctx) error { return c.SendStatus(fiber.StatusNoContent) })
 
 	response, err := app.Test(httptest.NewRequest(http.MethodGet, "/form", nil))
 	if err != nil {
@@ -77,5 +77,61 @@ func TestCSRFProtectsFormsAndUsesHttpOnlySessionCookie(t *testing.T) {
 				t.Fatalf("status = %d, want %d", response.StatusCode, tc.want)
 			}
 		})
+	}
+}
+
+func TestStaticMiddlewareServesAssetsAndLeavesDynamicPagesUncompressed(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(".."); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(cwd) })
+	session.SetupSession()
+	app := fiber.New()
+	registerMiddlewares(app)
+	serveStaticFiles(app)
+	app.Get("/page", func(c fiber.Ctx) error {
+		c.Type("html")
+		return c.SendString(strings.Repeat("page content ", 200) + c.Locals("CSRFToken").(string))
+	})
+	for _, method := range []string{http.MethodGet, http.MethodHead} {
+		res, err := app.Test(httptest.NewRequest(method, "/dist/img/logo.png", nil))
+		if err != nil {
+			t.Fatal(err)
+		}
+		res.Body.Close()
+		if res.StatusCode != http.StatusOK || !strings.HasPrefix(res.Header.Get("Content-Type"), "image/png") {
+			t.Fatalf("%s asset: status %d, content type %q", method, res.StatusCode, res.Header.Get("Content-Type"))
+		}
+	}
+	req := httptest.NewRequest(http.MethodGet, "/page", nil)
+	req.Header.Set("Accept-Encoding", "gzip, br")
+	res, err := app.Test(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK || res.Header.Get("Content-Encoding") != "" {
+		t.Fatalf("dynamic page must remain uncompressed: status %d, encoding %q", res.StatusCode, res.Header.Get("Content-Encoding"))
+	}
+}
+
+func TestHTTPSRedirectUsesSchemeAndPreservesHostPort(t *testing.T) {
+	app := fiber.New()
+	app.Use(redirectToHTTPS)
+	app.Get("/store", func(c fiber.Ctx) error { return c.SendStatus(http.StatusOK) })
+	req := httptest.NewRequest(http.MethodGet, "http://localhost:8443/store?page=2", nil)
+	// Forwarded headers from an untrusted client cannot bypass HTTPS handling.
+	req.Header.Set("X-Forwarded-Proto", "https")
+	res, err := app.Test(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusMovedPermanently || res.Header.Get("Location") != "https://localhost:8443/store?page=2" {
+		t.Fatalf("unexpected HTTPS redirect: status %d, location %q", res.StatusCode, res.Header.Get("Location"))
 	}
 }

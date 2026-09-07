@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type ShoppingCartRepository interface {
@@ -26,7 +26,7 @@ func NewShoppingCartRepository(database *gorm.DB) ShoppingCartRepository {
 
 func (r *shoppingCartRepository) FindAll(filter *models.ShoppingCartFilter) []models.ShoppingCart {
 	if filter.ShoppingCart.ProfileID <= 0 || filter.Pagination.Page <= 0 || filter.Pagination.Limit <= 0 {
-		log.Error("ShoppingCartRepository FindAll: invalid filter params")
+		slog.Error("ShoppingCartRepository FindAll: invalid filter params")
 		return nil
 	}
 
@@ -40,14 +40,14 @@ func (r *shoppingCartRepository) FindAll(filter *models.ShoppingCartFilter) []mo
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
-		log.Errorf("ShoppingCartRepository FindAll: %s", err.Error())
+		slog.Error("ShoppingCartRepository FindAll", "error", err)
 		return nil
 	}
 	filter.Pagination.Total = total
 
 	var carts []models.ShoppingCart
 	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Find(&carts).Error; err != nil {
-		log.Errorf("ShoppingCartRepository FindAll: %s", err.Error())
+		slog.Error("ShoppingCartRepository FindAll", "error", err)
 		return nil
 	}
 

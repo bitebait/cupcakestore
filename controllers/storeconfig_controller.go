@@ -4,12 +4,12 @@ import (
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type StoreConfigController interface {
-	Update(ctx *fiber.Ctx) error
-	RenderStoreConfig(ctx *fiber.Ctx, configType string) error
+	Update(ctx fiber.Ctx) error
+	RenderStoreConfig(ctx fiber.Ctx, configType string) error
 }
 
 type storeConfigController struct {
@@ -22,17 +22,17 @@ func NewStoreConfigController(s services.StoreConfigService) StoreConfigControll
 	}
 }
 
-func (c *storeConfigController) Update(ctx *fiber.Ctx) error {
+func (c *storeConfigController) Update(ctx fiber.Ctx) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/")
 	}
 
 	// The four settings forms submit partial updates. Start with current values,
 	// then copy only editable settings back, preserving the database identity.
 	input := storeConfig
-	if err := ctx.BodyParser(&input); err != nil {
+	if err := ctx.Bind().Body(&input); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "configuração inválida")
 	}
 	storeConfig = models.StoreConfig{
@@ -47,19 +47,19 @@ func (c *storeConfigController) Update(ctx *fiber.Ctx) error {
 
 	if err = c.storeConfigService.Update(&storeConfig); err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/")
 	}
 
 	messages.SetSuccessMessage(ctx, "configuração atualizada com sucesso")
-	return ctx.Redirect("/dashboard")
+	return ctx.Redirect().Status(fiber.StatusFound).To("/dashboard")
 }
 
-func (c *storeConfigController) RenderStoreConfig(ctx *fiber.Ctx, configType string) error {
+func (c *storeConfigController) RenderStoreConfig(ctx fiber.Ctx, configType string) error {
 	storeConfig, err := c.storeConfigService.GetStoreConfig()
 
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/")
 	}
 
 	viewPath := "config/" + configType

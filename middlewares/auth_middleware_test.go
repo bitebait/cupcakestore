@@ -7,7 +7,7 @@ import (
 
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/session"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"gorm.io/gorm"
 )
 
@@ -29,15 +29,10 @@ func TestSessionAuthorizationUsesCurrentAccountAndStopsDeniedRequests(t *testing
 		t.Run(tc.name, func(t *testing.T) {
 			session.SetupSession()
 			app := fiber.New()
-			app.Get("/session", func(c *fiber.Ctx) error {
-				sess, err := session.Store.Get(c)
-				if err != nil {
-					return err
-				}
-				sess.Set("Profile", &models.Profile{UserID: 7, User: models.User{IsActive: true, IsStaff: true}})
-				if err := sess.Save(); err != nil {
-					return err
-				}
+			app.Use(session.Middleware)
+			app.Get("/session", func(c fiber.Ctx) error {
+				sess := session.FromContext(c)
+				sess.Set(session.UserIDKey, uint(7))
 				return c.SendStatus(200)
 			})
 			called := false
@@ -46,7 +41,7 @@ func TestSessionAuthorizationUsesCurrentAccountAndStopsDeniedRequests(t *testing
 					t.Errorf("lookup ID = %d", id)
 				}
 				return models.Profile{UserID: 7, User: models.User{IsActive: tc.active, IsStaff: tc.staff}}, tc.lookupErr
-			}), func(c *fiber.Ctx) error { called = true; return c.SendStatus(200) })
+			}), func(c fiber.Ctx) error { called = true; return c.SendStatus(200) })
 			login, err := app.Test(httptest.NewRequest("GET", "/session", nil))
 			if err != nil {
 				t.Fatal(err)

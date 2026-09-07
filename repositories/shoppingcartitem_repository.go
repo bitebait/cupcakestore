@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type ShoppingCartItemRepository interface {
@@ -96,7 +96,7 @@ func (r *shoppingCartItemRepository) FindById(id uint) (models.ShoppingCartItem,
 	err := r.db.First(&cartItem, id).Error
 
 	if err != nil {
-		log.Errorf("ShoppingCartItemRepository FindOrCreateById: %s", err.Error())
+		slog.Error("ShoppingCartItemRepository FindOrCreateById", "error", err)
 	}
 
 	return cartItem, err

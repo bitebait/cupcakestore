@@ -7,7 +7,7 @@ import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
 	"github.com/bitebait/cupcakestore/session"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"gorm.io/gorm"
 )
 
@@ -23,24 +23,24 @@ func createSessionHandler(requireLogin, requireStaff bool) fiber.Handler {
 
 // Reload account permissions from the database; a session is only proof of identity.
 func sessionHandler(requireLogin, requireStaff bool, lookup func(uint) (models.Profile, error)) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		profile, ok := c.Locals("Profile").(*models.Profile)
 		if !ok || profile == nil {
-			sess, err := session.Store.Get(c)
-			if err != nil {
+			sess := session.FromContext(c)
+			if sess == nil {
 				return fiber.ErrInternalServerError
 			}
-			stored, authenticated := sess.Get("Profile").(*models.Profile)
-			if authenticated && stored != nil && stored.UserID != 0 {
-				current, err := lookup(stored.UserID)
+			userID, authenticated := sess.Get(session.UserIDKey).(uint)
+			if authenticated && userID != 0 {
+				current, err := lookup(userID)
 				if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 					return fiber.ErrInternalServerError
 				}
 				if err != nil || !current.User.IsActive {
-					if err := sess.Destroy(); err != nil {
+					if err := sess.Reset(); err != nil {
 						return fiber.ErrInternalServerError
 					}
-					return c.Redirect("/auth/login")
+					return c.Redirect().Status(fiber.StatusFound).To("/auth/login")
 				}
 				current.User.Password = ""
 				profile = &current
@@ -49,7 +49,7 @@ func sessionHandler(requireLogin, requireStaff bool, lookup func(uint) (models.P
 		}
 		if profile == nil {
 			if requireLogin {
-				return c.Redirect("/auth/login")
+				return c.Redirect().Status(fiber.StatusFound).To("/auth/login")
 			}
 			return c.Next()
 		}

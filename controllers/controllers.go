@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/views"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 func selectLayout(isStaff, isUserProfile bool) string {
@@ -17,9 +17,9 @@ func selectLayout(isStaff, isUserProfile bool) string {
 }
 
 // getProfileID returns the profile key used by carts, orders and stock.
-func getProfileID(ctx *fiber.Ctx) uint {
-	profile, ok := ctx.Locals("Profile").(*models.Profile)
-	if !ok || profile == nil {
+func getProfileID(ctx fiber.Ctx) uint {
+	profile := fiber.Locals[*models.Profile](ctx, "Profile")
+	if profile == nil {
 		return 0
 	}
 	return profile.ID

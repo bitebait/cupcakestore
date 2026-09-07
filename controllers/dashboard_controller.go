@@ -3,11 +3,11 @@ package controllers
 import (
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/views"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type DashboardController interface {
-	RenderDashboard(ctx *fiber.Ctx) error
+	RenderDashboard(ctx fiber.Ctx) error
 }
 
 type dashboardController struct {
@@ -20,7 +20,7 @@ func NewDashboardController(s services.DashboardService) DashboardController {
 	}
 }
 
-func (c *dashboardController) RenderDashboard(ctx *fiber.Ctx) error {
+func (c *dashboardController) RenderDashboard(ctx fiber.Ctx) error {
 	data := c.dashboardService.GetInfo(30)
 	return ctx.Render("dashboard/dashboard", fiber.Map{"Object": data}, views.BaseLayout)
 }

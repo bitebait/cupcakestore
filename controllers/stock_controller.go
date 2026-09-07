@@ -7,7 +7,7 @@ import (
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/views"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 const (
@@ -17,10 +17,10 @@ const (
 )
 
 type StockController interface {
-	Create(ctx *fiber.Ctx) error
-	RenderCreate(ctx *fiber.Ctx) error
-	RenderStocks(ctx *fiber.Ctx) error
-	RenderStock(ctx *fiber.Ctx) error
+	Create(ctx fiber.Ctx) error
+	RenderCreate(ctx fiber.Ctx) error
+	RenderStocks(ctx fiber.Ctx) error
+	RenderStock(ctx fiber.Ctx) error
 }
 
 type stockController struct {
@@ -33,17 +33,17 @@ func NewStockController(s services.StockService) StockController {
 	}
 }
 
-func (c *stockController) RenderCreate(ctx *fiber.Ctx) error {
+func (c *stockController) RenderCreate(ctx fiber.Ctx) error {
 	return ctx.Render(StockCreateView, fiber.Map{}, views.BaseLayout)
 }
 
-func (c *stockController) Create(ctx *fiber.Ctx) error {
+func (c *stockController) Create(ctx fiber.Ctx) error {
 	var input struct {
-		ProductID uint   `form:"productID"`
-		Quantity  int    `form:"quantity"`
-		Type      string `form:"type"`
+		ProductID uint   `form:"productID" validate:"required,gt=0"`
+		Quantity  int    `form:"quantity" validate:"required,gt=0"`
+		Type      string `form:"type" validate:"required,oneof=entrada saída"`
 	}
-	if err := ctx.BodyParser(&input); err != nil {
+	if err := ctx.Bind().Body(&input); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "dados de estoque inválidos")
 	}
 	stock := models.Stock{ProductID: input.ProductID, Quantity: input.Quantity}
@@ -56,7 +56,7 @@ func (c *stockController) Create(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "tipo de movimentação inválido")
 	}
 
-	profile := ctx.Locals("Profile").(*models.Profile)
+	profile := fiber.Locals[*models.Profile](ctx, "Profile")
 	if profile == nil || profile.ID == 0 {
 		messages.SetErrorMessage(ctx, "por favor faça o login e tente novamente")
 		return ctx.Render(StockCreateView, fiber.Map{}, views.BaseLayout)
@@ -69,23 +69,23 @@ func (c *stockController) Create(ctx *fiber.Ctx) error {
 	}
 
 	messages.SetSuccessMessage(ctx, "estoque adicionado com sucesso")
-	return ctx.Redirect(fmt.Sprintf("/stock/%v", stock.ProductID))
+	return ctx.Redirect().Status(fiber.StatusFound).To(fmt.Sprintf("/stock/%v", stock.ProductID))
 }
 
-func (c *stockController) RenderStocks(ctx *fiber.Ctx) error {
+func (c *stockController) RenderStocks(ctx fiber.Ctx) error {
 	return ctx.Render(StocksView, fiber.Map{}, views.BaseLayout)
 }
 
-func (c *stockController) RenderStock(ctx *fiber.Ctx) error {
+func (c *stockController) RenderStock(ctx fiber.Ctx) error {
 	productID, err := helpers.ParseStringToID(ctx.Params("id"))
 
 	if err != nil {
 		messages.SetErrorMessage(ctx, "falha ao identificar o produto: "+err.Error())
-		return ctx.Redirect("/stocks")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/stocks")
 	}
 
-	page := ctx.QueryInt("page")
-	limit := ctx.QueryInt("limit")
+	page := fiber.Query[int](ctx, "page")
+	limit := fiber.Query[int](ctx, "limit")
 	filter := models.NewStockFilter(productID, page, limit)
 	stocks := c.stockService.FindByProductId(filter)
 	data := fiber.Map{

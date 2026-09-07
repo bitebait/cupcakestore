@@ -118,9 +118,9 @@ func (o *Order) CanTransitionTo(status ShoppingCartStatus) bool {
 	case PaymentApprovedStatus:
 		return status == ProcessingStatus || status == CancelledStatus
 	case ProcessingStatus:
-		return status == DeliveredStatusAwaiting || status == CancelledStatus
+		return status == DeliveredStatusAwaiting || status == CancelledStatus || (!o.IsDelivery && status == DeliveredStatusDelivered)
 	case DeliveredStatusAwaiting:
-		return status == DeliveredStatusSent || status == CancelledStatus
+		return status == DeliveredStatusSent || status == CancelledStatus || (!o.IsDelivery && status == DeliveredStatusDelivered)
 	case DeliveredStatusSent:
 		return status == DeliveredStatusDelivered
 	default:

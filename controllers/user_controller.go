@@ -8,7 +8,7 @@ import (
 	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/bitebait/cupcakestore/views"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"strconv"
 )
 
@@ -21,13 +21,13 @@ const (
 )
 
 type UserController interface {
-	Create(ctx *fiber.Ctx) error
-	Update(ctx *fiber.Ctx) error
-	Delete(ctx *fiber.Ctx) error
-	RenderCreate(ctx *fiber.Ctx) error
-	RenderUsers(ctx *fiber.Ctx) error
-	RenderUser(ctx *fiber.Ctx) error
-	RenderDelete(ctx *fiber.Ctx) error
+	Create(ctx fiber.Ctx) error
+	Update(ctx fiber.Ctx) error
+	Delete(ctx fiber.Ctx) error
+	RenderCreate(ctx fiber.Ctx) error
+	RenderUsers(ctx fiber.Ctx) error
+	RenderUser(ctx fiber.Ctx) error
+	RenderDelete(ctx fiber.Ctx) error
 }
 
 type userController struct {
@@ -40,26 +40,26 @@ func NewUserController(u services.UserService) UserController {
 	}
 }
 
-func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
+func (c *userController) RenderCreate(ctx fiber.Ctx) error {
 	return ctx.Render(tplCriarUsuario, fiber.Map{}, layoutBase)
 }
 
-func (c *userController) Create(ctx *fiber.Ctx) error {
+func (c *userController) Create(ctx fiber.Ctx) error {
 	user := models.User{Email: ctx.FormValue("email"), Password: ctx.FormValue("password")}
 
 	c.extractUserFormData(ctx, &user)
 
 	if err := c.userService.Create(&user); err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users/create")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users/create")
 	}
 
 	messages.SetSuccessMessage(ctx, "usuário criado com sucesso")
-	return ctx.Redirect("/users")
+	return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 }
 
-func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
-	filter := models.NewUserFilter(ctx.Query("q", ""), ctx.QueryInt("page"), ctx.QueryInt("limit"))
+func (c *userController) RenderUsers(ctx fiber.Ctx) error {
+	filter := models.NewUserFilter(ctx.Query("q", ""), fiber.Query[int](ctx, "page"), fiber.Query[int](ctx, "limit"))
 	users := c.userService.FindAll(filter)
 
 	data := fiber.Map{"Users": users, "Filter": filter}
@@ -67,35 +67,35 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 	return ctx.Render(tplUsuarios, fiber.Map{"Object": data}, layoutBase)
 }
 
-func (c *userController) RenderUser(ctx *fiber.Ctx) error {
+func (c *userController) RenderUser(ctx fiber.Ctx) error {
 	user, err := c.getUserAndCheckAccess(ctx)
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 	}
 
 	userSess, err := c.getUserSession(ctx)
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 	}
 
 	if user.IsStaff && user.ID != userSess.ID {
 		err := errors.New("você não tem as permissões necessárias para editar esse usuário")
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 	}
 
 	layout := selectLayout(userSess.IsStaff, user.ID == userSess.ID)
 	if layout == "" {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 	}
 
 	return ctx.Render(tplUsuario, fiber.Map{"Object": user}, layout)
 }
 
-func (c *userController) getUser(ctx *fiber.Ctx) (models.User, error) {
+func (c *userController) getUser(ctx fiber.Ctx) (models.User, error) {
 	userID, err := helpers.ParseStringToID(ctx.Params("id"))
 
 	if err != nil {
@@ -105,25 +105,25 @@ func (c *userController) getUser(ctx *fiber.Ctx) (models.User, error) {
 	return c.userService.FindById(userID)
 }
 
-func (c *userController) getUserSession(ctx *fiber.Ctx) (*models.User, error) {
-	userSess, ok := ctx.Locals("Profile").(*models.Profile)
+func (c *userController) getUserSession(ctx fiber.Ctx) (*models.User, error) {
+	userSess := fiber.Locals[*models.Profile](ctx, "Profile")
 
-	if !ok || userSess == nil {
+	if userSess == nil {
 		return nil, errors.New("acesso negado")
 	}
 
 	return &userSess.User, nil
 }
 
-func (c *userController) Update(ctx *fiber.Ctx) error {
+func (c *userController) Update(ctx fiber.Ctx) error {
 	user, err := c.getUserAndCheckAccess(ctx)
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 	}
 
-	isProfileUser := user.ID == ctx.Locals("Profile").(*models.Profile).UserID
-	isStaff := ctx.Locals("Profile").(*models.Profile).User.IsStaff
+	isProfileUser := user.ID == fiber.Locals[*models.Profile](ctx, "Profile").UserID
+	isStaff := fiber.Locals[*models.Profile](ctx, "Profile").User.IsStaff
 	layout := selectLayout(isStaff, isProfileUser)
 
 	if err := c.updateUserFromRequest(ctx, user); err != nil {
@@ -142,21 +142,21 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 	}
 
 	if isProfileUser {
-		sess, err := session.Store.Get(ctx)
-		if err != nil {
+		sess := session.FromContext(ctx)
+		if sess == nil {
+			return fiber.ErrInternalServerError
+		}
+		if err := sess.Reset(); err != nil {
 			return err
 		}
-		if err := sess.Destroy(); err != nil {
-			return err
-		}
-		return ctx.Redirect("/auth/login")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/auth/login")
 	}
 
 	messages.SetSuccessMessage(ctx, "usuário atualizado com sucesso")
-	return ctx.Redirect("/users/user/" + strconv.Itoa(int(user.ID)))
+	return ctx.Redirect().Status(fiber.StatusFound).To("/users/user/" + strconv.Itoa(int(user.ID)))
 }
 
-func (c *userController) getUserAndCheckAccess(ctx *fiber.Ctx) (*models.User, error) {
+func (c *userController) getUserAndCheckAccess(ctx fiber.Ctx) (*models.User, error) {
 	id, err := helpers.ParseStringToID(ctx.Params("id"))
 	if err != nil {
 		return nil, err
@@ -183,7 +183,7 @@ func (c *userController) getUserAndCheckAccess(ctx *fiber.Ctx) (*models.User, er
 	return &user, nil
 }
 
-func (c *userController) updateUserFromRequest(ctx *fiber.Ctx, user *models.User) error {
+func (c *userController) updateUserFromRequest(ctx fiber.Ctx, user *models.User) error {
 	user.Email = ctx.FormValue("email")
 	actor, err := c.getUserSession(ctx)
 	if err != nil {
@@ -196,7 +196,7 @@ func (c *userController) updateUserFromRequest(ctx *fiber.Ctx, user *models.User
 	return nil
 }
 
-func (c *userController) updateUserPassword(ctx *fiber.Ctx, user *models.User) error {
+func (c *userController) updateUserPassword(ctx fiber.Ctx, user *models.User) error {
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 
@@ -209,18 +209,18 @@ func (c *userController) updateUserPassword(ctx *fiber.Ctx, user *models.User) e
 	return nil
 }
 
-func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
+func (c *userController) RenderDelete(ctx fiber.Ctx) error {
 	user, err := c.getUserAndCheckAccess(ctx)
 
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 	}
 
 	return ctx.Render(tplExcluirUsuario, fiber.Map{"Object": user}, layoutBase)
 }
 
-func (c *userController) Delete(ctx *fiber.Ctx) error {
+func (c *userController) Delete(ctx fiber.Ctx) error {
 	user, err := c.getUserAndCheckAccess(ctx)
 	if err != nil {
 		return fiber.NewError(fiber.StatusForbidden, "acesso negado")
@@ -231,14 +231,14 @@ func (c *userController) Delete(ctx *fiber.Ctx) error {
 	}
 	if err := c.userService.Delete(user.ID); err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 	}
 
 	messages.SetSuccessMessage(ctx, "usuário deletado com sucesso")
-	return ctx.Redirect("/users")
+	return ctx.Redirect().Status(fiber.StatusFound).To("/users")
 }
 
-func (c *userController) extractUserFormData(ctx *fiber.Ctx, user *models.User) {
+func (c *userController) extractUserFormData(ctx fiber.Ctx, user *models.User) {
 	user.IsStaff = ctx.FormValue("isStaff") == "on"
 	user.IsActive = ctx.FormValue("isActive") == "on"
 }

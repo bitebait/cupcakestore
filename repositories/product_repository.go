@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"github.com/bitebait/cupcakestore/models"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type ProductRepository interface {
@@ -25,7 +25,7 @@ func NewProductRepository(db *gorm.DB) ProductRepository {
 
 func (r *productRepository) Create(product *models.Product) error {
 	if err := r.db.Create(product).Error; err != nil {
-		log.Errorf("ProductRepository Create: %s", err.Error())
+		slog.Error("ProductRepository Create", "error", err)
 		return err
 	}
 
@@ -54,7 +54,7 @@ func (r *productRepository) findProducts(filter *models.ProductFilter, additiona
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
-		log.Errorf("ProductRepository findProducts: %s", err.Error())
+		slog.Error("ProductRepository findProducts", "error", err)
 		return nil
 	}
 	filter.Pagination.Total = total
@@ -62,7 +62,7 @@ func (r *productRepository) findProducts(filter *models.ProductFilter, additiona
 	var products []models.Product
 	offset := (filter.Pagination.Page - 1) * filter.Pagination.Limit
 	if err := query.Offset(offset).Limit(filter.Pagination.Limit).Order("created_at desc").Find(&products).Error; err != nil {
-		log.Errorf("ProductRepository findProducts: %s", err.Error())
+		slog.Error("ProductRepository findProducts", "error", err)
 		return nil
 	}
 
@@ -74,7 +74,7 @@ func (r *productRepository) FindById(id uint) (models.Product, error) {
 	err := r.db.First(&product, id).Error
 
 	if err != nil {
-		log.Errorf("ProductRepository FindOrCreateById: %s", err.Error())
+		slog.Error("ProductRepository FindOrCreateById", "error", err)
 	}
 
 	return product, err
@@ -92,7 +92,7 @@ func (r *productRepository) Update(product *models.Product) error {
 		Updates(product)
 	if result.Error != nil {
 		err := result.Error
-		log.Errorf("ProductRepository Update: %s", err.Error())
+		slog.Error("ProductRepository Update", "error", err)
 		return err
 	}
 	if result.RowsAffected != 1 {
@@ -103,7 +103,7 @@ func (r *productRepository) Update(product *models.Product) error {
 
 func (r *productRepository) Delete(product *models.Product) error {
 	if err := r.db.Delete(product).Error; err != nil {
-		log.Errorf("ProductRepository Delete: %s", err.Error())
+		slog.Error("ProductRepository Delete", "error", err)
 		return err
 	}
 

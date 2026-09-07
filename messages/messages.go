@@ -2,8 +2,8 @@ package messages
 
 import (
 	"github.com/bitebait/cupcakestore/session"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/log"
 )
 
 type Message struct {
@@ -16,15 +16,15 @@ const (
 	SuccessMessageKey = "success_message"
 )
 
-func SetErrorMessage(ctx *fiber.Ctx, message string) {
+func SetErrorMessage(ctx fiber.Ctx, message string) {
 	setSessionMessage(ctx, ErrorMessageKey, message)
 }
 
-func SetSuccessMessage(ctx *fiber.Ctx, message string) {
+func SetSuccessMessage(ctx fiber.Ctx, message string) {
 	setSessionMessage(ctx, SuccessMessageKey, message)
 }
 
-func setSessionMessage(ctx *fiber.Ctx, key, message string) {
+func setSessionMessage(ctx fiber.Ctx, key, message string) {
 	current, _ := ctx.Locals("Messages").(Message)
 	if key == ErrorMessageKey {
 		current.Error = message
@@ -32,36 +32,27 @@ func setSessionMessage(ctx *fiber.Ctx, key, message string) {
 		current.Success = message
 	}
 	ctx.Locals("Messages", current)
-	sess, err := session.Store.Get(ctx)
-	if err != nil {
-		log.Error("falha ao carregar sessão de mensagens")
+	sess := session.FromContext(ctx)
+	if sess == nil {
+		log.Error("middleware de sessão indisponível para mensagens")
 		return
 	}
 	sess.Set(key, message)
-	if err := sess.Save(); err != nil {
-		log.Error("falha ao salvar sessão de mensagens")
+}
+
+func LoadMessages(ctx fiber.Ctx) Message {
+	return Message{
+		Error:   clearSessionMessage(ctx, ErrorMessageKey),
+		Success: clearSessionMessage(ctx, SuccessMessageKey),
 	}
 }
 
-func LoadMessages(ctx *fiber.Ctx) Message {
-	msg := Message{}
-	msg.Error = clearSessionMessage(ctx, ErrorMessageKey)
-	msg.Success = clearSessionMessage(ctx, SuccessMessageKey)
-	return msg
-}
-
-func clearSessionMessage(ctx *fiber.Ctx, key string) string {
-	sess, err := session.Store.Get(ctx)
-	if err != nil {
+func clearSessionMessage(ctx fiber.Ctx, key string) string {
+	sess := session.FromContext(ctx)
+	if sess == nil {
 		return ""
 	}
-	message := ""
-	if msg := sess.Get(key); msg != nil {
-		message, _ = msg.(string)
-		sess.Delete(key)
-	}
-	if err := sess.Save(); err != nil {
-		log.Error("falha ao salvar sessão de mensagens")
-	}
+	message, _ := sess.Get(key).(string)
+	sess.Delete(key)
 	return message
 }

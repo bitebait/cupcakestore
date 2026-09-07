@@ -12,6 +12,7 @@ import (
 	"github.com/bitebait/cupcakestore/bootstrap"
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
+	"github.com/gofiber/fiber/v3"
 )
 
 func main() {
@@ -39,7 +40,9 @@ func run() error {
 		if cfg.DevMode {
 			errors <- app.Listen(addr)
 		} else {
-			errors <- app.ListenTLS(addr, cfg.CertFilePath, cfg.KeyFilePath)
+			errors <- app.Listen(addr, fiber.ListenConfig{
+				CertFile: cfg.CertFilePath, CertKeyFile: cfg.KeyFilePath,
+			})
 		}
 	}()
 	select {
