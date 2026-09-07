@@ -60,7 +60,8 @@ for (const picker of document.querySelectorAll('[data-product-picker]')) {
             const response = await fetch(`/products/json?${params}`, {
                 signal: currentRequest.signal,
                 headers: {'Accept': 'application/json'},
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                redirect: 'error'
             });
             if (!response.ok) throw new Error('Falha na busca');
             const data = await response.json();

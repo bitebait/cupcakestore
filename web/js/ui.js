@@ -66,9 +66,6 @@
         button.addEventListener('click', () => button.closest('.ui-notice')?.remove());
     });
 
-    const queryInput = document.querySelector('form[method="get"] input[name="q"]');
-    if (queryInput) queryInput.value = new URLSearchParams(window.location.search).get('q') || '';
-
     document.querySelectorAll('.postal-code, [data-mask="postal-code"]').forEach((input) => {
         input.addEventListener('input', () => {
             const digits = input.value.replace(/\D/g, '').slice(0, 8);
@@ -89,7 +86,6 @@
         const originalImage = previewImage.getAttribute('src');
         let previewURL;
         imageLabel.setAttribute('role', 'status');
-        fileInput.setAttribute('aria-describedby', imageLabel.id);
         const releasePreview = () => {
             if (previewURL) URL.revokeObjectURL(previewURL);
             previewURL = undefined;

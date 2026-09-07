@@ -118,11 +118,14 @@ button, a, input, select, textarea, summary { -webkit-tap-highlight-color: trans
 .ui-admin .btn-outline-primary:hover, .ui-admin .btn-outline-primary:focus, .ui-form-page .btn-outline-primary:hover, .ui-form-page .btn-outline-primary:focus { background: var(--berry); border-color: var(--berry); color: white; }
 .ui-admin-main .btn-default, .ui-form-page .btn-default { color: var(--cocoa); background: white; border-color: var(--line); }
 .ui-admin-main .badge-primary { background: var(--berry); }
+.ui-admin-main .badge-success { background: var(--ui-success); color: white; }
 .ui-admin small, .ui-form-page small, .ui-admin .small, .ui-form-page .small, .ui-admin .badge, .ui-form-page .badge { font-size: var(--ui-text-small); line-height: 1.5; }
 .ui-admin-main .table { font-size: var(--ui-text); }
 .ui-admin-main .table-responsive .table { min-width: 44rem; }
-.ui-admin-main .table td:first-child { min-width: 14rem; }
-.ui-admin-main .table th { background: #fffdf9; border-bottom: 1px solid var(--line); color: var(--muted); font-size: var(--ui-text-small); font-weight: 650; letter-spacing: .025em; padding: 1rem; }
+.ui-admin-main .table td:first-child { min-width: 9rem; }
+.ui-admin-main .table-responsive:focus-visible { outline-offset: -3px; }
+.ui-admin-main .table a { overflow-wrap: anywhere; }
+.ui-admin-main .table th { white-space: nowrap; background: #fffdf9; border-bottom: 1px solid var(--line); color: var(--muted); font-size: var(--ui-text-small); font-weight: 650; letter-spacing: .025em; padding: 1rem; }
 .ui-admin-main .table td { padding: 1rem; border-color: #f0e8e0; vertical-align: middle; }
 .ui-admin-main .table-hover tbody tr:hover { background: #fff9f2; }
 .ui-admin-main .custom-control-input:checked ~ .custom-control-label::before, .ui-form-page .custom-control-input:checked ~ .custom-control-label::before { border-color: var(--berry); background: var(--berry); }

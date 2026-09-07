@@ -8,6 +8,12 @@
                 <li class="store-line-item">
                     <img src="{{if .Product.Image}}{{.Product.Image}}{{else}}/images/cupcake-placeholder.svg{{end}}" alt="" width="88" height="88">
                     <div class="store-line-content"><h2>{{.Product.Name}}</h2><p>{{.Quantity}} unidade(s) · {{money .ItemPrice}} cada</p>
+                        <form action="/cart/items/{{.Product.ID}}/quantity" method="post" class="store-cart-quantity-form">
+                            <input type="hidden" name="_csrf" value="{{$.CSRFToken}}">
+                            {{template "snippets/quantity" (dict "Product" .Product "Quantity" .Quantity)}}
+                            <button type="submit" class="store-button store-button-secondary">Atualizar</button>
+                        </form>
+                        {{if gt .Quantity .Product.CurrentStock}}<p class="store-notice">Restam {{.Product.CurrentStock}} unidade(s). Ajuste a quantidade ou remova o produto para continuar.</p>{{end}}
                         <form action="/cart/remove/{{.Product.ID}}" method="post">
                             <input type="hidden" name="_csrf" value="{{$.CSRFToken}}">
                             <button type="submit" class="store-text-button" aria-label="Remover {{.Product.Name}} do carrinho">Remover</button>

@@ -252,3 +252,7 @@
     .store-checkout-grid { grid-template-columns: 1fr; }
     .store-panel { break-inside: avoid; }
 }
+
+/* Cart quantities share the catalog control and submit through native forms. */
+.store-cart-quantity-form { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; margin: .75rem 0 .35rem; }
+.store-cart-quantity-form .store-button { padding: .65rem .9rem; }

@@ -1,20 +1,24 @@
 {{$order := .Object.Order}}
 <div class="store-container store-page">
-    <nav class="store-breadcrumb" aria-label="Você está em"><a href="/orders">Meus pedidos</a><span aria-hidden="true">/</span><span>Pedido #{{$order.ID}}</span></nav>
-    <div class="store-page-heading"><div><p class="store-eyebrow">{{$order.CreatedAt | date "02/01/2006 · 15:04"}}</p><h1>Pedido #{{$order.ID}}.</h1></div><span class="store-status{{if eq $order.Status "Cancelado"}} store-status-cancelled{{end}}">{{if and (not $order.IsDelivery) (eq $order.Status "Aguardando Envio")}}Pronto para retirada{{else}}{{$order.Status}}{{end}}</span></div>
+    <nav class="store-breadcrumb" aria-label="Você está em"><a href="/orders">{{if .Profile.User.IsStaff}}Pedidos da loja{{else}}Meus pedidos{{end}}</a><span aria-hidden="true">/</span><span>Pedido #{{$order.ID}}</span></nav>
+    <div class="store-page-heading"><div><p class="store-eyebrow">{{$order.CreatedAt | date "02/01/2006 · 15:04"}}</p><h1>Pedido #{{$order.ID}}.</h1></div><span class="store-status{{if eq $order.Status "Cancelado"}} store-status-cancelled{{end}}">{{template "snippets/order-status" $order}}</span></div>
     {{if and .Profile.User.IsStaff (ne $order.Status "Cancelado") (ne $order.Status "Entregue")}}
     <section class="store-panel store-admin-status" aria-labelledby="status-title">
         <h2 id="status-title">Atualizar andamento</h2>
+        <p class="store-help">Escolha a próxima etapa. Alterar o andamento não muda o valor nem a entrega combinados.</p>
+        {{if and (eq $order.PaymentMethod "Pix") (eq $order.Status "Processando Pagamento")}}<p class="store-notice">Confira o recebimento no banco antes de aprovar o pagamento ou iniciar o preparo.</p>{{end}}
         <form method="post" action="/orders/order/{{$order.ID}}" class="store-inline-form">
             <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
             <label class="store-sr-only" for="status">Status do pedido</label>
             <select id="status" name="status" required>
-                {{range list "Em Aberto" "Processando Pagamento" "Pagamento Aprovado" "Preparando Pedido" "Aguardando Envio" "Enviado" "Entregue" "Cancelado"}}
-                <option value="{{.}}" {{if eq $order.Status .}}selected{{end}}>{{if and (not $order.IsDelivery) (eq . "Aguardando Envio")}}Pronto para retirada{{else}}{{.}}{{end}}</option>
+                <option value="" selected disabled>Selecione a próxima etapa</option>
+                {{range $order.AvailableTransitions}}
+                {{if ne . "Cancelado"}}<option value="{{.}}">{{template "snippets/order-status" (dict "Status" . "IsDelivery" $order.IsDelivery)}}</option>{{end}}
                 {{end}}
             </select>
             <button type="submit" class="store-button store-button-primary">Atualizar</button>
         </form>
+        {{range $order.AvailableTransitions}}{{if eq . "Cancelado"}}<a href="/orders/cancel/{{$order.ID}}" class="store-back-link">Cancelar pedido…</a>{{end}}{{end}}
     </section>
     {{end}}
     <div class="store-checkout-grid">
@@ -49,7 +53,7 @@
             <p class="store-help">Forma de pagamento: <strong>{{$order.PaymentMethod}}</strong></p>
             {{if eq $order.Status "Em Aberto"}}<a href="/orders/checkout/{{$order.ShoppingCartID}}" class="store-button store-button-primary store-button-wide">Continuar pedido →</a>{{end}}
             {{if and (eq $order.Status "Processando Pagamento") (eq $order.PaymentMethod "Pix")}}<a href="/orders/payment/{{$order.ShoppingCartID}}" class="store-button store-button-primary store-button-wide">Abrir pagamento Pix ↗</a>{{end}}
-            <a href="/orders" class="store-back-link">← Voltar aos meus pedidos</a>
+            <a href="/orders" class="store-back-link">← {{if .Profile.User.IsStaff}}Voltar aos pedidos da loja{{else}}Voltar aos meus pedidos{{end}}</a>
         </aside>
     </div>
 </div>

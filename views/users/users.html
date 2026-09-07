@@ -1,112 +1,52 @@
 <div class="content-header">
-    <div class="container">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Usuários Registrados</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item">
-                        <a href="/dashboard">Visão geral</a>
-                    </li>
-                    <li class="breadcrumb-item active">Usuários Registrados</li>
-                </ol>
-            </div>
-        </div>
+    <div class="container d-flex justify-content-between align-items-start flex-wrap">
+        <div><h1>Usuários</h1><p class="text-muted">Contas de clientes e acesso da equipe.</p></div>
+        <a href="/users/create" class="btn btn-primary mb-3">Adicionar usuário</a>
     </div>
 </div>
-<section class="content ui-form-page">
+<section class="content">
     <div class="container">
-        <div class="row">
-            <div class="col-12 mx-auto">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title mb-2">Lista de Usuários</h3>
-                        <div class="card-tools">
-                            <form id="filters" method="get">
-                                <div class="row">
-                                    <div class="col-12 mb-2">
-                                        <div class="input-group m-0">
-                                            <input hidden="hidden" id="limit" name="limit"
-                                                   type="text" value="{{.Object.Filter.Pagination.Limit}}">
-                                            <input class="form-control" id="q" name="q" aria-label="Pesquisar usuários por e-mail"
-                                                   placeholder="Pesquisar Usuário" type="text">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-default" type="submit" aria-label="Pesquisar usuários">
-                                                    <i class="fas fa-search"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+        <div class="card">
+            <div class="card-body border-bottom">
+                <form method="get" action="/users" role="search">
+                    <input type="hidden" name="limit" value="{{.Object.Filter.Pagination.Limit}}">
+                    <label for="q">Buscar por e-mail</label>
+                    <div class="input-group">
+                        <input class="form-control" type="search" id="q" name="q" value="{{.Object.Filter.User.Email}}" placeholder="E-mail do usuário">
+                        <div class="input-group-append"><button class="btn btn-outline-primary" type="submit">Buscar</button></div>
                     </div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap">
-                            <caption class="sr-only">Usuários cadastrados e opções de gerenciamento</caption>
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>E-mail</th>
-                                <th>Criado Em</th>
-                                <th>Tipo</th>
-                                <th>Status</th>
-                                <th>Primeiro Login</th>
-                                <th>Último Login</th>
-                                <th>Opções</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {{range .Object.Users}}
-                            <tr>
-                                <td>{{.ID}}</td>
-                                <td>
-                                    <a href="/users/user/{{.ID}}">{{.Email}}
-                                        <br/>
-                                    </a>
-                                </td>
-                                <td>{{.CreatedAt|date "02/01/2006 15:04h"}}</td>
-                                <td>{{if .IsStaff}}
-                                    <span class="badge badge-primary">Administrador</span>
-                                    {{else}}
-                                    <span class="badge badge-secondary">Membro</span>{{end}}
-                                </td>
-                                <td>{{if .IsActive}}
-                                    <span class="badge badge-success">Ativo</span>
-                                    {{else}}
-                                    <span class="badge badge-danger">Inativo</span>{{end}}
-                                </td>
-                                <td>{{if .FirstLogin.IsZero }} N/A {{else}} {{.FirstLogin|date "02/01/2006 15:04h"}}
-                                    {{end}}
-                                </td>
-                                <td>{{if .LastLogin.IsZero }} N/A {{else}} {{.LastLogin|date "02/01/2006 15:04h"}}
-                                    {{end}}
-                                </td>
-                                <td>
-                                    {{if not .IsStaff}}
-                                    <a class="btn btn-sm btn-outline-primary mr-2" href="/users/user/{{.ID}}" aria-label="Editar usuário {{.Email}}">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-danger" href="/users/delete/{{.ID}}" aria-label="Excluir usuário {{.Email}}">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                    {{else}}
-                                    -
-                                    {{end}}
-                                </td>
-                            </tr>
-                            {{else}}
-                            <tr><td colspan="8" class="text-center py-5 text-muted">Nenhum usuário encontrado. Experimente outro e-mail na busca.</td></tr>
-                            {{end}}
-                            </tbody>
-                        </table>
-                    </div>
-                    {{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" .Object.Filter.User.Email)}}
-                    <!-- /.card-body -->
-                </div>
-                <!-- /.card -->
+                    {{if .Object.Filter.User.Email}}<a href="/users" class="d-inline-block mt-2">Limpar busca</a>{{end}}
+                </form>
             </div>
+            <div class="table-responsive" tabindex="0" role="region" aria-label="Usuários cadastrados; role horizontalmente para ver todas as colunas">
+                <table class="table table-hover mb-0">
+                    <caption class="sr-only">Usuários cadastrados e opções de gerenciamento</caption>
+                    <thead><tr>
+                        <th scope="col">Conta</th>
+                        <th scope="col">Permissão</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Último acesso</th>
+                        <th scope="col">Ações</th>
+                    </tr></thead>
+                    <tbody>
+                    {{range .Object.Users}}
+                    <tr>
+                        <td><a href="/users/user/{{.ID}}"><strong>{{.Email}}</strong></a><br><small class="text-muted">#{{.ID}} · Criado em {{.CreatedAt | date "02/01/2006"}}</small></td>
+                        <td><span class="badge {{if .IsStaff}}badge-primary{{else}}badge-secondary{{end}}">{{if .IsStaff}}Administrador{{else}}Cliente{{end}}</span></td>
+                        <td><span class="badge {{if .IsActive}}badge-success{{else}}badge-danger{{end}}">{{if .IsActive}}Ativo{{else}}Inativo{{end}}</span></td>
+                        <td>{{if .LastLogin.IsZero}}Ainda não acessou{{else}}{{.LastLogin | date "02/01/2006 15:04"}}{{end}}</td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-outline-primary btn-sm" href="/users/user/{{.ID}}" aria-label="Editar usuário {{.Email}}">Editar</a>
+                            {{if not .IsStaff}}<a class="btn btn-outline-danger btn-sm" href="/users/delete/{{.ID}}" aria-label="Excluir usuário {{.Email}}">Excluir</a>{{end}}
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr><td colspan="5" class="text-center py-5 text-muted">Nenhum usuário encontrado. {{if .Object.Filter.User.Email}}Experimente outro e-mail na busca.{{end}}</td></tr>
+                    {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{template "snippets/pagination" (dict "Pagination" .Object.Filter.Pagination "Query" .Object.Filter.User.Email)}}
         </div>
     </div>
 </section>

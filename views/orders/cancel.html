@@ -1,10 +1,11 @@
 <div class="store-container store-page">
-    <nav class="store-breadcrumb" aria-label="Você está em"><a href="/orders">Meus pedidos</a><span aria-hidden="true">/</span><span>Cancelar pedido</span></nav>
+    <nav class="store-breadcrumb" aria-label="Você está em"><a href="/orders">{{if .Profile.User.IsStaff}}Pedidos da loja{{else}}Meus pedidos{{end}}</a><span aria-hidden="true">/</span><span>Cancelar pedido</span></nav>
     <section class="store-panel store-confirmation">
         <span class="store-empty-symbol" aria-hidden="true">×</span>
         <p class="store-eyebrow">Pedido #{{.Object.ID}}</p>
         <h1>Cancelar este pedido?</h1>
         <p>O pedido de <strong>{{money .Object.Total}}</strong> será cancelado. Para comprar esses produtos depois, você precisará fazer um novo pedido.</p>
+        {{if eq .Object.PaymentMethod "Pix"}}<p class="store-notice">Se o Pix já foi pago, o cancelamento não devolve o dinheiro automaticamente. Combine a devolução com a loja.</p>{{end}}
         <form method="post" action="/orders/cancel/{{.Object.ID}}" class="store-actions">
             <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
             <a href="/orders/order/{{.Object.ID}}" class="store-button store-button-secondary">Manter meu pedido</a>
