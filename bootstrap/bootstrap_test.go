@@ -1,11 +1,13 @@
 package bootstrap
 
 import (
+	"compress/gzip"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -77,6 +79,50 @@ func TestCSRFProtectsFormsAndUsesHttpOnlySessionCookie(t *testing.T) {
 				t.Fatalf("status = %d, want %d", response.StatusCode, tc.want)
 			}
 		})
+	}
+}
+
+func TestStaticCompressionDoesNotWritePublicAssets(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	directory := t.TempDir()
+	if err := os.Mkdir(filepath.Join(directory, "web"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	content := strings.Repeat("body { color: black; }\n", 200)
+	if err := os.WriteFile(filepath.Join(directory, "web", "style.css"), []byte(content), 0444); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(directory); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(cwd) })
+	app := fiber.New()
+	serveStaticFiles(app)
+	req := httptest.NewRequest(http.MethodGet, "/style.css", nil)
+	req.Header.Set("Accept-Encoding", "gzip")
+	response, err := app.Test(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK || response.Header.Get("Content-Encoding") != "gzip" {
+		t.Fatalf("compressed asset: status=%d encoding=%q", response.StatusCode, response.Header.Get("Content-Encoding"))
+	}
+	reader, err := gzip.NewReader(response.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reader.Close()
+	data, err := io.ReadAll(reader)
+	if err != nil || string(data) != content {
+		t.Fatalf("decompressed asset differs: %v", err)
+	}
+	files, err := os.ReadDir(filepath.Join(directory, "web"))
+	if err != nil || len(files) != 1 {
+		t.Fatalf("compression must not create files: count=%d error=%v", len(files), err)
 	}
 }
 

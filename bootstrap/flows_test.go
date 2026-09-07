@@ -45,7 +45,7 @@ func TestStoreFlowRegistrationLoginCheckoutAndCancellation(t *testing.T) {
 	session.SetupSession()
 	app := createFiberApp()
 	registerMiddlewares(app)
-	registerRoutes(app)
+	registerRoutes(app, database.DB)
 	cookies := map[string]*http.Cookie{}
 	csrfPattern := regexp.MustCompile(`name="_csrf"[^>]*value="([^"]+)"`)
 	token := ""

@@ -2,11 +2,7 @@
 <form action="/cart" method="post" class="store-add-form">
     <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
     <input type="hidden" name="id" value="{{.Product.ID}}">
-    <div class="store-quantity" data-quantity>
-        <button type="button" data-quantity-step="-1" aria-label="Diminuir quantidade de {{.Product.Name}}">−</button>
-        <input type="number" id="{{.Product.ID}}-quantity" name="quantity" value="1" min="1" step="1" required inputmode="numeric" data-quantity-input aria-label="Quantidade de {{.Product.Name}}">
-        <button type="button" data-quantity-step="1" aria-label="Aumentar quantidade de {{.Product.Name}}">+</button>
-    </div>
+    {{template "snippets/quantity" (dict "Product" .Product "Quantity" 1)}}
     <button type="submit" class="store-button store-button-primary">Adicionar <span class="store-add-long">ao carrinho</span><span aria-hidden="true"> +</span></button>
 </form>
 {{else}}

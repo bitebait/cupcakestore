@@ -13,17 +13,18 @@
     document.querySelectorAll('[data-quantity]').forEach(control => {
         const input = control.querySelector('[data-quantity-input]');
         const minimum = Number(input.min) || 1;
-        const maximum = Number(input.max) || Number.MAX_SAFE_INTEGER;
+        const maximum = input.max === '' ? Number.MAX_SAFE_INTEGER : Number(input.max);
         const buttons = control.querySelectorAll('[data-quantity-step]');
         const refresh = () => {
             const value = Number(input.value);
             input.setCustomValidity(input.value && !Number.isSafeInteger(value)
                 ? 'Informe uma quantidade inteira válida.' : '');
             buttons.forEach(button => {
-                button.disabled = Number(button.dataset.quantityStep) < 0
-                    ? value <= minimum : value >= maximum;
+                button.disabled = maximum < minimum || (Number(button.dataset.quantityStep) < 0
+                    ? value <= minimum : value >= maximum);
             });
         };
+        buttons.forEach(button => button.hidden = false);
         buttons.forEach(button => button.addEventListener('click', () => {
             const value = Number(input.value);
             const current = Number.isSafeInteger(value) && value >= minimum ? value : minimum;

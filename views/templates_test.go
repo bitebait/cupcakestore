@@ -138,7 +138,7 @@ func TestShoppingCartMutationFormsContainCSRFToken(t *testing.T) {
 		}
 	}
 	inspect(document)
-	for _, action := range []string{"/cart/remove/2", "/orders/checkout/3"} {
+	for _, action := range []string{"/cart/remove/2", "/cart/items/2/quantity", "/orders/checkout/3"} {
 		if forms[action] != "cart-token" {
 			t.Errorf("missing protected POST form for %s", action)
 		}
@@ -146,5 +146,33 @@ func TestShoppingCartMutationFormsContainCSRFToken(t *testing.T) {
 
 	if strings.Contains(output, "<img src=x") {
 		t.Fatal("product name was not escaped")
+	}
+}
+
+func TestOrderManagementOffersOnlyValidNextSteps(t *testing.T) {
+	for _, test := range []struct {
+		name      string
+		order     models.Order
+		allowed   string
+		forbidden string
+	}{
+		{"pickup ready", models.Order{Status: models.DeliveredStatusAwaiting}, "Entregue", "Enviado"},
+		{"delivery ready", models.Order{Status: models.DeliveredStatusAwaiting, IsDelivery: true}, "Enviado", "Entregue"},
+		{"pix awaiting", models.Order{Status: models.AwaitingPaymentStatus, PaymentMethod: models.PixPaymentMethod}, "Pagamento Aprovado", "Entregue"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			test.order.ID = 7
+			output := renderTemplate(t, "orders/order", map[string]any{
+				"Object":    map[string]any{"Order": test.order},
+				"Profile":   &models.Profile{User: models.User{IsStaff: true}},
+				"CSRFToken": "status-token",
+			})
+			if !strings.Contains(output, `value="`+test.allowed+`"`) || strings.Contains(output, `value="`+test.forbidden+`"`) {
+				t.Fatal("status selector does not match the valid next steps")
+			}
+			if strings.Contains(output, `value="Cancelado"`) || !strings.Contains(output, `href="/orders/cancel/7"`) {
+				t.Fatal("cancellation must go through the confirmation page")
+			}
+		})
 	}
 }

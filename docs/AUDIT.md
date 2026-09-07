@@ -51,6 +51,26 @@ Vitrine, produto, carrinho, checkout, pedidos e autenticação foram redesenhado
 
 A validação em Chromium cobriu compra completa, cadastro, perfil, estoque, upload e menu móvel, com capturas desktop/celular. Axe-core encontrou contrastes insuficientes, corrigidos durante a revisão. O [guia frontend](FRONTEND.md) documenta a estrutura e como manter as convenções.
 
+## Segunda revisão: comércio, composição e implantação
+
+Uma nova rodada com três agentes revisou comércio/Pix, experiência administrativa e implantação. A integração manteve o monólito e usou composição explícita em vez de introduzir containers de dependências, eventos ou novos frameworks.
+
+- **Regressão de entrega corrigida:** `OrderRepository.Update` grava somente o status. `UpdatePayment` valida e grava a escolha de pagamento e seus valores. Alterar taxa ou disponibilidade de entrega não impede o administrador de avançar um pedido Pix já emitido. Testes também garantem que o caminho de status ignora tentativas de reescrever termos financeiros e que uma nova escolha continua validando a taxa atual.
+- **Pix:** emissão usa um único snapshot da configuração; reabrir um Pix pendente reutiliza seus dados, sem recalcular ou emitir novamente. Alterações de forma de pagamento/entrega são bloqueadas após emissão. URLs do provedor são validadas também ao abrir pedidos legados; entrega desativada exige escolha explícita de retirada.
+- **Carrinho:** nova ação de quantidade reutiliza a escrita transacional existente, obtém o proprietário da sessão e valida produto, saldo e congelamento após checkout. Campos adulterados não escolhem outro carrinho. O formulário funciona sem JavaScript.
+- **Estoque:** entrada extrema podia ultrapassar a capacidade de um inteiro e corromper a representação do saldo no SQLite. A atualização agora limita a soma atomicamente; a regressão reproduziu a falha antes da correção e verifica saldo/histórico preservados depois.
+- **Painel:** próximas etapas vêm de `Order.AvailableTransitions`, que reutiliza a regra de domínio. Retirada não permite envio; cancelamento tem confirmação e explica o tratamento separado de valores Pix. Listagem de usuários e formulários de configuração foram simplificados; o contraste do indicador de conta ativa foi corrigido.
+- **Composição:** `bootstrap/routes.go` monta serviços/repositórios compartilhados uma vez e injeta controllers nas funções de registro. Removidos structs, interface e constructors de roteadores que não acrescentavam comportamento. Rotas e middleware de autenticação não acessam mais o banco global. O teste de autorização usa a composição completa e verifica uma consulta de conta por requisição.
+- **Navegador:** Helmet do Fiber aplica CSP sem `unsafe-inline`/`unsafe-eval`, proteção contra enquadramento e detecção incorreta de MIME. HTML com tokens CSRF e JSON recebem `private, no-store`; assets continuam cacheáveis. O destino Pix é permitido em `form-action` para preservar redirecionamentos após POST.
+- **Implantação:** Docker multi-stage com CGO, runtime sem root, volumes, raiz somente leitura, probes sem sessão e override HTTPS. A CI constrói a imagem e testa readiness e vitrine; o [guia operacional](DEPLOYMENT.md) cobre persistência, atualização e certificados.
+- **Assets:** removidos 2.007 arquivos vendorizados sem uso (78.461.173 bytes), preservando as 19 dependências efetivas de CSS, fontes e imagens e suas licenças. A compressão usa `io/fs` e cache em memória: o teste real do contêiner identificou e corrigiu o 404 de CSS que ocorria ao tentar criar cache na raiz somente leitura.
+
+Validação integrada: `go test -race ./...`, testes no navegador com CSP ativa, edição de quantidade seguida de checkout, finalização administrativa de retirada e login/carrinho com JavaScript desativado. A checagem automatizada WCAG A/AA complementa a inspeção visual.
+
+As restrições do Pix continuam explícitas: o projeto não possui confirmação bancária automática, cancelamento remoto ou estorno. O contrato atual do gerador também não comprova idempotência de duas emissões simultâneas antes da primeira gravação. O controle de versão impede sobrescrever o pedido, mas não revoga uma cobrança externa órfã. Essas garantias exigem integração documentada com um provedor; os testes usam respostas locais simuladas.
+
+Fontes dos cabeçalhos: [Helmet Fiber](https://docs.gofiber.io/next/middleware/helmet/) e [CSP form-action](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/form-action). As opções usadas foram conferidas no módulo Fiber 3.5 instalado.
+
 ## Compatibilidade de dados e operação
 
 - Não apagamos ou reinicializamos o banco do usuário. Testes operam exclusivamente em bancos temporários.
@@ -69,9 +89,8 @@ A validação em Chromium cobriu compra completa, cadastro, perfil, estoque, upl
 | Média | Valores monetários em centavos inteiros | Migração preserva totais históricos e elimina aritmética monetária em float64 |
 | Média | Sessões persistentes quando necessário | Reinício e múltiplas instâncias mantêm sessão/CSRF com expiração consistente |
 | Média | Listagens distinguirem vazio de erro | Interfaces devolvem erro, controllers apresentam falha sem aparentar lista vazia |
-| Média | Injeção das dependências na inicialização | Remover dependência global de banco/config das fábricas de rotas, sem duplicar containers |
 | Média | Snapshot de nome e descrição dos itens | Pedido histórico não muda quando o catálogo é editado |
-| Média | Avaliação com leitor de tela e limpeza dos assets legados | Revisão assistiva completa e remoção dos arquivos vendorizados sem uso após inventário |
+| Média | Avaliação com leitor de tela | Revisão assistiva completa além dos testes automatizados de acessibilidade |
 | Média | Contrato e confirmação de pagamento Pix | Provedor real validado em ambiente de teste; processamento idempotente de confirmação/reconciliação |
 
 A auditoria não prova ausência de todas as falhas. Os itens acima são riscos e limitações observados, com critérios concretos para próximas mudanças; não foram marcados como concluídos sem evidência.

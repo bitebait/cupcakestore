@@ -1,0 +1,5 @@
+<div class="store-quantity" data-quantity>
+    <button type="button" data-quantity-step="-1" hidden aria-label="Diminuir quantidade de {{.Product.Name}}">−</button>
+    <input type="number" id="{{.Product.ID}}-quantity" name="quantity" value="{{.Quantity}}" min="1" max="{{.Product.CurrentStock}}" step="1" required inputmode="numeric" data-quantity-input aria-label="Quantidade de {{.Product.Name}}">
+    <button type="button" data-quantity-step="1" hidden aria-label="Aumentar quantidade de {{.Product.Name}}">+</button>
+</div>

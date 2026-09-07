@@ -7,7 +7,7 @@
 <section class="content">
     <div class="container">
         <div class="card">
-            <div class="table-responsive">
+            <div class="table-responsive" tabindex="0" role="region" aria-label="Pedidos da loja; role horizontalmente para ver todas as colunas">
                 <table class="table table-hover mb-0">
                     <caption class="sr-only">Pedidos da loja</caption>
                     <thead><tr>
@@ -23,7 +23,7 @@
                     <tr>
                         <td class="text-nowrap"><strong>#{{.ID}}</strong><br><small class="text-muted">{{.CreatedAt | date "02/01/2006 15:04"}}</small></td>
                         <td>{{.DeliveryDetail.UserFirstName}} {{.DeliveryDetail.UserLastName}}</td>
-                        <td><span class="badge {{if eq .Status "Cancelado"}}badge-secondary{{else if eq .Status "Entregue"}}badge-success{{else}}badge-primary{{end}}">{{if and (not .IsDelivery) (eq .Status "Aguardando Envio")}}Pronto para retirada{{else}}{{.Status}}{{end}}</span></td>
+                        <td><span class="badge {{if eq .Status "Cancelado"}}badge-secondary{{else if eq .Status "Entregue"}}badge-success{{else}}badge-primary{{end}}">{{template "snippets/order-status" .}}</span></td>
                         <td class="text-nowrap">{{money .Total}}</td>
                         <td>{{.PaymentMethod}}<br><small class="text-muted">{{if .IsDelivery}}Entrega no endereço{{else}}Retirada na loja{{end}}</small></td>
                         <td><a href="/orders/order/{{.ID}}" class="btn btn-outline-primary btn-sm" aria-label="Ver pedido {{.ID}}">Ver pedido</a></td>

@@ -65,13 +65,18 @@ func (s *Stock) BeforeCreate(tx *gorm.DB) error {
 	}
 	if s.Quantity < 0 {
 		query = query.Where("current_stock >= ?", -s.Quantity)
+	} else {
+		// SQLite can promote overflowing integer arithmetic to REAL; PostgreSQL
+		// rejects it. Keep the balance representable as a Go int on both databases.
+		maxInt := int(^uint(0) >> 1)
+		query = query.Where("current_stock <= ?", maxInt-s.Quantity)
 	}
 	result := query.UpdateColumn("current_stock", gorm.Expr("current_stock + ?", s.Quantity))
 	if result.Error != nil {
 		return result.Error
 	}
 	if result.RowsAffected != 1 {
-		return errors.New("produto não encontrado ou estoque insuficiente")
+		return errors.New("produto não encontrado, estoque insuficiente ou limite de saldo excedido")
 	}
 	return nil
 }

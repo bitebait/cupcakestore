@@ -2,13 +2,13 @@ package bootstrap
 
 import (
 	"encoding/json"
+	"os"
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/bitebait/cupcakestore/config"
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/middlewares"
-	"github.com/bitebait/cupcakestore/routers"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/go-playground/validator/v10"
@@ -47,10 +47,11 @@ func NewApplicationWithError() (*fiber.App, error) {
 	session.SetupSession()
 
 	fiberApp := createFiberApp()
+	registerHealthChecks(fiberApp, db)
 	registerMiddlewares(fiberApp)
 	configureHTTPS(fiberApp)
 	serveStaticFiles(fiberApp)
-	registerRoutes(fiberApp)
+	registerRoutes(fiberApp, db)
 	return fiberApp, nil
 }
 
@@ -88,6 +89,7 @@ func setupTemplateEngine() *html.Engine {
 func registerMiddlewares(fiberApp *fiber.App) {
 	fiberApp.Use(logger.New())
 	fiberApp.Use(recover.New())
+	fiberApp.Use(middlewares.SecurityHeaders())
 	fiberApp.Use(session.Middleware)
 	fiberApp.Use(csrf.New(csrf.Config{
 		CookieHTTPOnly: true,
@@ -108,18 +110,14 @@ func registerMiddlewares(fiberApp *fiber.App) {
 
 func serveStaticFiles(fiberApp *fiber.App) {
 	// Compress only public assets; pages contain secrets such as CSRF tokens.
-	fiberApp.Use("/", static.New("./web", static.Config{Compress: true}))
+	// io/fs keeps the compression cache in memory, including read-only containers.
+	fiberApp.Use("/", static.New("", static.Config{FS: os.DirFS("./web"), Compress: true}))
 }
 
 func configureHTTPS(fiberApp *fiber.App) {
 	if !config.Get().DevMode {
 		fiberApp.Use(redirectToHTTPS)
 	}
-}
-
-func registerRoutes(fiberApp *fiber.App) {
-	fiberApp.Use(middlewares.Auth())
-	routers.InstallRouters(fiberApp)
 }
 
 func redirectToHTTPS(c fiber.Ctx) error {

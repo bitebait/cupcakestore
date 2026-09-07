@@ -120,10 +120,25 @@ func (o *Order) CanTransitionTo(status ShoppingCartStatus) bool {
 	case ProcessingStatus:
 		return status == DeliveredStatusAwaiting || status == CancelledStatus || (!o.IsDelivery && status == DeliveredStatusDelivered)
 	case DeliveredStatusAwaiting:
-		return status == DeliveredStatusSent || status == CancelledStatus || (!o.IsDelivery && status == DeliveredStatusDelivered)
+		return (o.IsDelivery && status == DeliveredStatusSent) || status == CancelledStatus || (!o.IsDelivery && status == DeliveredStatusDelivered)
 	case DeliveredStatusSent:
 		return status == DeliveredStatusDelivered
 	default:
 		return false
 	}
+}
+
+// AvailableTransitions exposes the same rules used by persistence to order management.
+// A value receiver also makes the choices available to server-rendered templates.
+func (o Order) AvailableTransitions() []ShoppingCartStatus {
+	var statuses []ShoppingCartStatus
+	for _, status := range []ShoppingCartStatus{
+		AwaitingPaymentStatus, PaymentApprovedStatus, ProcessingStatus,
+		DeliveredStatusAwaiting, DeliveredStatusSent, DeliveredStatusDelivered, CancelledStatus,
+	} {
+		if status != o.Status && o.CanTransitionTo(status) {
+			statuses = append(statuses, status)
+		}
+	}
+	return statuses
 }

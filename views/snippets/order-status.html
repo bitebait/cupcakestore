@@ -1,0 +1,1 @@
+{{- if eq .Status "Processando Pagamento" -}}Aguardando pagamento{{- else if and (not .IsDelivery) (eq .Status "Aguardando Envio") -}}Pronto para retirada{{- else -}}{{.Status}}{{- end -}}

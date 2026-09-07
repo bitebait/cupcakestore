@@ -178,6 +178,7 @@ func TestStockRejectsOverdrawAndInvalidMovement(t *testing.T) {
 	db, profile, product := commerceDB(t)
 	for _, movement := range []models.Stock{
 		{ProfileID: profile.ID, ProductID: product.ID, Quantity: 11, Type: models.StockSaida},
+		{ProfileID: profile.ID, ProductID: product.ID, Quantity: int(^uint(0) >> 1), Type: models.StockEntrada},
 		{ProfileID: profile.ID, ProductID: product.ID, Quantity: -1, Type: models.StockEntrada},
 		{ProfileID: profile.ID, ProductID: product.ID, Quantity: 1, Type: "invalid"},
 		{ProfileID: profile.ID, ProductID: product.ID + 1, Quantity: 1, Type: models.StockEntrada},
@@ -218,7 +219,7 @@ func TestOrderUpdatePreservesPriceAndDeliverySnapshot(t *testing.T) {
 	order.ShoppingCart.Total = 0.01
 	order.DeliveryPrice = 0
 	order.Status = models.ProcessingStatus
-	if err := repo.Update(&order); err == nil {
+	if err := repo.UpdatePayment(&order); err == nil {
 		t.Fatal("accepted a manipulated order total")
 	}
 	order, err = repo.FindById(order.ID)
@@ -252,7 +253,7 @@ func TestPaymentCanChoosePickup(t *testing.T) {
 	order.Total = 5.25
 	order.Status = models.ProcessingStatus
 	order.PaymentMethod = models.CashPaymentMethod
-	if err := repo.Update(&order); err != nil {
+	if err := repo.UpdatePayment(&order); err != nil {
 		t.Fatal(err)
 	}
 	if order.IsDelivery || order.DeliveryPrice != 0 || order.Total != 5.25 {
@@ -486,7 +487,7 @@ func TestStaleOrderStatusUpdateCannotOverwritePayment(t *testing.T) {
 	stale := order
 	order.PaymentMethod = models.CashPaymentMethod
 	order.Status = models.ProcessingStatus
-	if err := repo.Update(&order); err != nil {
+	if err := repo.UpdatePayment(&order); err != nil {
 		t.Fatal(err)
 	}
 	stale.Status = models.DeliveredStatusAwaiting

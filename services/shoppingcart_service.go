@@ -11,6 +11,7 @@ type ShoppingCartService interface {
 	FindOrCreateById(id uint) (models.ShoppingCart, error)
 	FindOrCreateByUserId(userID uint) (models.ShoppingCart, error)
 	AddItemToCart(userID, productID uint, quantity int) error
+	SetItemQuantity(userID, productID uint, quantity int) error
 	RemoveFromCart(userID, productID uint) error
 }
 
@@ -75,4 +76,24 @@ func (s *shoppingCartService) RemoveFromCart(userID, productID uint) error {
 	}
 
 	return nil
+}
+
+func (s *shoppingCartService) SetItemQuantity(userID, productID uint, quantity int) error {
+	if userID == 0 || productID == 0 || quantity <= 0 {
+		return errors.New("produto, perfil e quantidade válida devem ser informados")
+	}
+	cart, err := s.FindOrCreateByUserId(userID)
+	if err != nil {
+		return err
+	}
+	for _, item := range cart.Items {
+		if item.ProductID == productID {
+			item.Quantity = quantity
+			if err := s.shoppingCartItemService.Update(&item); err != nil {
+				return errors.New("não foi possível atualizar a quantidade; confira o estoque disponível")
+			}
+			return nil
+		}
+	}
+	return errors.New("produto não encontrado no seu carrinho")
 }

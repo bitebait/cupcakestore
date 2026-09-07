@@ -17,6 +17,7 @@ type OrderRepository interface {
 	FindAll(filter *models.OrderFilter) []models.Order
 	FindAllByUser(filter *models.OrderFilter) []models.Order
 	Update(order *models.Order) error
+	UpdatePayment(order *models.Order) error
 	Cancel(id uint) error
 }
 
@@ -206,14 +207,24 @@ func (r *orderRepository) FindAllByUser(filter *models.OrderFilter) []models.Ord
 	return orders
 }
 
+// Update changes only fulfillment status, preserving the agreed payment and delivery terms.
 func (r *orderRepository) Update(order *models.Order) error {
+	return r.update(order, false)
+}
+
+// UpdatePayment validates a payment choice against current store settings before saving it.
+func (r *orderRepository) UpdatePayment(order *models.Order) error {
+	return r.update(order, true)
+}
+
+func (r *orderRepository) update(order *models.Order, paymentChoice bool) error {
 	if order == nil || order.ID == 0 {
 		return errors.New("pedido inválido")
 	}
 	if err := order.Validate(); err != nil {
 		return err
 	}
-	if order.Status == models.CancelledStatus {
+	if order.Status == models.CancelledStatus && !paymentChoice {
 		return r.Cancel(order.ID)
 	}
 	return r.db.Transaction(func(tx *gorm.DB) error {
@@ -233,14 +244,16 @@ func (r *orderRepository) Update(order *models.Order) error {
 		if !existing.CanTransitionTo(order.Status) {
 			return errors.New("transição de status do pedido inválida")
 		}
-		// Item prices and ownership are immutable; the delivery choice may change
-		// until payment, with its amount calculated from the store configuration.
-		updates := map[string]interface{}{
-			"status": order.Status, "payment_method": order.PaymentMethod,
-			"pix_qr": order.PixQR, "pix_string": order.PixString,
-			"pix_transaction_id": order.PixTransactionID, "pix_url": order.PixURL,
-		}
-		if existing.IsActiveOrAwaitingPayment() && (order.Status == models.AwaitingPaymentStatus || order.Status == models.ProcessingStatus) {
+		updates := map[string]any{"status": order.Status}
+		if paymentChoice {
+			if !existing.IsActiveOrAwaitingPayment() ||
+				(order.PaymentMethod == models.CashPaymentMethod && order.Status != models.ProcessingStatus) ||
+				(order.PaymentMethod == models.PixPaymentMethod && order.Status != models.AwaitingPaymentStatus) {
+				return errors.New("o pedido não aceita uma nova escolha de pagamento")
+			}
+			updates["payment_method"] = order.PaymentMethod
+			updates["pix_qr"], updates["pix_string"] = order.PixQR, order.PixString
+			updates["pix_transaction_id"], updates["pix_url"] = order.PixTransactionID, order.PixURL
 			var store models.StoreConfig
 			if err := tx.First(&store).Error; err != nil {
 				return err
@@ -249,7 +262,10 @@ func (r *orderRepository) Update(order *models.Order) error {
 			if err := tx.First(&cart, existing.ShoppingCartID).Error; err != nil {
 				return err
 			}
-			isDelivery := order.IsDelivery && store.DeliveryIsActive
+			if order.IsDelivery && !store.DeliveryIsActive {
+				return errors.New("a entrega está indisponível; revise a forma de recebimento")
+			}
+			isDelivery := order.IsDelivery
 			deliveryPrice := 0.0
 			if isDelivery {
 				deliveryPrice = store.DeliveryPrice
