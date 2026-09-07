@@ -1,76 +1,61 @@
 package middlewares
 
 import (
+	"errors"
+
 	"github.com/bitebait/cupcakestore/database"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/repositories"
-	"github.com/bitebait/cupcakestore/services"
 	"github.com/bitebait/cupcakestore/session"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
-func Auth() fiber.Handler {
-	return createSessionHandler(false, false)
-}
-
-func LoginRequired() fiber.Handler {
-	return createSessionHandler(true, false)
-}
-
-func LoginAndStaffRequired() fiber.Handler {
-	return createSessionHandler(true, true)
-}
+func Auth() fiber.Handler                  { return createSessionHandler(false, false) }
+func LoginRequired() fiber.Handler         { return createSessionHandler(true, false) }
+func LoginAndStaffRequired() fiber.Handler { return createSessionHandler(true, true) }
 
 func createSessionHandler(requireLogin, requireStaff bool) fiber.Handler {
+	return sessionHandler(requireLogin, requireStaff, func(id uint) (models.Profile, error) {
+		return repositories.NewProfileRepository(database.DB).FindByUserId(id)
+	})
+}
+
+// Reload account permissions from the database; a session is only proof of identity.
+func sessionHandler(requireLogin, requireStaff bool, lookup func(uint) (models.Profile, error)) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		sess, err := session.Store.Get(c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString("Internal server error")
-		}
-		profile, isAuthenticated := sess.Get("Profile").(*models.Profile)
-		if isAuthenticated {
-			err := handleAuthenticatedUser(c, profile, requireLogin, requireStaff)
+		profile, ok := c.Locals("Profile").(*models.Profile)
+		if !ok || profile == nil {
+			sess, err := session.Store.Get(c)
 			if err != nil {
-				return err
+				return fiber.ErrInternalServerError
+			}
+			stored, authenticated := sess.Get("Profile").(*models.Profile)
+			if authenticated && stored != nil && stored.UserID != 0 {
+				current, err := lookup(stored.UserID)
+				if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+					return fiber.ErrInternalServerError
+				}
+				if err != nil || !current.User.IsActive {
+					if err := sess.Destroy(); err != nil {
+						return fiber.ErrInternalServerError
+					}
+					return c.Redirect("/auth/login")
+				}
+				current.User.Password = ""
+				profile = &current
+				c.Locals("Profile", profile)
+			}
+		}
+		if profile == nil {
+			if requireLogin {
+				return c.Redirect("/auth/login")
 			}
 			return c.Next()
 		}
-		if requireLogin {
-			return c.Redirect("/auth/login")
+		if requireStaff && !profile.User.IsStaff {
+			return fiber.NewError(fiber.StatusForbidden, "acesso negado")
 		}
 		return c.Next()
 	}
-}
-
-func handleAuthenticatedUser(c *fiber.Ctx, profile *models.Profile, requireLogin, requireStaff bool) error {
-	err := updateProfileIfNeeded(c, profile)
-	if err != nil {
-		return err
-	}
-	if requireStaff && !profile.User.IsStaff {
-		return c.Redirect("/auth/logout")
-	}
-	return nil
-}
-
-func updateProfileIfNeeded(c *fiber.Ctx, profile *models.Profile) error {
-	profileService := fetchProfileService()
-	updatedProfile, err := profileService.FindByUserId(profile.UserID)
-	if err != nil {
-		return err
-	}
-	if !updatedProfile.User.IsActive {
-		sess, _ := session.Store.Get(c)
-		if err := sess.Destroy(); err != nil {
-			return err
-		}
-		return c.Redirect("/auth/login")
-	}
-	c.Locals("Profile", &updatedProfile)
-	return nil
-}
-
-func fetchProfileService() services.ProfileService {
-	profileRepo := repositories.NewProfileRepository(database.DB)
-	return services.NewProfileService(profileRepo)
 }

@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/bitebait/cupcakestore/models"
@@ -27,53 +28,33 @@ func NewAuthService(userService UserService, profileService ProfileService) Auth
 }
 
 func (s *authService) Register(profile *models.Profile) error {
-	if err := s.userService.Create(&profile.User); err != nil {
-		return errors.New("falha ao criar o usuário")
-	}
-
-	if err := s.updateUserProfile(profile); err != nil {
-		return errors.New("falha ao atualizar o perfil do usuário")
-	}
-
-	return nil
-}
-
-func (s *authService) updateUserProfile(profile *models.Profile) error {
-	p, err := s.profileService.FindByUserId(profile.User.ID)
-
-	if err != nil {
-		return err
-	}
-
-	p.FirstName = profile.FirstName
-	p.LastName = profile.LastName
-
-	return s.profileService.Update(&p)
+	profile.User.IsStaff = false
+	profile.User.IsActive = true
+	return s.userService.Register(profile)
 }
 
 func (s *authService) Authenticate(ctx *fiber.Ctx, email, password string) error {
-	user, err := s.userService.FindByEmail(email)
+	user, err := s.userService.FindByEmail(strings.ToLower(strings.TrimSpace(email)))
 
 	if err != nil || !user.IsActive {
-		return errors.New("usuário não encontrado ou inativo")
+		return errors.New("e-mail ou senha inválidos")
 	}
 
 	if err := user.CheckPassword(password); err != nil {
-		return errors.New("senha de acesso incorreta")
+		return errors.New("e-mail ou senha inválidos")
 	}
 
 	profile, err := s.profileService.FindByUserId(user.ID)
 
 	if err != nil {
-		return errors.New("usuário não encontrado ou inativo")
-	}
-
-	if err := setupUserSession(ctx, &profile); err != nil {
-		return errors.New("falha ao criar sessão de usuário")
+		return errors.New("e-mail ou senha inválidos")
 	}
 
 	if err := s.registerUserLoginDate(&user); err != nil {
 		return errors.New("falha ao registrar a data de login do usuário")
+	}
+	if err := setupUserSession(ctx, &profile); err != nil {
+		return errors.New("falha ao criar sessão de usuário")
 	}
 
 	return nil
@@ -98,7 +79,12 @@ func setupUserSession(ctx *fiber.Ctx, profile *models.Profile) error {
 		return err
 	}
 
-	sess.Set("Profile", profile)
+	if err := sess.Regenerate(); err != nil {
+		return err
+	}
+	// Never serialize a password hash into the session.
+	identity := &models.Profile{UserID: profile.UserID}
+	sess.Set("Profile", identity)
 
 	return sess.Save()
 }

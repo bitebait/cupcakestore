@@ -41,10 +41,14 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 		return ctx.Redirect("/")
 	}
 
-	if err := ctx.BodyParser(&profile); err != nil {
-		messages.SetErrorMessage(ctx, "ocorreu um erro ao processar o perfil")
-		return ctx.Redirect("/")
-	}
+	// Only editable profile fields may cross the HTTP boundary.
+	profile.FirstName = ctx.FormValue("firstname")
+	profile.LastName = ctx.FormValue("lastname")
+	profile.Address = ctx.FormValue("address")
+	profile.City = ctx.FormValue("city")
+	profile.State = ctx.FormValue("state")
+	profile.PostalCode = ctx.FormValue("postalcode")
+	profile.PhoneNumber = ctx.FormValue("phonenumber")
 
 	if err = c.profileService.Update(&profile); err != nil {
 		layout := selectLayout(userSess.User.IsStaff, profile.UserID == userSess.UserID)
@@ -53,7 +57,7 @@ func (c *profileController) Update(ctx *fiber.Ctx) error {
 	}
 
 	messages.SetSuccessMessage(ctx, "perfil atualizado com sucesso")
-	return ctx.Redirect("/profile/" + strconv.Itoa(int(profile.ID)))
+	return ctx.Redirect("/profile/" + strconv.Itoa(int(profile.UserID)))
 }
 
 func (c *profileController) getAuthorizedProfileAndUser(ctx *fiber.Ctx) (models.Profile, *models.Profile, error) {

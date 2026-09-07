@@ -8,6 +8,7 @@ import (
 
 type UserRepository interface {
 	Create(user *models.User) error
+	CreateWithProfile(profile *models.Profile) error
 	FindAll(filter *models.UserFilter) []models.User
 	FindById(id uint) (models.User, error)
 	FindByEmail(email string) (models.User, error)
@@ -107,4 +108,18 @@ func (r *userRepository) Delete(user *models.User) error {
 	}
 
 	return nil
+}
+
+// CreateWithProfile commits the account and registration details together.
+func (r *userRepository) CreateWithProfile(profile *models.Profile) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&profile.User).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&models.Profile{}).Where("user_id = ?", profile.User.ID).
+			Updates(map[string]interface{}{"first_name": profile.FirstName, "last_name": profile.LastName}).Error; err != nil {
+			return err
+		}
+		return tx.Preload("User").Where("user_id = ?", profile.User.ID).First(profile).Error
+	})
 }

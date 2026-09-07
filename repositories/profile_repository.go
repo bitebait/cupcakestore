@@ -41,7 +41,7 @@ func (r *profileRepository) FindByUserId(userID uint) (models.Profile, error) {
 }
 
 func (r *profileRepository) Update(profile *models.Profile) error {
-	if err := r.db.Save(profile).Error; err != nil {
+	if err := r.db.Omit("User").Save(profile).Error; err != nil {
 		log.Errorf("ProfileRepository Update: %s", err.Error())
 		return err
 	}

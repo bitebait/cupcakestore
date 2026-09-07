@@ -25,7 +25,7 @@ func NewUserFilter(query string, page, limit int) *UserFilter {
 type User struct {
 	gorm.Model
 	Email      string    `gorm:"type:varchar(100);unique" validate:"required,email"`
-	Password   string    `gorm:"type:varchar(100);" validate:"required,min=8"`
+	Password   string    `gorm:"type:varchar(100);" json:"-" validate:"required,min=8"`
 	IsActive   bool      `gorm:"default:true"`
 	IsStaff    bool      `gorm:"default:false"`
 	FirstLogin time.Time `gorm:"type:timestamp"`
@@ -38,6 +38,9 @@ func (u *User) Validate() error {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
+	if len(u.Password) > 72 {
+		return errors.New("a senha deve ter no máximo 72 bytes")
+	}
 	if err := u.Validate(); err != nil {
 		return err
 	}
@@ -88,8 +91,8 @@ func (u *User) UpdatePassword(oldPassword, newPassword string) error {
 		return errors.New("senha antiga incorreta")
 	}
 
-	if newPassword == "" {
-		return errors.New("nova senha não pode estar vazia")
+	if len(newPassword) < 8 || len(newPassword) > 72 {
+		return errors.New("a nova senha deve ter entre 8 e 72 bytes")
 	}
 
 	hash, err := helpers.HashPassword(newPassword)

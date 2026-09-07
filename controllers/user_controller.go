@@ -6,6 +6,7 @@ import (
 	"github.com/bitebait/cupcakestore/messages"
 	"github.com/bitebait/cupcakestore/models"
 	"github.com/bitebait/cupcakestore/services"
+	"github.com/bitebait/cupcakestore/session"
 	"github.com/bitebait/cupcakestore/views"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -44,12 +45,7 @@ func (c *userController) RenderCreate(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) Create(ctx *fiber.Ctx) error {
-	var user models.User
-
-	if err := ctx.BodyParser(&user); err != nil {
-		messages.SetErrorMessage(ctx, "erro ao processar os dados do usuário")
-		return ctx.Redirect("/users/create")
-	}
+	user := models.User{Email: ctx.FormValue("email"), Password: ctx.FormValue("password")}
 
 	c.extractUserFormData(ctx, &user)
 
@@ -72,7 +68,7 @@ func (c *userController) RenderUsers(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) RenderUser(ctx *fiber.Ctx) error {
-	user, err := c.getUser(ctx)
+	user, err := c.getUserAndCheckAccess(ctx)
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/users")
@@ -127,7 +123,7 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 	}
 
 	isProfileUser := user.ID == ctx.Locals("Profile").(*models.Profile).UserID
-	isStaff := user.IsStaff
+	isStaff := ctx.Locals("Profile").(*models.Profile).User.IsStaff
 	layout := selectLayout(isStaff, isProfileUser)
 
 	if err := c.updateUserFromRequest(ctx, user); err != nil {
@@ -146,7 +142,14 @@ func (c *userController) Update(ctx *fiber.Ctx) error {
 	}
 
 	if isProfileUser {
-		return ctx.Redirect("/auth/logout")
+		sess, err := session.Store.Get(ctx)
+		if err != nil {
+			return err
+		}
+		if err := sess.Destroy(); err != nil {
+			return err
+		}
+		return ctx.Redirect("/auth/login")
 	}
 
 	messages.SetSuccessMessage(ctx, "usuário atualizado com sucesso")
@@ -181,11 +184,14 @@ func (c *userController) getUserAndCheckAccess(ctx *fiber.Ctx) (*models.User, er
 }
 
 func (c *userController) updateUserFromRequest(ctx *fiber.Ctx, user *models.User) error {
-	if err := ctx.BodyParser(user); err != nil {
-		return errors.New("erro ao processar os dados da requisição")
+	user.Email = ctx.FormValue("email")
+	actor, err := c.getUserSession(ctx)
+	if err != nil {
+		return err
 	}
-
-	c.extractUserFormData(ctx, user)
+	if actor.IsStaff {
+		c.extractUserFormData(ctx, user)
+	}
 
 	return nil
 }
@@ -194,7 +200,7 @@ func (c *userController) updateUserPassword(ctx *fiber.Ctx, user *models.User) e
 	oldPassword := ctx.FormValue("oldPassword")
 	newPassword := ctx.FormValue("newPassword")
 
-	if oldPassword != "" && newPassword != "" {
+	if oldPassword != "" || newPassword != "" {
 		if err := user.UpdatePassword(oldPassword, newPassword); err != nil {
 			return err
 		}
@@ -204,25 +210,26 @@ func (c *userController) updateUserPassword(ctx *fiber.Ctx, user *models.User) e
 }
 
 func (c *userController) RenderDelete(ctx *fiber.Ctx) error {
-	user, err := c.getUser(ctx)
+	user, err := c.getUserAndCheckAccess(ctx)
 
 	if err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/users")
 	}
 
-	return ctx.Render(tplExcluirUsuario, fiber.Map{"Object": user})
+	return ctx.Render(tplExcluirUsuario, fiber.Map{"Object": user}, layoutBase)
 }
 
 func (c *userController) Delete(ctx *fiber.Ctx) error {
-	id, err := helpers.ParseStringToID(ctx.Params("id"))
-
+	user, err := c.getUserAndCheckAccess(ctx)
 	if err != nil {
-		messages.SetErrorMessage(ctx, err.Error())
-		return ctx.Redirect("/users")
+		return fiber.NewError(fiber.StatusForbidden, "acesso negado")
 	}
-
-	if err := c.userService.Delete(id); err != nil {
+	actor, err := c.getUserSession(ctx)
+	if err != nil || !actor.IsStaff || actor.ID == user.ID {
+		return fiber.NewError(fiber.StatusForbidden, "não é possível excluir sua própria conta administrativa")
+	}
+	if err := c.userService.Delete(user.ID); err != nil {
 		messages.SetErrorMessage(ctx, err.Error())
 		return ctx.Redirect("/users")
 	}

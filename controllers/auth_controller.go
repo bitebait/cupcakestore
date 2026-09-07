@@ -32,10 +32,14 @@ func NewAuthController(authService services.AuthService) AuthController {
 }
 
 func parseUserFromContext(ctx *fiber.Ctx) (*models.User, error) {
-	user := new(models.User)
-	if err := ctx.BodyParser(user); err != nil {
+	var input struct {
+		Email    string `form:"email" json:"email"`
+		Password string `form:"password" json:"password"`
+	}
+	if err := ctx.BodyParser(&input); err != nil {
 		return nil, errors.New("dados inválidos")
 	}
+	user := &models.User{Email: input.Email, Password: input.Password, IsActive: true}
 	return user, nil
 }
 
